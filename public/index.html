@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>MACRO_TERMINAL // Live Dynamic Transmission Engine</title>
+    <title>MACRO_TERMINAL // Pro Institutional Cockpit</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
@@ -37,30 +37,23 @@
     <style>
         body, * { font-family: 'Noto Sans Lao', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace !important; }
-        
-        .line-flow {
-            stroke-dasharray: 4;
-            animation: dash 20s linear infinite;
-        }
-        @keyframes dash {
-            to { stroke-dashoffset: -100; }
-        }
+        .line-flow { stroke-dasharray: 4; animation: dash 20s linear infinite; }
+        @keyframes dash { to { stroke-dashoffset: -100; } }
     </style>
 </head>
 <body class="bg-[#0c1324] text-[#dce1fb] min-h-screen flex font-sans selection:bg-primary selection:text-black">
 
     <!-- ============================================================== -->
-    <!-- SIDEBAR NAVIGATION DRAWER                                      -->
+    <!-- SIDEBAR NAVIGATION                                             -->
     <!-- ============================================================== -->
     <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-[#0c1324] border-r border-outline-variant z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 flex flex-col justify-between select-none">
-        
-        <div class="p-3 space-y-4">
+        <div class="p-3 space-y-3">
             <div class="flex items-center justify-between border-b border-outline-variant pb-3">
                 <div class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary text-xl">hub</span>
                     <div>
                         <h1 class="font-mono text-xs font-bold text-primary tracking-wider uppercase">MACRO_TERMINAL</h1>
-                        <span class="text-[9px] font-mono text-on-surface-variant block">LIVE TRANSMISSION v3.0</span>
+                        <span class="text-[9px] font-mono text-on-surface-variant block">PRO TRADING COCKPIT</span>
                     </div>
                 </div>
                 <button onclick="toggleSidebar()" class="lg:hidden text-on-surface-variant hover:text-white">
@@ -70,68 +63,73 @@
 
             <!-- Navigation Links -->
             <nav class="space-y-1 font-mono text-xs">
-                <!-- Menu Item 1: ໂຄງຂ່າຍການສົ່ງຜ່ານ Real-Time -->
-                <button onclick="navigate('#/transmission')" id="nav-transmission" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold">
+                <button onclick="navigate('#/transmission')" id="nav-transmission" class="w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold">
                     <span class="material-symbols-outlined text-base">account_tree</span>
-                    <span>1. ໂຄງຂ່າຍການສົ່ງຜ່ານ (LIVE ENGINE)</span>
+                    <span>1. ໂຄງຂ່າຍການສົ່ງຜ່ານ (TRANSMISSION)</span>
                 </button>
-
-                <!-- Menu Item 2: ສະຫຼຸບເສດຖະກິດ -->
+                <button onclick="navigate('#/playbook')" id="nav-playbook" class="w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
+                    <span class="material-symbols-outlined text-base">sports_score</span>
+                    <span>2. ແຜນເທຣດ (TRADE PLAYBOOK) 🎯</span>
+                </button>
+                <button onclick="navigate('#/heatmap')" id="nav-heatmap" class="w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
+                    <span class="material-symbols-outlined text-base">thermostat</span>
+                    <span>3. ຄວາມແຂງຄ່າສະກຸນເງິນ (HEATMAP) 🌡️</span>
+                </button>
+                <button onclick="navigate('#/calendar')" id="nav-calendar" class="w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
+                    <span class="material-symbols-outlined text-base">calendar_month</span>
+                    <span>4. ປະຕິທິນຂ່າວ (USD/GOLD IMPACT) 🏷️</span>
+                </button>
                 <button onclick="navigate('#/digest')" id="nav-digest" class="w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
                     <span class="material-symbols-outlined text-base">summarize</span>
-                    <span>2. ສະຫຼຸບທິດທາງເສດຖະກິດ</span>
+                    <span>5. ສະຫຼຸບທິດທາງເສດຖະກິດ</span>
                 </button>
             </nav>
         </div>
 
         <div class="p-3 border-t border-outline-variant bg-surface-low font-mono text-xs space-y-2">
-            <div class="flex justify-between items-center text-[10px]">
-                <span class="text-on-surface-variant">HIGH IMPACT:</span>
-                <span class="text-red-400 font-bold">🟥 ກ່ອງແດງ ACTIVE</span>
-            </div>
             <button onclick="fetchMacroData()" class="w-full py-1.5 bg-primary text-black font-bold text-center hover:bg-white transition-colors text-[11px] flex items-center justify-center gap-1">
                 <span class="material-symbols-outlined text-[14px]">sync</span>
-                <span>SYNC LIVE FOREX FACTORY</span>
+                <span>SYNC FOREX FACTORY</span>
             </button>
         </div>
-
     </aside>
 
     <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-40 hidden lg:hidden"></div>
 
     <!-- ============================================================== -->
-    <!-- MAIN WORKSPACE                                                 -->
+    <!-- MAIN CONTENT CANVAS                                            -->
     <!-- ============================================================== -->
     <div class="flex-1 lg:pl-64 flex flex-col min-h-screen">
         
-        <!-- Header -->
-        <header class="h-11 bg-surface border-b border-outline-variant flex items-center justify-between px-3 sticky top-0 z-30 select-none">
+        <!-- Header with Live Countdown Timer (Feature 1) -->
+        <header class="h-12 bg-surface border-b border-outline-variant flex items-center justify-between px-3 sticky top-0 z-30 select-none">
             <div class="flex items-center gap-2">
                 <button onclick="toggleSidebar()" class="lg:hidden p-1 text-on-surface-variant hover:text-white">
                     <span class="material-symbols-outlined text-xl">menu</span>
                 </button>
                 <span id="current-view-title" class="font-mono text-xs font-bold text-primary uppercase">
-                    1. ໂຄງຂ່າຍການສົ່ງຜ່ານ &amp; SCENARIO ENGINE (DYNAMIC LIVE)
+                    1. ໂຄງຂ່າຍການສົ່ງຜ່ານ &amp; SCENARIO ENGINE
                 </span>
             </div>
-            <span id="disp-cycle-time" class="text-[10px] font-mono text-on-surface-variant hidden sm:inline">
-                SYNCING...
-            </span>
+
+            <!-- ⏱️ LIVE COUNTDOWN TIMER -->
+            <div class="flex items-center gap-2 font-mono text-xs">
+                <div class="flex items-center gap-1.5 bg-red-500/10 border border-red-500/30 px-2.5 py-1 rounded">
+                    <span class="w-2 h-2 rounded-full bg-red-400 animate-ping"></span>
+                    <span class="text-[10px] text-red-400 uppercase font-bold" id="countdown-label">NEXT RED EVENT:</span>
+                    <strong class="text-white font-bold tracking-wider" id="countdown-timer">00:00:00</strong>
+                </div>
+            </div>
         </header>
 
         <main class="flex-1 p-3 md:p-4 max-w-[1500px] w-full mx-auto space-y-3">
             
             <!-- ============================================================== -->
-            <!-- VIEW 1: DYNAMIC TRANSMISSION & SCENARIO ENGINE                 -->
+            <!-- VIEW 1: TRANSMISSION & SCENARIO ENGINE                         -->
             <!-- ============================================================== -->
             <div id="view-transmission" class="space-y-3">
-                
-                <!-- Quick Event Selector Buttons for High-Impact Events -->
-                <div class="flex items-center gap-2 overflow-x-auto pb-1 font-mono text-xs" id="event-selector-bar">
-                    <!-- Injected dynamically based on Forex Factory Red Events -->
-                </div>
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 font-mono text-xs" id="event-selector-bar"></div>
 
-                <!-- Active Event Header Card -->
                 <div class="bg-surface-low border border-outline-variant p-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div>
                         <div class="flex items-center gap-2">
@@ -140,17 +138,20 @@
                             </span>
                             <span class="text-xs font-mono text-on-surface-variant" id="active-event-date">--</span>
                         </div>
-                        <h2 id="active-event-title" class="text-base md:text-lg font-bold text-white mt-1">
-                            --
-                        </h2>
+                        <h2 id="active-event-title" class="text-base md:text-lg font-bold text-white mt-1">--</h2>
                     </div>
 
-                    <div class="flex gap-4 font-mono text-xs">
-                        <div class="bg-surface-container p-2 px-3 border border-outline-variant rounded">
+                    <!-- Expected Pip Range Badge (Feature 3) -->
+                    <div class="flex items-center gap-3 font-mono text-xs">
+                        <div class="bg-surface-container p-2 px-3 border border-outline-variant rounded text-center">
+                            <span class="text-[10px] text-tertiary block">📊 EXPECTED PIP RANGE</span>
+                            <strong id="active-event-piprange" class="text-tertiary font-bold text-xs">150 - 300 pips ($15-$30)</strong>
+                        </div>
+                        <div class="bg-surface-container p-2 px-3 border border-outline-variant rounded text-right">
                             <span class="text-[10px] text-on-surface-variant block">FORECAST</span>
                             <strong id="active-event-forecast" class="text-primary text-sm font-bold">--</strong>
                         </div>
-                        <div class="bg-surface-container p-2 px-3 border border-outline-variant rounded">
+                        <div class="bg-surface-container p-2 px-3 border border-outline-variant rounded text-right">
                             <span class="text-[10px] text-on-surface-variant block">PREVIOUS</span>
                             <strong id="active-event-previous" class="text-white text-sm font-bold">--</strong>
                         </div>
@@ -159,17 +160,9 @@
 
                 <!-- Main Transmission Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
-                    
-                    <!-- Left Column: Scenario Engine & Market Bias (7 Cols) -->
                     <div class="lg:col-span-7 space-y-3">
-                        
-                        <!-- SCENARIO ENGINE (Calculated dynamically for this event) -->
                         <div class="space-y-2">
-                            <div class="font-mono text-xs font-bold text-on-surface-variant uppercase px-1">
-                                SCENARIO ENGINE (DYNAMIC FOR THIS EVENT)
-                            </div>
-
-                            <!-- Above -->
+                            <div class="font-mono text-xs font-bold text-on-surface-variant uppercase px-1">SCENARIO ENGINE</div>
                             <div onclick="selectScenario('ABOVE')" id="scen-above-card" class="bg-surface-container rounded-lg p-3.5 border-l-4 border-tertiary hover:bg-surface-high transition-colors cursor-pointer">
                                 <div class="flex justify-between items-start mb-2">
                                     <div class="font-mono text-xs font-bold text-white" id="scen-above-title">ABOVE EXPECTATION</div>
@@ -181,8 +174,6 @@
                                     <span class="text-error flex items-center gap-0.5">Gold <span class="material-symbols-outlined text-[14px]">arrow_downward</span></span>
                                 </div>
                             </div>
-
-                            <!-- In Line -->
                             <div onclick="selectScenario('IN_LINE')" id="scen-inline-card" class="bg-surface-container rounded-lg p-3.5 border-l-4 border-primary hover:bg-surface-high transition-colors cursor-pointer">
                                 <div class="flex justify-between items-start mb-1">
                                     <div class="font-mono text-xs font-bold text-white" id="scen-inline-title">IN LINE</div>
@@ -190,8 +181,6 @@
                                 </div>
                                 <p class="font-mono text-xs text-on-surface-variant mt-2">Minimal State Change — Current Stance Holds.</p>
                             </div>
-
-                            <!-- Below -->
                             <div onclick="selectScenario('BELOW')" id="scen-below-card" class="bg-surface-container rounded-lg p-3.5 border-l-4 border-error hover:bg-surface-high transition-colors cursor-pointer">
                                 <div class="flex justify-between items-start mb-2">
                                     <div class="font-mono text-xs font-bold text-white" id="scen-below-title">BELOW EXPECTATION</div>
@@ -205,11 +194,8 @@
                             </div>
                         </div>
 
-                        <!-- MARKET FUNDAMENTAL BIAS -->
                         <div class="bg-surface-low border border-outline-variant rounded-lg p-3.5 space-y-2.5">
-                            <div class="font-mono text-xs font-bold text-on-surface-variant uppercase">
-                                MARKET FUNDAMENTAL BIAS
-                            </div>
+                            <div class="font-mono text-xs font-bold text-on-surface-variant uppercase">MARKET FUNDAMENTAL BIAS</div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div class="bg-surface-container p-3 rounded border border-outline-variant/40 flex flex-col items-center justify-center">
                                     <span class="material-symbols-outlined text-3xl text-tertiary mb-1">trending_up</span>
@@ -223,72 +209,114 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
 
-                    <!-- Right Column: DYNAMIC TRANSMISSION FLOWCHART (5 Cols) -->
+                    <!-- Right Column: Flowchart -->
                     <div class="lg:col-span-5">
                         <div class="bg-surface-low rounded-lg p-4 border border-outline-variant h-full flex flex-col justify-between relative overflow-hidden">
-                            
                             <div class="font-mono text-xs font-bold text-primary uppercase mb-3 flex items-center justify-between">
                                 <span>TRANSMISSION MECHANISM</span>
-                                <span id="trans-state-badge" class="text-[9px] bg-primary/20 text-primary px-2 py-0.5 rounded font-bold">LIVE EVENT CHAIN</span>
+                                <span id="trans-state-badge" class="text-[9px] bg-primary/20 text-primary px-2 py-0.5 rounded font-bold">HAWKISH FLOW</span>
                             </div>
 
-                            <!-- Network Flowchart Diagram (Dynamic Nodes!) -->
-                            <div id="dynamic-nodes-container" class="flex flex-col items-center gap-4 py-2 relative z-10 font-mono text-xs">
-                                
+                            <div class="flex flex-col items-center gap-4 py-2 relative z-10 font-mono text-xs">
                                 <div class="absolute top-6 bottom-6 left-1/2 w-0.5 bg-outline-variant -translate-x-1/2 -z-10">
                                     <svg class="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none">
                                         <line class="line-flow" stroke="#8ed5ff" stroke-width="2" x1="0" y1="0" x2="0" y2="100%"></line>
                                     </svg>
                                 </div>
-
-                                <!-- Node 1 -->
                                 <div id="node-1" class="bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
                                     <span class="material-symbols-outlined text-primary text-base" id="node-1-icon">engineering</span>
                                     <span class="font-bold text-white" id="node-1-text">EVENT DATA</span>
                                 </div>
-
-                                <!-- Node 2 -->
                                 <div id="node-2" class="bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
                                     <span class="material-symbols-outlined text-primary text-base">account_balance</span>
                                     <span class="font-bold text-white" id="node-2-text">FED BIAS</span>
                                 </div>
-
-                                <!-- Node 3 -->
                                 <div id="node-3" class="bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
                                     <span class="material-symbols-outlined text-tertiary text-base">payments</span>
                                     <span class="font-bold text-white" id="node-3-text">USD / YIELD</span>
                                 </div>
-
-                                <!-- Node 4 -->
                                 <div id="node-4" class="bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
                                     <span class="material-symbols-outlined text-tertiary text-base">show_chart</span>
                                     <span class="font-bold text-white" id="node-4-text">10Y YIELD</span>
                                 </div>
-
-                                <!-- Node 5 -->
                                 <div id="node-5" class="bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
                                     <span class="material-symbols-outlined text-error text-base">diamond</span>
                                     <span class="font-bold text-white" id="node-5-text">GOLD</span>
                                 </div>
-
                             </div>
-
-                            <div class="text-[10px] font-mono text-on-surface-variant text-center pt-2 border-t border-outline-variant">
-                                Real-Time Feed Linked to Forex Factory
-                            </div>
-
+                            <div class="text-[10px] font-mono text-on-surface-variant text-center pt-2 border-t border-outline-variant">Real-Time Sync Active</div>
                         </div>
                     </div>
-
                 </div>
-
             </div>
 
             <!-- ============================================================== -->
-            <!-- VIEW 2: ບົດສະຫຼຸບທິດທາງເສດຖະກິດ (#/digest)                     -->
+            <!-- VIEW 2: 🎯 ແຜນຍຸດທະສາດການເທຣດ (TRADE PLAYBOOK) [FEATURE 2]     -->
+            <!-- ============================================================== -->
+            <div id="view-playbook" class="space-y-3 hidden">
+                <div class="bg-surface-high border border-outline-variant p-3 flex justify-between items-center font-mono">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-lg">sports_score</span>
+                        <span class="text-xs font-bold text-primary uppercase">🎯 PRE-RELEASE &amp; POST-RELEASE TRADE PLAYBOOK (ແຜນເທຣດ 3 ສະຖານະການ)</span>
+                    </div>
+                    <span class="text-[10px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 font-bold" id="playbook-target-event">NON-FARM PAYROLLS</span>
+                </div>
+
+                <div id="playbook-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- VIEW 3: 🌡️ ຄວາມແຂງຄ່າສະກຸນເງິນ (CURRENCY HEATMAP) [FEATURE 5]   -->
+            <!-- ============================================================== -->
+            <div id="view-heatmap" class="space-y-3 hidden">
+                <div class="bg-surface-high border border-outline-variant p-3 font-mono text-xs font-bold text-tertiary uppercase flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-base">thermostat</span>
+                    <span>🌡️ CURRENCY STRENGTH &amp; MACRO HEATMAP (ແຜນທີ່ຄວາມແຂງຄ່າສະກຸນເງິນ)</span>
+                </div>
+
+                <div id="heatmap-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- VIEW 4: 📅 ປະຕິທິນຂ່າວກ່ອງແດງ-ສົ້ມ + REAL-TIME IMPACT TAGS     -->
+            <!-- ============================================================== -->
+            <div id="view-calendar" class="space-y-3 hidden">
+                <div class="bg-surface border border-outline-variant p-3.5 space-y-2">
+                    <div class="flex justify-between items-center border-b border-outline-variant pb-2 font-mono text-xs">
+                        <span class="font-bold text-primary uppercase">📅 ປະຕິທິນຂ່າວກ່ອງແດງ &amp; ສົ້ມ (ພ້ອມສັນຍາລັກ USD/GOLD IMPACT)</span>
+                        <span class="text-[10px] text-on-surface-variant">REAL-TIME IMPACT EVALUATED</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left font-mono text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-surface-low border-b border-outline-variant text-[10px] text-on-surface-variant uppercase">
+                                    <th class="p-2">ວັນທີ &amp; ເວລາ GMT+7</th>
+                                    <th class="p-2 text-center">ກ່ອງຂ່າວ</th>
+                                    <th class="p-2">ຫົວຂໍ້ຂ່າວ</th>
+                                    <th class="p-2 text-right">Actual</th>
+                                    <th class="p-2 text-right">Forecast</th>
+                                    <th class="p-2 text-center">💵 USD IMPACT</th>
+                                    <th class="p-2 text-center">🟡 GOLD IMPACT</th>
+                                    <th class="p-2 text-center">ໄລຍະແລ່ນ (PIPS)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbl-calendar-body" class="divide-y divide-outline-variant bg-surface">
+                                <!-- Injected dynamically with USD & GOLD Impact Badges! -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- VIEW 5: ສະຫຼຸບທິດທາງເສດຖະກິດ (PLAIN DIGEST)                    -->
             <!-- ============================================================== -->
             <div id="view-digest" class="space-y-3 hidden">
                 <div class="bg-surface-low border-l-4 border-l-primary border-y border-r border-outline-variant p-4">
@@ -296,68 +324,27 @@
                         <span class="material-symbols-outlined text-base">auto_awesome</span>
                         <span>ບົດສະຫຼຸບທິດທາງເສດຖະກິດໃນ 3 ບັນທັດ (3-SENTENCE BIG PICTURE)</span>
                     </div>
-                    <p id="txt-big-picture" class="text-sm text-white font-medium leading-relaxed">
-                        ກຳລັງປະມວນຜົນ...
-                    </p>
+                    <p id="txt-big-picture" class="text-sm text-white font-medium leading-relaxed">...</p>
                 </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-xs">
-                    <div class="bg-surface p-3.5 border border-outline-variant space-y-2">
-                        <div class="flex justify-between items-center text-[11px]">
-                            <span class="text-on-surface-variant">1. ຕະຫຼາດແຮງງານ (LABOR)</span>
-                            <span id="thermo-labor-status" class="font-bold text-primary">ແຂງແກ່ນ</span>
-                        </div>
-                        <div class="w-full bg-surface-low h-2 border border-outline-variant">
-                            <div id="thermo-labor-bar" class="bg-primary h-full" style="width: 80%;"></div>
-                        </div>
-                        <p id="thermo-labor-desc" class="text-[11px] text-on-surface font-sans">...</p>
-                    </div>
-
-                    <div class="bg-surface p-3.5 border border-outline-variant space-y-2">
-                        <div class="flex justify-between items-center text-[11px]">
-                            <span class="text-on-surface-variant">2. ເງິນເຟີ້ (INFLATION)</span>
-                            <span id="thermo-cpi-status" class="font-bold text-tertiary">ຍັງໜຽວ</span>
-                        </div>
-                        <div class="w-full bg-surface-low h-2 border border-outline-variant">
-                            <div id="thermo-cpi-bar" class="bg-tertiary h-full" style="width: 75%;"></div>
-                        </div>
-                        <p id="thermo-cpi-desc" class="text-[11px] text-on-surface font-sans">...</p>
-                    </div>
-
-                    <div class="bg-surface p-3.5 border border-outline-variant space-y-2">
-                        <div class="flex justify-between items-center text-[11px]">
-                            <span class="text-on-surface-variant">3. ພາກການຜະລິດ (PMI)</span>
-                            <span id="thermo-mfg-status" class="font-bold text-error">ຊະລໍຕົວ</span>
-                        </div>
-                        <div class="w-full bg-surface-low h-2 border border-outline-variant">
-                            <div id="thermo-mfg-bar" class="bg-error h-full" style="width: 45%;"></div>
-                        </div>
-                        <p id="thermo-mfg-desc" class="text-[11px] text-on-surface font-sans">...</p>
-                    </div>
-                </div>
-
-                <div id="plain-qa-container" class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <!-- Injected dynamically -->
-                </div>
+                <div id="plain-qa-container" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
             </div>
 
         </main>
     </div>
 
-    <!-- CLIENT SCRIPT -->
+    <!-- CLIENT CONTROLLER SCRIPT -->
     <script>
-        let globalMacroData = null;
-        let selectedEventIndex = 0;
+        let globalData = null;
+        let selectedEventIdx = 0;
+        let countdownInterval = null;
 
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
-            sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('sidebar-overlay').classList.toggle('hidden');
         }
 
-        function navigate(hash) { 
-            window.location.hash = hash; 
+        function navigate(hash) {
+            window.location.hash = hash;
             if (window.innerWidth < 1024) {
                 document.getElementById('sidebar').classList.add('-translate-x-full');
                 document.getElementById('sidebar-overlay').classList.add('hidden');
@@ -366,107 +353,63 @@
 
         function handleRoute() {
             const hash = window.location.hash || '#/transmission';
-            
-            ['view-transmission', 'view-digest'].forEach(id => {
+            ['view-transmission', 'view-playbook', 'view-heatmap', 'view-calendar', 'view-digest'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
             });
-
-            ['nav-transmission', 'nav-digest'].forEach(id => {
+            ['nav-transmission', 'nav-playbook', 'nav-heatmap', 'nav-calendar', 'nav-digest'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white font-mono text-xs';
             });
 
             const titleEl = document.getElementById('current-view-title');
 
-            if (hash === '#/digest') {
+            if (hash === '#/playbook') {
+                document.getElementById('view-playbook').classList.remove('hidden');
+                document.getElementById('nav-playbook').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
+                titleEl.innerText = '2. ແຜນຍຸດທະສາດການເທຣດ (TRADE PLAYBOOK) 🎯';
+            } else if (hash === '#/heatmap') {
+                document.getElementById('view-heatmap').classList.remove('hidden');
+                document.getElementById('nav-heatmap').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
+                titleEl.innerText = '3. ຄວາມແຂງຄ່າສະກຸນເງິນ (CURRENCY HEATMAP) 🌡️';
+            } else if (hash === '#/calendar') {
+                document.getElementById('view-calendar').classList.remove('hidden');
+                document.getElementById('nav-calendar').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
+                titleEl.innerText = '4. ປະຕິທິນຂ່າວກ່ອງແດງ-ສົ້ມ (USD & GOLD IMPACT) 🏷️';
+            } else if (hash === '#/digest') {
                 document.getElementById('view-digest').classList.remove('hidden');
                 document.getElementById('nav-digest').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
-                titleEl.innerText = '2. ສະຫຼຸບທິດທາງເສດຖະກິດ (PLAIN MACRO DIGEST)';
+                titleEl.innerText = '5. ສະຫຼຸບທິດທາງເສດຖະກິດ (PLAIN MACRO DIGEST)';
             } else {
                 document.getElementById('view-transmission').classList.remove('hidden');
                 document.getElementById('nav-transmission').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
-                titleEl.innerText = '1. ໂຄງຂ່າຍການສົ່ງຜ່ານ & SCENARIO ENGINE (DYNAMIC LIVE)';
+                titleEl.innerText = '1. ໂຄງຂ່າຍການສົ່ງຜ່ານ & SCENARIO ENGINE';
             }
         }
 
-        function switchActiveEvent(idx) {
-            selectedEventIndex = idx;
-            renderActiveTransmissionEvent();
-        }
+        // Live Countdown Clock (Feature 1)
+        function startCountdown(targetIso) {
+            clearInterval(countdownInterval);
+            const targetDate = targetIso ? new Date(targetIso).getTime() : new Date(Date.now() + 3600000 * 4).getTime();
 
-        function renderActiveTransmissionEvent() {
-            if (!globalMacroData || !globalMacroData.allHighImpactEvents) return;
-            const evt = globalMacroData.allHighImpactEvents[selectedEventIndex] || globalMacroData.activeEvent;
-            const m = evt.transmissionModel;
+            function updateTimer() {
+                const now = Date.now();
+                const diff = targetDate - now;
 
-            document.getElementById('active-event-title').innerText = evt.title;
-            document.getElementById('active-event-forecast').innerText = evt.forecast;
-            document.getElementById('active-event-previous').innerText = evt.previous;
-            document.getElementById('active-event-date').innerText = `${evt.dateGMT7} • ${evt.timeGMT7}`;
+                if (diff <= 0) {
+                    document.getElementById('countdown-timer').innerText = 'RELEASED / NOW!';
+                    return;
+                }
 
-            // Scenarios
-            document.getElementById('scen-above-title').innerText = m.scenarios.above.title;
-            document.getElementById('scen-above-tag').innerText = m.scenarios.above.state;
-            document.getElementById('scen-inline-title').innerText = m.scenarios.inline.title;
-            document.getElementById('scen-inline-tag').innerText = m.scenarios.inline.state;
-            document.getElementById('scen-below-title').innerText = m.scenarios.below.title;
-            document.getElementById('scen-below-tag').innerText = m.scenarios.below.state;
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            // Nodes
-            document.getElementById('node-1-text').innerText = m.nodes[0].name;
-            document.getElementById('node-1-icon').innerText = m.nodes[0].icon;
-            document.getElementById('node-2-text').innerText = m.nodes[1].name;
-            document.getElementById('node-3-text').innerText = m.nodes[2].name;
-            document.getElementById('node-4-text').innerText = m.nodes[3].name;
-            document.getElementById('node-5-text').innerText = m.nodes[4].name;
-
-            // Update Event Switcher Bar
-            const bar = document.getElementById('event-selector-bar');
-            bar.innerHTML = globalMacroData.allHighImpactEvents.map((e, i) => `
-                <button onclick="switchActiveEvent(${i})" class="px-2.5 py-1 rounded whitespace-nowrap font-bold transition-all ${i === selectedEventIndex ? 'bg-primary text-black' : 'bg-surface-container text-on-surface-variant hover:text-white'}">
-                    ${e.title} (${e.forecast})
-                </button>
-            `).join('');
-        }
-
-        // Scenario Click Handler
-        function selectScenario(type) {
-            const n1 = document.getElementById('node-1');
-            const n2 = document.getElementById('node-2');
-            const n3 = document.getElementById('node-3');
-            const n4 = document.getElementById('node-4');
-            const n5 = document.getElementById('node-5');
-            const badge = document.getElementById('trans-state-badge');
-            const usdTag = document.getElementById('bias-usd-tag');
-            const goldTag = document.getElementById('bias-gold-tag');
-
-            if (type === 'ABOVE') {
-                badge.innerText = 'HAWKISH FLOW (BEAT)';
-                badge.className = 'text-[9px] bg-tertiary/20 text-tertiary border border-tertiary/40 px-2 py-0.5 rounded font-bold';
-                [n1, n2, n3, n4].forEach(n => n.className = 'bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg');
-                n5.className = 'bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-                usdTag.innerText = 'BULLISH ↑';
-                usdTag.className = 'font-mono text-xs font-bold text-tertiary';
-                goldTag.innerText = 'BEARISH ↓';
-                goldTag.className = 'font-mono text-xs font-bold text-error';
-            } else if (type === 'BELOW') {
-                badge.innerText = 'DOVISH FLOW (MISS)';
-                badge.className = 'text-[9px] bg-error/20 text-error border border-error/40 px-2 py-0.5 rounded font-bold';
-                [n1, n2, n3, n4].forEach(n => n.className = 'bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg');
-                n5.className = 'bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-                usdTag.innerText = 'BEARISH ↓';
-                usdTag.className = 'font-mono text-xs font-bold text-error';
-                goldTag.innerText = 'BULLISH ↑';
-                goldTag.className = 'font-mono text-xs font-bold text-tertiary';
-            } else {
-                badge.innerText = 'NEUTRAL FLOW (IN LINE)';
-                badge.className = 'text-[9px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded font-bold';
-                [n1, n2, n3, n4, n5].forEach(n => n.className = 'bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg');
-                usdTag.innerText = 'NEUTRAL —';
-                usdTag.className = 'font-mono text-xs font-bold text-primary';
-                goldTag.innerText = 'NEUTRAL —';
-                goldTag.className = 'font-mono text-xs font-bold text-primary';
+                const pad = (n) => String(n).padStart(2, '0');
+                document.getElementById('countdown-timer').innerText = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
             }
+
+            updateTimer();
+            countdownInterval = setInterval(updateTimer, 1000);
         }
 
         async function fetchMacroData() {
@@ -474,7 +417,7 @@
                 const res = await fetch('/api/macro-full-feed');
                 const json = await res.json();
                 if (json.success && json.data) {
-                    globalMacroData = json.data;
+                    globalData = json.data;
                     renderUI(json.data);
                 }
             } catch (err) {
@@ -482,36 +425,136 @@
             }
         }
 
+        function switchActiveEvent(idx) {
+            selectedEventIdx = idx;
+            renderTransmission();
+        }
+
+        function renderTransmission() {
+            if (!globalData || !globalData.highImpactList) return;
+            const evt = globalData.highImpactList[selectedEventIdx] || globalData.highImpactList[0];
+            const m = evt.transmissionModel;
+
+            document.getElementById('active-event-title').innerText = evt.title;
+            document.getElementById('active-event-forecast').innerText = evt.forecast;
+            document.getElementById('active-event-previous').innerText = evt.previous;
+            document.getElementById('active-event-date').innerText = `${evt.dateGMT7} • ${evt.timeGMT7}`;
+            document.getElementById('active-event-piprange').innerText = `${evt.pipRange.pips} (${evt.pipRange.usdRange})`;
+
+            document.getElementById('scen-above-title').innerText = m.scenarios.above.title;
+            document.getElementById('scen-inline-title').innerText = m.scenarios.inline.title;
+            document.getElementById('scen-below-title').innerText = m.scenarios.below.title;
+
+            document.getElementById('node-1-text').innerText = m.nodes[0].name;
+            document.getElementById('node-1-icon').innerText = m.nodes[0].icon;
+
+            const bar = document.getElementById('event-selector-bar');
+            bar.innerHTML = globalData.highImpactList.map((e, i) => `
+                <button onclick="switchActiveEvent(${i})" class="px-2.5 py-1 rounded whitespace-nowrap font-bold transition-all ${i === selectedEventIdx ? 'bg-primary text-black' : 'bg-surface-container text-on-surface-variant hover:text-white'}">
+                    ${e.title} (${e.forecast})
+                </button>
+            `).join('');
+        }
+
+        function selectScenario(type) {
+            const badge = document.getElementById('trans-state-badge');
+            const usdTag = document.getElementById('bias-usd-tag');
+            const goldTag = document.getElementById('bias-gold-tag');
+            if (type === 'ABOVE') {
+                badge.innerText = 'HAWKISH FLOW (BEAT)';
+                badge.className = 'text-[9px] bg-tertiary/20 text-tertiary border border-tertiary/40 px-2 py-0.5 rounded font-bold';
+                usdTag.innerText = 'BULLISH ↑';
+                usdTag.className = 'font-mono text-xs font-bold text-tertiary';
+                goldTag.innerText = 'BEARISH ↓';
+                goldTag.className = 'font-mono text-xs font-bold text-error';
+            } else if (type === 'BELOW') {
+                badge.innerText = 'DOVISH FLOW (MISS)';
+                badge.className = 'text-[9px] bg-error/20 text-error border border-error/40 px-2 py-0.5 rounded font-bold';
+                usdTag.innerText = 'BEARISH ↓';
+                usdTag.className = 'font-mono text-xs font-bold text-error';
+                goldTag.innerText = 'BULLISH ↑';
+                goldTag.className = 'font-mono text-xs font-bold text-tertiary';
+            } else {
+                badge.innerText = 'NEUTRAL FLOW (IN LINE)';
+                badge.className = 'text-[9px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded font-bold';
+                usdTag.innerText = 'NEUTRAL —';
+                usdTag.className = 'font-mono text-xs font-bold text-primary';
+                goldTag.innerText = 'NEUTRAL —';
+                goldTag.className = 'font-mono text-xs font-bold text-primary';
+            }
+        }
+
         function renderUI(d) {
-            document.getElementById('disp-cycle-time').innerText = d.currentCycleLao;
-            renderActiveTransmissionEvent();
+            renderTransmission();
 
-            // Render Digest
-            const digest = d.plainDigest;
-            document.getElementById('txt-big-picture').innerText = digest.bigPictureSummary;
+            // ⏱️ Countdown Timer
+            if (d.nextUpcomingEvent) {
+                document.getElementById('countdown-label').innerText = `${d.nextUpcomingEvent.title.slice(0, 18)}...:`;
+                startCountdown(d.nextUpcomingEvent.isoString);
+            }
 
-            document.getElementById('thermo-labor-status').innerText = digest.thermometer.labor.status;
-            document.getElementById('thermo-labor-desc').innerText = digest.thermometer.labor.desc;
-            document.getElementById('thermo-labor-bar').style.width = `${digest.thermometer.labor.level}%`;
-
-            document.getElementById('thermo-cpi-status').innerText = digest.thermometer.inflation.status;
-            document.getElementById('thermo-cpi-desc').innerText = digest.thermometer.inflation.desc;
-            document.getElementById('thermo-cpi-bar').style.width = `${digest.thermometer.inflation.level}%`;
-
-            document.getElementById('thermo-mfg-status').innerText = digest.thermometer.manufacturing.status;
-            document.getElementById('thermo-mfg-desc').innerText = digest.thermometer.manufacturing.desc;
-            document.getElementById('thermo-mfg-bar').style.width = `${digest.thermometer.manufacturing.level}%`;
-
-            document.getElementById('plain-qa-container').innerHTML = digest.plainQA.map(item => `
+            // 🎯 Trade Playbook
+            document.getElementById('playbook-target-event').innerText = d.tradePlaybook.targetEvent;
+            document.getElementById('playbook-cards-container').innerHTML = d.tradePlaybook.scenarios.map(s => `
                 <div class="bg-surface p-4 border border-outline-variant space-y-2.5 flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-start border-b border-outline-variant pb-2">
-                            <span class="text-xs font-bold text-white">${item.q}</span>
+                            <span class="text-xs font-bold text-white">${s.caseTitle}</span>
                         </div>
-                        <div class="my-2">
-                            <span class="font-mono text-[10px] font-bold px-2 py-0.5 border ${item.color}">${item.badge}</span>
+                        <span class="font-mono text-[9px] font-bold px-2 py-0.5 border inline-block my-2 ${s.tagColor}">${s.tag}</span>
+                        <div class="space-y-1.5 text-xs text-on-surface leading-relaxed font-sans">
+                            <div>🟡 <strong>ແຜນ Gold (XAU):</strong> ${s.planGold}</div>
+                            <div>💵 <strong>ແຜນ USD:</strong> ${s.planUSD}</div>
                         </div>
                     </div>
+                    <div class="p-2 bg-surface-low border border-outline-variant text-[11px] text-tertiary font-sans">
+                        ⚠️ <strong>ໝາຍເຫດຄວາມສ່ຽງ:</strong> ${s.riskNote}
+                    </div>
+                </div>
+            `).join('');
+
+            // 🌡️ Currency Heatmap
+            document.getElementById('heatmap-grid').innerHTML = d.currencyHeatmap.map(c => `
+                <div class="bg-surface p-4 border border-outline-variant space-y-2 flex flex-col justify-between">
+                    <div class="flex justify-between items-center border-b border-outline-variant pb-2 font-mono">
+                        <span class="text-xs font-bold text-white">${c.pair}</span>
+                        <strong class="text-sm font-bold ${c.score.includes('+') ? 'text-tertiary' : 'text-error'}">${c.score}</strong>
+                    </div>
+                    <div>
+                        <span class="font-mono text-[10px] font-bold px-2 py-0.5 border ${c.color}">${c.status}</span>
+                        <p class="text-xs text-on-surface-variant font-sans mt-2 leading-relaxed">${c.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            // 📅 Calendar with USD & GOLD Real-time Impact Tags
+            document.getElementById('tbl-calendar-body').innerHTML = d.allMediumAndHighCalendar.map(e => `
+                <tr class="hover:bg-surface-container transition-colors">
+                    <td class="p-2 text-white">${e.dateGMT7} <span class="text-primary font-bold">${e.timeGMT7}</span></td>
+                    <td class="p-2 text-center">
+                        <span class="px-2 py-0.5 text-[9px] font-bold ${e.impact === 'High' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'}">
+                            ${e.impact === 'High' ? '🟥 ແດງ' : '🟧 ສົ້ມ'}
+                        </span>
+                    </td>
+                    <td class="p-2 text-white font-bold">${e.title}</td>
+                    <td class="p-2 text-right font-bold ${e.actual ? 'text-primary text-sm' : 'text-on-surface-variant'}">${e.actual || '--'}</td>
+                    <td class="p-2 text-right text-on-surface-variant">${e.forecast}</td>
+                    <td class="p-2 text-center">
+                        <span class="px-2 py-0.5 text-[9px] font-bold border ${e.marketImpact.usdColor}">${e.marketImpact.usdImpact}</span>
+                    </td>
+                    <td class="p-2 text-center">
+                        <span class="px-2 py-0.5 text-[9px] font-bold border ${e.marketImpact.goldColor}">${e.marketImpact.goldImpact}</span>
+                    </td>
+                    <td class="p-2 text-center text-[10px] font-mono text-tertiary">${e.pipRange.pips}</td>
+                </tr>
+            `).join('');
+
+            // Plain Digest
+            document.getElementById('txt-big-picture').innerText = d.plainDigest.bigPictureSummary;
+            document.getElementById('plain-qa-container').innerHTML = d.plainDigest.plainQA.map(item => `
+                <div class="bg-surface p-4 border border-outline-variant space-y-2">
+                    <span class="text-xs font-bold text-white block border-b border-outline-variant pb-1.5">${item.q}</span>
+                    <span class="font-mono text-[10px] font-bold px-2 py-0.5 border inline-block ${item.color}">${item.badge}</span>
                     <p class="text-xs text-on-surface leading-relaxed whitespace-pre-line font-sans">${item.ans}</p>
                 </div>
             `).join('');
