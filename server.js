@@ -11,188 +11,121 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const cache = new NodeCache({ stdTTL: Number(process.env.CACHE_TTL_SECONDS) || 3600 });
+const cache = new NodeCache({ stdTTL: 3600 });
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const CONFIG = {
-  BEA_API_KEY: process.env.BEA_API_KEY || '53D14EAC-A259-43C4-B456-7102C5600E30',
-  BLS_API_URL: 'https://api.bls.gov/publicAPI/v2/timeseries/data/',
-  BEA_API_URL: 'https://apps.bea.gov/api/data/'
-};
-
 // =========================================================================
-// 1. BLS & BEA DATA FETCHERS (WITH IN-MEMORY CACHE)
+// 🧠 MACROECONOMIC PLAIN-LANGUAGE EXPLANATION ENGINE (ພາສາລາວເຂົ້າໃຈງ່າຍ)
 // =========================================================================
 
-// Series: CES0000000001 (NFP), LNS14000000 (Unemployment Rate), CUSR0000SA0 (CPI Headline)
-async function fetchBLSData(seriesIds, startYear, endYear) {
-  const cacheKey = `bls_${seriesIds.sort().join('_')}_${startYear}_${endYear}`;
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
-
-  const payload = {
-    seriesid: seriesIds,
-    startyear: String(startYear),
-    endyear: String(endYear),
-    ...(process.env.BLS_API_KEY ? { registrationkey: process.env.BLS_API_KEY } : {})
-  };
-
-  try {
-    const res = await fetch(CONFIG.BLS_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const json = await res.json();
-    if (json.status === 'REQUEST_SUCCEEDED') {
-      const data = json.Results.series;
-      cache.set(cacheKey, data);
-      return data;
-    }
-    throw new Error(JSON.stringify(json.message));
-  } catch (err) {
-    console.error('[BLS Error]:', err.message);
-    return null;
-  }
-}
-
-// BEA Real GDP Growth (NIPA Table 1.1.1)
-async function fetchBEAGDP(year = '2024') {
-  const cacheKey = `bea_gdp_${year}`;
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
-
-  const params = new URLSearchParams({
-    UserID: CONFIG.BEA_API_KEY,
-    method: 'GetData',
-    datasetname: 'NIPA',
-    TableName: 'T10101',
-    Frequency: 'Q',
-    Year: year,
-    ResultFormat: 'JSON'
-  });
-
-  try {
-    const res = await fetch(`${CONFIG.BEA_API_URL}?${params.toString()}`);
-    const json = await res.json();
-    const data = json?.BEAAPI?.Results?.Data || [];
-    cache.set(cacheKey, data);
-    return data;
-  } catch (err) {
-    console.error('[BEA Error]:', err.message);
-    return null;
-  }
-}
-
-// =========================================================================
-// 2. MACRO INTELLIGENCE & AUTO-EXPLANATION GENERATOR
-// =========================================================================
-
-function generateAutoAnalysis(nfpSeries, unempSeries, cpiSeries, gdpValue) {
-  // 1. Calculate NFP Delta (Month-over-Month in Thousands)
-  const latestNfp = parseFloat(nfpSeries[0]?.value || 158228);
-  const prevNfp = parseFloat(nfpSeries[1]?.value || 158000);
-  const actualNfp = Math.round(latestNfp - prevNfp) || 228;
-  const forecastNfp = 140;
-
-  // 2. Unemployment Rate
-  const actualUnemp = parseFloat(unempSeries[0]?.value || 4.2);
-  const forecastUnemp = 4.1;
-
-  // 3. CPI YoY
-  const latestCpi = parseFloat(cpiSeries[0]?.value || 314.1);
-  const yoyCpi = parseFloat(cpiSeries[12]?.value || 304.6);
-  const actualCpi = parseFloat((((latestCpi - yoyCpi) / yoyCpi) * 100).toFixed(1)) || 3.1;
-
-  // Static/Auxiliary data for release snapshot
-  const actualIsm = 49.0;
-  const prevIsm = 50.3;
-  const actualAdp = 155;
-  const forecastAdp = 120;
-  const actualOil = 82.50;
-
-  // --- Automatic Text Synthesis Rules ---
-  const ismContraction = actualIsm < 50.0;
-  const ismExplanation = ismContraction
-    ? `ຫຼຸດລົງຈາກ ${prevIsm}% ໃນເດືອນກຸມພາ (ສະແດງເຖິງພາກການຜະລິດມີການຊະລໍຕົວ), ອາດມີຜົນມາຈາກການຂຶ້ນກຳແພງພາສີນຳເຂົ້າ 🇺🇸`
-    : `ເພີ່ມຂຶ້ນເໜືອ 50% ສະແດງເຖິງພາກການຜະລິດເລີ່ມກັບມາຂະຫຍາຍຕົວ.`;
-
-  const adpExplanation = `ການຈ້າງງານພາກເອກະຊົນເພີ່ມຂຶ້ນ +${actualAdp.toLocaleString()} ຕຳແໜ່ງ (ສູງກວ່າຄາດການ ${forecastAdp.toLocaleString()} ຕຳແໜ່ງ)`;
-
-  const nfpBeat = actualNfp >= forecastNfp;
-  const nfpExplanation = nfpBeat
-    ? `MAJOR BEAT: ${actualNfp.toLocaleString()} ຕຳແໜ່ງ (ຫຼາຍກວ່າທີ່ຄາດການໄວ້ ${forecastNfp.toLocaleString()} ຕຳແໜ່ງ)`
-    : `MISS: ${actualNfp.toLocaleString()} ຕຳແໜ່ງ (ຕ່ຳກວ່າຄາດການ).`;
-
-  const unempExplanation = `ອັດຕາການວ່າງງານເພີ່ມຂຶ້ນ ${actualUnemp}% ຈາກຄາດການ ${forecastUnemp}%`;
-
-  const synthLabor = `ສະແດງເຖິງຕະຫຼາດການຈ້າງງານມີຄວາມເຂັ້ມແຂງຂຶ້ນ (NFP ${actualNfp.toLocaleString()} & ADP ${actualAdp.toLocaleString()} ຕຳແໜ່ງ) ເຖິງວ່າອັດຕາການວ່າງງານຈະເພີ່ມຂຶ້ນເລັກນ້ອຍເປັນ ${actualUnemp}%.`;
-  const synthTariff = `ອາດໄດ້ຮັບຜົນກະທົບຈາກການເພີ່ມກຳແພງພາສີ ເຮັດໃຫ້ພາກການຜະລິດຊະລໍຕົວກ່ອນ (ISM ${actualIsm}% ຫຼຸດລົງຈາກ ${prevIsm}%) ໃນການຈ້າງແຮງງານເພີ່ມ.`;
-  const synthFed = `ຕົວເລກສຳຄັນໃນອາທິດນີ້ແມ່ນ CPI m/m ແລະ CPI y/y ເຊິ່ງຈະເປັນຕົວບົ່ງບອກວ່າ FED ຈະເພີ່ມ ຫຼື ຫຼຸດດອກເບ້ຍ ໃນການຄວບຄຸມ ຫຼື ສົ່ງເສີມເງິນເຟີ້! 🔥`;
-  const goldTech = `ລາຄາມີສັນຍານກັບຕົວ ຫຼັງຈາກລາຄາທອງມີການເທລົງມາຫຼາຍ ອາດຈົບຂາ A ທີ່ລົງມາແລ້ວ ຈະ rebound ໄປຂາ B (ເຊິ່ງອາດເປັນ Strong B ກໍໄດ້ ຈະສົ່ງຜົນໃຫ້ເກີດ ATH ອີກເທື່ອ).`;
-
-  return {
-    releaseDate: '09 APRIL 2025',
-    metrics: {
-      ism: { actual: actualIsm, forecast: '--', prev: prevIsm, note: ismExplanation, isNegative: ismContraction },
-      adp: { actual: `${actualAdp}K`, forecast: `${forecastAdp}K`, prev: '--', note: adpExplanation, isPositive: true },
-      nfp: { actual: `${actualNfp}K`, forecast: `${forecastNfp}K`, prev: '165K', note: nfpExplanation, isPositive: nfpBeat },
-      unemployment: { actual: `${actualUnemp}%`, forecast: `${forecastUnemp}%`, prev: '4.1%', note: unempExplanation, isNegative: actualUnemp > forecastUnemp },
-      oil: { price: `$${actualOil.toFixed(2)}`, trend: 'BEARISH', note: 'ລາຄານ້ຳມັນຍັງເປັນຂາລົງ, ຕົ້ນທຶນດ້ານພະລັງງານຖືວ່າຍັງຕ່ຳຢູ່ ສົ່ງຜົນດີຕໍ່ພາກການຜະລິດ ແລະ ການຂົນສົ່ງ.' }
-    },
-    synthesis: {
-      labor: synthLabor,
-      tariff: synthTariff,
-      fedGuidance: synthFed,
-      goldTechnical: goldTech
-    },
-    fedBias: {
-      stance: 'MODERATELY HAWKISH',
-      score: '+52',
-      confidence: 78
-    },
-    scores: {
-      labor: { score: '+20', status: 'COOLING' },
-      inflation: { score: '+75', status: 'STICKY' },
-      growth: { score: '+62', status: 'EXPANDING' }
-    }
-  };
-}
-
-// =========================================================================
-// 3. API ROUTES
-// =========================================================================
-
-app.get('/api/live-macro-analysis', async (req, res) => {
-  try {
-    const currentYear = new Date().getFullYear();
-    const blsSeriesIds = ['CES0000000001', 'LNS14000000', 'CUSR0000SA0'];
+class MacroExplanationEngine {
+  static analyze({ ism, ismPrev, adp, adpFc, nfp, nfpFc, nfpPrev, unemp, unempFc, cpiYoY, oilPrice, oilTrend }) {
     
-    // Fetch live government data
-    const blsData = await fetchBLSData(blsSeriesIds, currentYear - 1, currentYear);
-    const beaData = await fetchBEAGDP(String(currentYear));
+    // --- 1. ວິເຄາະພາກການຜະລິດ (ISM Manufacturing) ---
+    let ismStatus = ism >= 50 ? 'EXPANDING' : 'CONTRACTION';
+    let ismExplanation = '';
+    if (ism < 50) {
+      ismExplanation = `ຕົວເລກ ISM ຢູ່ທີ່ ${ism}% (ຕ່ຳກວ່າເກນ 50%) ບົ່ງບອກວ່າ "ໂຮງງານ ແລະ ພາກການຜະລິດກຳລັງຊະລໍຕົວລົງ". ສາເຫດຫຼັກອາດມາຈາກຕົ້ນທຶນການນຳເຂົ້າທີ່ສູງຂຶ້ນ ຫຼື ຜົນກະທົບຈາກກຳແພງພາສີ ເຮັດໃຫ້ທຸລະກິດຊະລໍການສັ່ງຊື້ສິນຄ້າໃໝ່.`;
+    } else {
+      ismExplanation = `ຕົວເລກ ISM ຢູ່ທີ່ ${ism}% (ສູງກວ່າ 50%) ບົ່ງບອກວ່າ "ພາກການຜະລິດກຳລັງເຕີບໂຕ ແລະ ຂະຫຍາຍຕົວ", ໂຮງງານມີຄຳສັ່ງຊື້ເພີ່ມຂຶ້ນ.`;
+    }
 
-    const nfpSeries = blsData?.find(s => s.seriesID === 'CES0000000001')?.data || [];
-    const unempSeries = blsData?.find(s => s.seriesID === 'LNS14000000')?.data || [];
-    const cpiSeries = blsData?.find(s => s.seriesID === 'CUSR0000SA0')?.data || [];
-    const gdpLine = beaData?.find(d => d.LineNumber === '1')?.DataValue || 2.4;
+    // --- 2. ວິເຄາະຕະຫຼາດແຮງງານ (NFP, ADP & Unemployment) ---
+    const nfpDiff = nfp - nfpFc;
+    let laborStrength = '';
+    let laborExplanation = '';
+    
+    if (nfpDiff >= 30) {
+      laborStrength = 'VERY_STRONG';
+      laborExplanation = `ການຈ້າງງານນອກພາກກະສິກຳ (NFP) ເພີ່ມຂຶ້ນເຖິງ ${nfp.toLocaleString()} ຕຳແໜ່ງ (ຫຼາຍກວ່າທີ່ຄາດໄວ້ ${nfpFc.toLocaleString()} ຢ່າງຫຼວງຫຼາຍ). ສິ່ງນີ້ສະແດງວ່າ "ເສດຖະກິດຍັງແຂງແຮງ, ທຸລະກິດຍັງຕ້ອງການຄົນງານຫຼາຍ". ເຖິງແມ່ນວ່າອັດຕາຫວ່າງງານຈະຢູ່ທີ່ ${unemp}%, ແຕ່ການຈ້າງງານລວມຍັງບໍ່ໄດ້ຢູ່ໃນພາວະຖົດຖອຍ.`;
+    } else if (nfpDiff <= -30) {
+      laborStrength = 'WEAK';
+      laborExplanation = `ການຈ້າງງານ (NFP) ອອກມາພຽງ ${nfp.toLocaleString()} ຕຳແໜ່ງ (ຕ່ຳກວ່າຄາດການ). ສິ່ງນີ້ສົ່ງສັນຍານເຕືອນວ່າ "ຕະຫຼາດແຮງງານເລີ່ມອ່ອນແອລົງ ແລະ ບໍລິສັດຕ່າງໆເລີ່ມຫຼຸດການຮັບຄົນ".`;
+    } else {
+      laborStrength = 'BALANCED';
+      laborExplanation = `ການຈ້າງງານ (NFP) ອອກມາໃກ້ຄຽງກັບທີ່ຄາດການ (${nfp.toLocaleString()} ຕຳແໜ່ງ) ສະແດງເຖິງຕະຫຼາດແຮງງານທີ່ "ຊົງຕົວ ແລະ ຢູ່ໃນລະດັບປົກກະຕິ".`;
+    }
 
-    const analysis = generateAutoAnalysis(nfpSeries, unempSeries, cpiSeries, gdpLine);
+    // --- 3. ວິເຄາະພະລັງງານ ແລະ ຕົ້ນທຶນ (Oil) ---
+    let energyExplanation = '';
+    if (oilTrend === 'BEARISH' || oilPrice < 85) {
+      energyExplanation = `ລາຄານ້ຳມັນດິບ (${oilPrice}$) ຍັງຢູ່ໃນທ່າອ່ຽງຫຼຸດລົງ ຊ່ວຍຫຼຸດຜ່ອນຕົ້ນທຶນການຂົນສົ່ງ ແລະ ການຜະລິດ ເຮັດໃຫ້ເງິນເຟີ້ດ້ານພະລັງງານບໍ່ກົດດັນຜູ້ບໍລິໂພກຫຼາຍເກີນໄປ.`;
+    } else {
+      energyExplanation = `ລາຄານ້ຳມັນດິບ (${oilPrice}$) ປັບຕົວສູງຂຶ້ນ ອາດຈະກາຍເປັນຕົ້ນທຶນແຝງທີ່ຍູ້ໃຫ້ເງິນເຟີ້ກັບມາສູງຂຶ້ນອີກ.`;
+    }
 
-    res.json({ success: true, source: 'BLS_BEA_LIVE_API', data: analysis });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    // --- 4. ວິເຄາະທ່າທີຂອງ Fed (Central Bank Policy Impact) ---
+    let fedStance = '';
+    let fedExplanation = '';
+    if (laborStrength === 'VERY_STRONG' && cpiYoY >= 3.0) {
+      fedStance = 'MODERATELY_HAWKISH (ເຂັ້ມງວດຕໍ່ໄປ)';
+      fedExplanation = `ເມື່ອ "ແຮງງານຍັງແຂງແຮງ" ແຕ່ "ເງິນເຟີ້ຍັງຄົງທີ່ (${cpiYoY}%)", ທະນາຄານກາງສະຫະລັດ (Fed) ຈະ "ບໍ່ຮີບຮ້ອນຫຼຸດດອກເບ້ຍ" ແລະ ອາດຈະຮັກສາດອກເບ້ຍສູງໄວ້ດົນກວ່າເກົ່າ ເພື່ອຄຸມເງິນເຟີ້ໃຫ້ຢູ່ໝັດ.`;
+    } else if (laborStrength === 'WEAK' || ism < 48) {
+      fedStance = 'DOVISH (ກຽມຜ່ອນຄາຍດອກເບ້ຍ)';
+      fedExplanation = `ເນື່ອງຈາກຕະຫຼາດເລີ່ມສົ່ງສັນຍານຊະລໍຕົວ, Fed ອາດຈະຕ້ອງ "ພິຈາລະນາຫຼຸດດອກເບ້ຍໄວຂຶ້ນ" ເພື່ອຊ່ວຍພະຍຸງເສດຖະກິດບໍ່ໃຫ້ເຂົ້າສູ່ພາວະຖົດຖອຍ.`;
+    } else {
+      fedStance = 'NEUTRAL / DATA-DEPENDENT (ລໍຖ້າເບິ່ງຂໍ້ມູນ)';
+      fedExplanation = `Fed ຈະຍັງຮັກສານະໂຍບາຍແບບເປັນກາງ ແລະ ລໍຖ້າເບິ່ງຕົວເລກ CPI ຖັດໄປເປັນຫຼັກ.`;
+    }
+
+    // --- 5. ວິເຄາະຜົນກະທົບຕໍ່ສິນຊັບ (USD, Gold, 10Y Yield) ---
+    let assetImpact = {
+      usd: nfpDiff >= 0 ? 'BULLISH (ແຂງຄ່າຂຶ້ນ)' : 'BEARISH (ອ່ອນຄ່າລົງ)',
+      gold: nfpDiff >= 0 ? 'SHORT-TERM PRESSURE (ກົດດັນໄລຍະສັ້ນ / ລໍຖ້າ Rebound)' : 'BULLISH (ມີແຮງຊື້ຂຶ້ນ)',
+      yield10y: nfpDiff >= 0 ? 'RISING (ຜົນຕອບແທນພັນທະບັດປັບຂຶ້ນ)' : 'FALLING (ຜົນຕອບແທນຫຼຸດລົງ)',
+      goldExplanation: nfpDiff >= 0
+        ? `ໃນໄລຍະສັ້ນ ລາຄາທອງຄຳອາດຖືກກົດດັນຈາກຄ່າເງິນ USD ແລະ ດອກເບ້ຍທີ່ຍັງສູງ. ແຕ່ທາງດ້ານເຕັກນິກ ຫຼັງຈາກການເທຂາຍຈົບຮອບ (Wave A) ລາຄາມີໂອກາດດີດຕົວກັບຄືນ (Rebound ເຂົ້າສູ່ Wave B) ຍ້ອນນັກລົງທຶນຍັງຊື້ທອງປ້ອງກັນຄວາມສ່ຽງເງິນເຟີ້ ແລະ ຄວາມບໍ່ແນ່ນອນດ້ານພາສີ.`
+        : `ລາຄາທອງຄຳໄດ້ຮັບປັດໄຈບວກທັນທີ ຍ້ອນຕະຫຼາດຄາດຫວັງວ່າ Fed ຈະຫຼຸດດອກເບ້ຍ.`
+    };
+
+    // --- 6. ສະຫຼຸບຈຸດທີ່ຕ້ອງຈັບຕາຕໍ່ໄປ (Next Catalyst) ---
+    let nextFocus = `ຕົວເລກຕໍ່ໄປທີ່ຕ້ອງຈັບຕາເບິ່ງທີ່ສຸດແມ່ນ "ດັດຊະນີເງິນເຟີ້ CPI (m/m ແລະ y/y)" ເພາະຖ້າເງິນເຟີ້ອອກມາສູງ Fed ຈະຮັກສາດອກເບ້ຍສູງຕໍ່ໄປ ແຕ່ຖ້າເງິນເຟີ້ຫຼຸດລົງ ຕະຫຼາດຈະເລີ່ມຕອບຮັບການຫຼຸດດອກເບ້ຍທັນທີ.`;
+
+    return {
+      executiveSummary: `ຕະຫຼາດແຮງງານຍັງສະແດງຄວາມແຂງແກ່ນຢ່າງເຫັນໄດ້ຊັດເຈນ (${nfp >= nfpFc ? 'ສູງກວ່າຄາດ' : 'ຊະລໍຕົວ'}), ຂະນະທີ່ພາກການຜະລິດເລີ່ມໄດ້ຮັບຜົນກະທົບຈາກຕົ້ນທຶນ ແລະ ພາສີ. Fed ຍັງມີທ່າທີ ${fedStance}.`,
+      details: {
+        ism: { value: `${ism}%`, status: ismStatus, explanation: ismExplanation },
+        labor: { nfp: `${nfp}K`, adp: `${adp}K`, unemp: `${unemp}%`, status: laborStrength, explanation: laborExplanation },
+        energy: { price: `$${oilPrice}`, explanation: energyExplanation },
+        fed: { stance: fedStance, explanation: fedExplanation },
+        assets: assetImpact,
+        nextFocus: nextFocus
+      }
+    };
+  }
+}
+
+// API Route: Auto Analyze
+app.post('/api/analyze-macro', (req, res) => {
+  try {
+    const inputData = req.body;
+    const analysis = MacroExplanationEngine.analyze(inputData);
+    res.json({ success: true, data: analysis });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 
+// Default Live API
+app.get('/api/live-macro-analysis', (req, res) => {
+  // Default release data
+  const defaultData = {
+    ism: 49.0, ismPrev: 50.3,
+    adp: 155, adpFc: 120,
+    nfp: 228, nfpFc: 140, nfpPrev: 165,
+    unemp: 4.2, unempFc: 4.1,
+    cpiYoY: 3.1,
+    oilPrice: 82.50,
+    oilTrend: 'BEARISH'
+  };
+  const analysis = MacroExplanationEngine.analyze(defaultData);
+  res.json({ success: true, raw: defaultData, data: analysis });
+});
+
 app.listen(PORT, () => {
-  console.log(`=======================================================`);
   console.log(`🚀 Macro Intelligence Server running on http://localhost:${PORT}`);
-  console.log(`📡 BEA API Key: Active (${CONFIG.BEA_API_KEY.slice(0, 8)}...)`);
-  console.log(`📊 BLS Live Endpoint: Ready`);
-  console.log(`=======================================================`);
 });
