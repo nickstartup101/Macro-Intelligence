@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>MACRO_TERMINAL // Institutional Sidebar Dashboard</title>
+    <title>MACRO_TERMINAL // Transmission Network &amp; Scenario Engine</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
@@ -15,17 +15,17 @@
                 extend: {
                     colors: {
                         "surface": "#0c1324",
-                        "surface-low": "#151b2d",
-                        "surface-container": "#191f31",
-                        "surface-high": "#23293c",
+                        "surface-low": "#121e33",
+                        "surface-container": "#19273f",
+                        "surface-high": "#23334f",
                         "primary": "#8ed5ff",
-                        "tertiary": "#ffc176",
+                        "tertiary": "#4edea3",
                         "error": "#ffb4ab",
-                        "outline-variant": "#3e484f",
+                        "outline-variant": "#2a3d59",
                         "on-surface": "#dce1fb",
-                        "on-surface-variant": "#bdc8d1"
+                        "on-surface-variant": "#8da1be"
                     },
-                    borderRadius: { "DEFAULT": "0px", "sm": "0px", "md": "2px", "lg": "2px" },
+                    borderRadius: { "DEFAULT": "0px", "sm": "0px", "md": "4px", "lg": "6px", "full": "9999px" },
                     fontFamily: {
                         sans: ['Noto Sans Lao', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace']
@@ -37,28 +37,30 @@
     <style>
         body, * { font-family: 'Noto Sans Lao', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace !important; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: #070d1f; }
-        ::-webkit-scrollbar-thumb { background: #3e484f; }
+        
+        .line-flow {
+            stroke-dasharray: 4;
+            animation: dash 20s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: -100; }
+        }
     </style>
 </head>
 <body class="bg-[#0c1324] text-[#dce1fb] min-h-screen flex font-sans selection:bg-primary selection:text-black">
 
     <!-- ============================================================== -->
-    <!-- 1. INSTITUTIONAL SIDEBAR NAVIGATION DRAWER (DESKTOP + MOBILE)  -->
+    <!-- SIDEBAR NAVIGATION DRAWER                                      -->
     <!-- ============================================================== -->
     <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-[#0c1324] border-r border-outline-variant z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 flex flex-col justify-between select-none">
         
-        <!-- Sidebar Top: Brand & Menu -->
         <div class="p-3 space-y-4">
-            
-            <!-- Terminal Header / Logo -->
             <div class="flex items-center justify-between border-b border-outline-variant pb-3">
                 <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-xl">psychology</span>
+                    <span class="material-symbols-outlined text-primary text-xl">account_tree</span>
                     <div>
                         <h1 class="font-mono text-xs font-bold text-primary tracking-wider uppercase">MACRO_TERMINAL</h1>
-                        <span class="text-[9px] font-mono text-on-surface-variant block">INSTITUTIONAL v2.6</span>
+                        <span class="text-[9px] font-mono text-on-surface-variant block">TRANSMISSION COCKPIT</span>
                     </div>
                 </div>
                 <button onclick="toggleSidebar()" class="lg:hidden text-on-surface-variant hover:text-white">
@@ -68,80 +70,54 @@
 
             <!-- Navigation Links -->
             <nav class="space-y-1 font-mono text-xs">
-                
-                <div class="text-[10px] text-on-surface-variant uppercase px-2 pt-1 pb-1 font-bold">
-                    ລະບົບວິເຄາະ &amp; ຄາດການ
-                </div>
-
-                <!-- Menu Item 1: ວິເຄາະຂ່າວ -->
-                <button onclick="navigate('#/digest')" id="nav-digest" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold">
-                    <span class="material-symbols-outlined text-base">summarize</span>
-                    <span>1. ສະຫຼຸບ &amp; ວິເຄາະຂ່າວ</span>
+                <!-- Menu Item 1: ໂຄງຂ່າຍການສົ່ງຜ່ານ (Main Screenshot View) -->
+                <button onclick="navigate('#/transmission')" id="nav-transmission" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold">
+                    <span class="material-symbols-outlined text-base">hub</span>
+                    <span>1. ໂຄງຂ່າຍການສົ່ງຜ່ານ (TRANSMISSION)</span>
                 </button>
 
-                <!-- Menu Item 2: ການຄາດການຄວາມໜ້າຈະເປັນ -->
+                <!-- Menu Item 2: ສະຫຼຸບເສດຖະກິດ -->
+                <button onclick="navigate('#/digest')" id="nav-digest" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
+                    <span class="material-symbols-outlined text-base">summarize</span>
+                    <span>2. ສະຫຼຸບທິດທາງເສດຖະກິດ</span>
+                </button>
+
+                <!-- Menu Item 3: ການຄາດການຂ່າວ -->
                 <button onclick="navigate('#/predictions')" id="nav-predictions" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
                     <span class="material-symbols-outlined text-base">psychology</span>
-                    <span>2. ການຄາດການຂ່າວ (🔮)</span>
+                    <span>3. ການຄາດການຄວາມໜ້າຈະເປັນ</span>
                 </button>
-
-                <div class="text-[10px] text-on-surface-variant uppercase px-2 pt-3 pb-1 font-bold">
-                    ຂໍ້ມູນປະຕິທິນເສດຖະກິດ
-                </div>
-
-                <!-- Menu Item 3: ຂ່າວປະກາດແລ້ວ -->
-                <button onclick="navigate('#/released')" id="nav-released" class="w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
-                    <span class="material-symbols-outlined text-base">table_chart</span>
-                    <span>ຕາຕະລາງຂ່າວຕົວຈິງ</span>
-                </button>
-
-                <!-- Menu Item 4: ຕາຕະລາງຂ່າວກ່ອງແດງ-ສົ້ມ -->
-                <button onclick="navigate('#/calendar')" id="nav-calendar" class="w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
-                    <span class="material-symbols-outlined text-base">calendar_month</span>
-                    <span>ປະຕິທິນກ່ອງແດງ-ສົ້ມ</span>
-                </button>
-
             </nav>
-
         </div>
 
-        <!-- Sidebar Bottom: System Status & Time -->
         <div class="p-3 border-t border-outline-variant bg-surface-low font-mono text-xs space-y-2">
             <div class="flex justify-between items-center text-[10px]">
-                <span class="text-on-surface-variant">FEED:</span>
-                <span class="text-primary font-bold flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
-                    <span>FOREX FACTORY</span>
-                </span>
-            </div>
-            <div class="flex justify-between items-center text-[10px]">
-                <span class="text-on-surface-variant">TIMEZONE:</span>
-                <span class="text-white font-bold">GMT+7 (ລາວ)</span>
+                <span class="text-on-surface-variant">HIGH IMPACT FEED:</span>
+                <span class="text-red-400 font-bold">🟥 ກ່ອງແດງ ACTIVE</span>
             </div>
             <button onclick="fetchMacroData()" class="w-full py-1.5 bg-primary text-black font-bold text-center hover:bg-white transition-colors text-[11px] flex items-center justify-center gap-1">
                 <span class="material-symbols-outlined text-[14px]">sync</span>
-                <span>SYNC LIVE DATA</span>
+                <span>SYNC LIVE FOREX FACTORY</span>
             </button>
         </div>
 
     </aside>
 
-    <!-- Overlay for Mobile Sidebar -->
     <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-40 hidden lg:hidden"></div>
 
     <!-- ============================================================== -->
-    <!-- 2. MAIN CONTENT CANVAS (OFFSET BY SIDEBAR ON DESKTOP)          -->
+    <!-- MAIN WORKSPACE                                                 -->
     <!-- ============================================================== -->
     <div class="flex-1 lg:pl-64 flex flex-col min-h-screen">
         
-        <!-- Top Mobile Header Bar -->
+        <!-- Header -->
         <header class="h-11 bg-surface border-b border-outline-variant flex items-center justify-between px-3 sticky top-0 z-30 select-none">
             <div class="flex items-center gap-2">
                 <button onclick="toggleSidebar()" class="lg:hidden p-1 text-on-surface-variant hover:text-white">
                     <span class="material-symbols-outlined text-xl">menu</span>
                 </button>
                 <span id="current-view-title" class="font-mono text-xs font-bold text-primary uppercase">
-                    1. ບົດສະຫຼຸບ &amp; ວິເຄາະທິດທາງເສດຖະກິດ (MACRO DIGEST)
+                    1. ໂຄງຂ່າຍການສົ່ງຜ່ານ &amp; SCENARIO ENGINE (TRANSMISSION MECHANISM)
                 </span>
             </div>
             <span id="disp-cycle-time" class="text-[10px] font-mono text-on-surface-variant hidden sm:inline">
@@ -149,26 +125,195 @@
             </span>
         </header>
 
-        <!-- Main Workspace -->
-        <main class="flex-1 p-3 md:p-4 max-w-[1500px] w-full mx-auto space-y-4">
+        <main class="flex-1 p-3 md:p-4 max-w-[1500px] w-full mx-auto space-y-3">
             
             <!-- ============================================================== -->
-            <!-- VIEW 1: ບົດສະຫຼຸບ & ວິເຄາະຂ່າວ (#/digest)                     -->
+            <!-- VIEW 1: TRANSMISSION MECHANISM & SCENARIO ENGINE (SCREENSHOT)  -->
             <!-- ============================================================== -->
-            <div id="view-digest" class="space-y-3">
+            <div id="view-transmission" class="space-y-3">
                 
-                <!-- 3-Sentence Big Picture -->
-                <div class="bg-surface-high border-l-4 border-l-primary border-y border-r border-outline-variant p-4">
-                    <div class="flex items-center gap-2 font-mono text-xs font-bold text-primary mb-1.5">
+                <!-- Red Box Active Event Header Card -->
+                <div class="bg-surface-low border border-outline-variant p-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 text-[10px] font-mono font-bold bg-red-500/20 text-red-400 border border-red-500/40 rounded">
+                                🟥 ກ່ອງແດງ HIGH IMPACT
+                            </span>
+                            <span class="text-xs font-mono text-on-surface-variant" id="red-event-date">ວັນສຸກ • 19:30 (GMT+7)</span>
+                        </div>
+                        <h2 id="red-event-title" class="text-base md:text-lg font-bold text-white mt-1">
+                            Non-Farm Employment Change (NFP)
+                        </h2>
+                    </div>
+
+                    <div class="flex gap-4 font-mono text-xs">
+                        <div class="bg-surface-container p-2 px-3 border border-outline-variant rounded">
+                            <span class="text-[10px] text-on-surface-variant block">FORECAST</span>
+                            <strong id="red-event-forecast" class="text-primary text-sm font-bold">140K</strong>
+                        </div>
+                        <div class="bg-surface-container p-2 px-3 border border-outline-variant rounded">
+                            <span class="text-[10px] text-on-surface-variant block">PREVIOUS</span>
+                            <strong id="red-event-previous" class="text-white text-sm font-bold">165K</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Transmission Grid (Matches Screenshot) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+                    
+                    <!-- Left Column: Scenario Engine & Market Bias (7 Cols) -->
+                    <div class="lg:col-span-7 space-y-3">
+                        
+                        <!-- SCENARIO ENGINE -->
+                        <div class="space-y-2">
+                            <div class="font-mono text-xs font-bold text-on-surface-variant uppercase px-1">
+                                SCENARIO ENGINE
+                            </div>
+
+                            <!-- Scenario 1: Above -->
+                            <div onclick="selectScenario('ABOVE')" id="scen-above-card" class="bg-surface-container rounded-lg p-3.5 border-l-4 border-tertiary hover:bg-surface-high transition-colors cursor-pointer">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="font-mono text-xs font-bold text-white">ABOVE EXPECTATION (> 200K)</div>
+                                    <span class="font-mono text-[10px] font-bold bg-green-900/40 text-tertiary px-2 py-0.5 rounded border border-tertiary/30">Strong Labor State</span>
+                                </div>
+                                <div class="flex flex-wrap gap-4 mt-2 font-mono text-xs">
+                                    <span class="text-tertiary flex items-center gap-0.5">Hawkish Bias <span class="material-symbols-outlined text-[14px]">arrow_upward</span></span>
+                                    <span class="text-tertiary flex items-center gap-0.5">USD <span class="material-symbols-outlined text-[14px]">arrow_upward</span></span>
+                                    <span class="text-error flex items-center gap-0.5">Gold <span class="material-symbols-outlined text-[14px]">arrow_downward</span></span>
+                                </div>
+                            </div>
+
+                            <!-- Scenario 2: In Line -->
+                            <div onclick="selectScenario('IN_LINE')" id="scen-inline-card" class="bg-surface-container rounded-lg p-3.5 border-l-4 border-primary hover:bg-surface-high transition-colors cursor-pointer">
+                                <div class="flex justify-between items-start mb-1">
+                                    <div class="font-mono text-xs font-bold text-white">IN LINE (150K-190K)</div>
+                                    <span class="font-mono text-[10px] font-bold bg-blue-900/40 text-primary px-2 py-0.5 rounded border border-primary/30">Neutral</span>
+                                </div>
+                                <p class="font-mono text-xs text-on-surface-variant mt-2">Minimal State Change — Regime Holds.</p>
+                            </div>
+
+                            <!-- Scenario 3: Below -->
+                            <div onclick="selectScenario('BELOW')" id="scen-below-card" class="bg-surface-container rounded-lg p-3.5 border-l-4 border-error hover:bg-surface-high transition-colors cursor-pointer">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="font-mono text-xs font-bold text-white">BELOW EXPECTATION (< 150K)</div>
+                                    <span class="font-mono text-[10px] font-bold bg-red-900/40 text-error px-2 py-0.5 rounded border border-error/30">Weak Labor State</span>
+                                </div>
+                                <div class="flex flex-wrap gap-4 mt-2 font-mono text-xs">
+                                    <span class="text-tertiary flex items-center gap-0.5">Dovish Bias <span class="material-symbols-outlined text-[14px]">arrow_upward</span></span>
+                                    <span class="text-error flex items-center gap-0.5">USD <span class="material-symbols-outlined text-[14px]">arrow_downward</span></span>
+                                    <span class="text-tertiary flex items-center gap-0.5">Gold <span class="material-symbols-outlined text-[14px]">arrow_upward</span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MARKET FUNDAMENTAL BIAS (Matches Screenshot) -->
+                        <div class="bg-surface-low border border-outline-variant rounded-lg p-3.5 space-y-2.5">
+                            <div class="font-mono text-xs font-bold text-on-surface-variant uppercase">
+                                MARKET FUNDAMENTAL BIAS
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-surface-container p-3 rounded border border-outline-variant/40 flex flex-col items-center justify-center">
+                                    <span class="material-symbols-outlined text-3xl text-tertiary mb-1">trending_up</span>
+                                    <span class="font-mono text-base font-bold text-white">USD</span>
+                                    <span id="bias-usd-tag" class="font-mono text-xs font-bold text-tertiary">BULLISH</span>
+                                </div>
+                                <div class="bg-surface-container p-3 rounded border border-outline-variant/40 flex flex-col items-center justify-center">
+                                    <span class="material-symbols-outlined text-3xl text-error mb-1">trending_down</span>
+                                    <span class="font-mono text-base font-bold text-white">Gold</span>
+                                    <span id="bias-gold-tag" class="font-mono text-xs font-bold text-error">BEARISH</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MACRO CONFLICT ALERT (Matches Screenshot) -->
+                        <div class="bg-surface-low rounded-lg p-3.5 border-l-4 border-l-error border-y border-r border-outline-variant space-y-1.5">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-error text-base">warning</span>
+                                <span class="font-mono text-xs font-bold text-error uppercase">MACRO CONFLICT ALERT</span>
+                            </div>
+                            <p class="text-xs text-on-surface">
+                                Headline Labor <span class="text-tertiary font-bold">STRONG</span> vs Underlying <span class="text-error font-bold">COOLING</span>
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Column: TRANSMISSION MECHANISM FLOWCHART (5 Cols) -->
+                    <div class="lg:col-span-5">
+                        <div class="bg-surface-low rounded-lg p-4 border border-outline-variant h-full flex flex-col justify-between relative overflow-hidden">
+                            
+                            <div class="font-mono text-xs font-bold text-primary uppercase mb-3 flex items-center justify-between">
+                                <span>TRANSMISSION MECHANISM</span>
+                                <span id="trans-state-badge" class="text-[9px] bg-primary/20 text-primary px-2 py-0.5 rounded font-bold">HAWKISH FLOW</span>
+                            </div>
+
+                            <!-- Network Flowchart Diagram (Matches Screenshot) -->
+                            <div class="flex flex-col items-center gap-4 py-2 relative z-10 font-mono text-xs">
+                                
+                                <!-- Background Animated Line Flow -->
+                                <div class="absolute top-6 bottom-6 left-1/2 w-0.5 bg-outline-variant -translate-x-1/2 -z-10">
+                                    <svg class="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none">
+                                        <line class="line-flow" stroke="#8ed5ff" stroke-width="2" x1="0" y1="0" x2="0" y2="100%"></line>
+                                    </svg>
+                                </div>
+
+                                <!-- Node 1: LABOR MKT -->
+                                <div id="node-labor" class="bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                                    <span class="material-symbols-outlined text-primary text-base">engineering</span>
+                                    <span class="font-bold text-white">LABOR MKT</span>
+                                </div>
+
+                                <!-- Node 2: FED BIAS -->
+                                <div id="node-fed" class="bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                                    <span class="material-symbols-outlined text-primary text-base">account_balance</span>
+                                    <span class="font-bold text-white">FED BIAS</span>
+                                </div>
+
+                                <!-- Node 3: USD / YIELD -->
+                                <div id="node-usdyield" class="bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                                    <span class="material-symbols-outlined text-tertiary text-base">payments</span>
+                                    <span class="font-bold text-white">USD/YIELD</span>
+                                </div>
+
+                                <!-- Node 4: 10Y YIELD -->
+                                <div id="node-10y" class="bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                                    <span class="material-symbols-outlined text-tertiary text-base">show_chart</span>
+                                    <span class="font-bold text-white">10Y YIELD</span>
+                                </div>
+
+                                <!-- Node 5: GOLD -->
+                                <div id="node-gold" class="bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                                    <span class="material-symbols-outlined text-error text-base">diamond</span>
+                                    <span class="font-bold text-white">GOLD</span>
+                                </div>
+
+                            </div>
+
+                            <div class="text-[10px] font-mono text-on-surface-variant text-center pt-2 border-t border-outline-variant">
+                                Live Node Synchronization Active
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- VIEW 2: ບົດສະຫຼຸບທິດທາງເສດຖະກິດ (#/digest)                     -->
+            <!-- ============================================================== -->
+            <div id="view-digest" class="space-y-3 hidden">
+                <div class="bg-surface-low border-l-4 border-l-primary border-y border-r border-outline-variant p-4">
+                    <div class="flex items-center gap-2 font-mono text-xs font-bold text-primary mb-1">
                         <span class="material-symbols-outlined text-base">auto_awesome</span>
                         <span>ບົດສະຫຼຸບທິດທາງເສດຖະກິດໃນ 3 ບັນທັດ (3-SENTENCE BIG PICTURE)</span>
                     </div>
                     <p id="txt-big-picture" class="text-sm text-white font-medium leading-relaxed">
-                        ກຳລັງປະມວນຜົນບົດສະຫຼຸບເສດຖະກິດ...
+                        ກຳລັງປະມວນຜົນ...
                     </p>
                 </div>
 
-                <!-- Macro Thermometer (ເກຈວັດອຸນຫະພູມເສດຖະກິດ) -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-xs">
                     <div class="bg-surface p-3.5 border border-outline-variant space-y-2">
                         <div class="flex justify-between items-center text-[11px]">
@@ -184,7 +329,7 @@
                     <div class="bg-surface p-3.5 border border-outline-variant space-y-2">
                         <div class="flex justify-between items-center text-[11px]">
                             <span class="text-on-surface-variant">2. ເງິນເຟີ້ (INFLATION)</span>
-                            <span id="thermo-cpi-status" class="font-bold text-tertiary">ຍັງໜຽວ/ລົງຍາກ</span>
+                            <span id="thermo-cpi-status" class="font-bold text-tertiary">ຍັງໜຽວ</span>
                         </div>
                         <div class="w-full bg-surface-low h-2 border border-outline-variant">
                             <div id="thermo-cpi-bar" class="bg-tertiary h-full" style="width: 75%;"></div>
@@ -194,7 +339,7 @@
 
                     <div class="bg-surface p-3.5 border border-outline-variant space-y-2">
                         <div class="flex justify-between items-center text-[11px]">
-                            <span class="text-on-surface-variant">3. ພາກການຜະລິດ/ໂຮງງານ (PMI)</span>
+                            <span class="text-on-surface-variant">3. ພາກການຜະລິດ (PMI)</span>
                             <span id="thermo-mfg-status" class="font-bold text-error">ຊະລໍຕົວ</span>
                         </div>
                         <div class="w-full bg-surface-low h-2 border border-outline-variant">
@@ -204,100 +349,27 @@
                     </div>
                 </div>
 
-                <!-- The Big 3 Plain Questions -->
-                <div class="space-y-2 pt-1">
-                    <div class="font-mono text-xs font-bold text-primary uppercase flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-base">help</span>
-                        <span>ຕອບ 3 ຄຳຖາມໃຫຍ່ທີ່ທຸກຄົນຢາກຮູ້ (THE BIG 3 PLAIN QUESTIONS)</span>
-                    </div>
-                    <div id="plain-qa-container" class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <!-- Injected dynamically -->
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- ============================================================== -->
-            <!-- VIEW 2: ການຄາດການຄວາມໜ້າຈະເປັນ (#/predictions)                -->
-            <!-- ============================================================== -->
-            <div id="view-predictions" class="space-y-3 hidden">
-                
-                <div class="bg-surface-high border border-outline-variant p-3 flex justify-between items-center font-mono">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-tertiary text-lg">psychology</span>
-                        <div>
-                            <span class="text-xs font-bold text-tertiary uppercase">🔮 ແຜງຄາດການຄວາມໜ້າຈະເປັນຂອງຂ່າວທີ່ຈະອອກ (UPCOMING PROBABILITY FORECAST)</span>
-                            <p class="text-[11px] text-on-surface-variant font-sans">ຄິດໄລ່ເປີເຊັນໂອກາດ (%) ໂດຍວິເຄາະສາຍພົວພັນຈາກຕົວເລກທີ່ປະກາດມາກ່ອນແລ້ວ</p>
-                        </div>
-                    </div>
-                    <span class="text-[10px] bg-tertiary/20 text-tertiary border border-tertiary/40 px-2 py-0.5 font-bold">AUTOMATED INFERENCE</span>
-                </div>
-
-                <div id="predictions-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div id="plain-qa-container" class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <!-- Injected dynamically -->
                 </div>
-
             </div>
 
             <!-- ============================================================== -->
-            <!-- VIEW 3: ຕາຕະລາງຂ່າວຕົວຈິງ (#/released)                         -->
+            <!-- VIEW 3: ການຄາດການຄວາມໜ້າຈະເປັນ (#/predictions)                -->
             <!-- ============================================================== -->
-            <div id="view-released" class="space-y-3 hidden">
-                <div class="bg-surface border border-outline-variant p-3.5 space-y-2">
-                    <div class="font-mono text-xs font-bold text-primary uppercase border-b border-outline-variant pb-2">
-                        📊 ລາຍການຂ່າວທີ່ປະກາດແລ້ວຕົວຈິງ (LATEST RELEASED DATA)
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left font-mono text-xs border-collapse">
-                            <thead>
-                                <tr class="bg-surface-low border-b border-outline-variant text-[10px] text-on-surface-variant uppercase">
-                                    <th class="p-2">ວັນທີ &amp; ເວລາ GMT+7</th>
-                                    <th class="p-2 text-center">ກ່ອງຂ່າວ</th>
-                                    <th class="p-2">ຫົວຂໍ້ຂ່າວ</th>
-                                    <th class="p-2 text-right">Actual</th>
-                                    <th class="p-2 text-right">Forecast</th>
-                                    <th class="p-2 text-right">Previous</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbl-released-body" class="divide-y divide-outline-variant bg-surface">
-                                <!-- Injected dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
+            <div id="view-predictions" class="space-y-3 hidden">
+                <div class="bg-surface-low border border-outline-variant p-3 font-mono text-xs font-bold text-primary uppercase">
+                    🔮 ແຜງຄາດການຄວາມໜ້າຈະເປັນຂອງຂ່າວທີ່ຈະອອກ (UPCOMING PROBABILITY FORECAST)
                 </div>
-            </div>
-
-            <!-- ============================================================== -->
-            <!-- VIEW 4: ປະຕິທິນກ່ອງແດງ-ສົ້ມ (#/calendar)                      -->
-            <!-- ============================================================== -->
-            <div id="view-calendar" class="space-y-3 hidden">
-                <div class="bg-surface border border-outline-variant p-3.5 space-y-2">
-                    <div class="font-mono text-xs font-bold text-primary uppercase border-b border-outline-variant pb-2">
-                        📅 ປະຕິທິນຂ່າວກ່ອງແດງ &amp; ສົ້ມ (USD CALENDAR)
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left font-mono text-xs border-collapse">
-                            <thead>
-                                <tr class="bg-surface-low border-b border-outline-variant text-[10px] text-on-surface-variant uppercase">
-                                    <th class="p-2">ວັນທີ &amp; ເວລາ GMT+7</th>
-                                    <th class="p-2 text-center">ກ່ອງຂ່າວ</th>
-                                    <th class="p-2">ຫົວຂໍ້ຂ່າວ</th>
-                                    <th class="p-2 text-right">Forecast</th>
-                                    <th class="p-2 text-right">Previous</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbl-calendar-body" class="divide-y divide-outline-variant bg-surface">
-                                <!-- Injected dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
+                <div id="predictions-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Injected dynamically -->
                 </div>
             </div>
 
         </main>
     </div>
 
-    <!-- 3. CLIENT SCRIPT -->
+    <!-- CLIENT SCRIPT -->
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -315,37 +387,87 @@
         }
 
         function handleRoute() {
-            const hash = window.location.hash || '#/digest';
+            const hash = window.location.hash || '#/transmission';
             
-            // Hide all views
-            ['view-digest', 'view-predictions', 'view-released', 'view-calendar'].forEach(id => {
+            ['view-transmission', 'view-digest', 'view-predictions'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
             });
 
-            // Reset all sidebar buttons style
-            ['nav-digest', 'nav-predictions', 'nav-released', 'nav-calendar'].forEach(id => {
+            ['nav-transmission', 'nav-digest', 'nav-predictions'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white font-mono text-xs';
             });
 
             const titleEl = document.getElementById('current-view-title');
 
-            if (hash === '#/predictions') {
-                document.getElementById('view-predictions').classList.remove('hidden');
-                document.getElementById('nav-predictions').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
-                titleEl.innerText = '2. ການຄາດການຄວາມໜ້າຈະເປັນ (PROBABILITY FORECAST)';
-            } else if (hash === '#/released') {
-                document.getElementById('view-released').classList.remove('hidden');
-                document.getElementById('nav-released').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
-                titleEl.innerText = '3. ລາຍການຂ່າວທີ່ປະກາດແລ້ວຕົວຈິງ (RELEASED DATA)';
-            } else if (hash === '#/calendar') {
-                document.getElementById('view-calendar').classList.remove('hidden');
-                document.getElementById('nav-calendar').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
-                titleEl.innerText = '4. ປະຕິທິນຂ່າວກ່ອງແດງ-ສົ້ມ (USD CALENDAR)';
-            } else {
+            if (hash === '#/digest') {
                 document.getElementById('view-digest').classList.remove('hidden');
                 document.getElementById('nav-digest').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
-                titleEl.innerText = '1. ບົດສະຫຼຸບ & ວິເຄາະທິດທາງເສດຖະກິດ (MACRO DIGEST)';
+                titleEl.innerText = '2. ສະຫຼຸບທິດທາງເສດຖະກິດ (PLAIN MACRO DIGEST)';
+            } else if (hash === '#/predictions') {
+                document.getElementById('view-predictions').classList.remove('hidden');
+                document.getElementById('nav-predictions').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
+                titleEl.innerText = '3. ການຄາດການຄວາມໜ້າຈະເປັນ (PROBABILITY FORECAST)';
+            } else {
+                document.getElementById('view-transmission').classList.remove('hidden');
+                document.getElementById('nav-transmission').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
+                titleEl.innerText = '1. ໂຄງຂ່າຍການສົ່ງຜ່ານ & SCENARIO ENGINE (TRANSMISSION MECHANISM)';
+            }
+        }
+
+        // Scenario Engine Click Handler
+        function selectScenario(type) {
+            const nodeLabor = document.getElementById('node-labor');
+            const nodeFed = document.getElementById('node-fed');
+            const nodeUsdYield = document.getElementById('node-usdyield');
+            const node10y = document.getElementById('node-10y');
+            const nodeGold = document.getElementById('node-gold');
+            const badge = document.getElementById('trans-state-badge');
+            const usdTag = document.getElementById('bias-usd-tag');
+            const goldTag = document.getElementById('bias-gold-tag');
+
+            if (type === 'ABOVE') {
+                badge.innerText = 'HAWKISH FLOW (BEAT)';
+                badge.className = 'text-[9px] bg-tertiary/20 text-tertiary border border-tertiary/40 px-2 py-0.5 rounded font-bold';
+                
+                nodeLabor.className = 'bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+                nodeFed.className = 'bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+                nodeUsdYield.className = 'bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+                node10y.className = 'bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+                nodeGold.className = 'bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+
+                usdTag.innerText = 'BULLISH ↑';
+                usdTag.className = 'font-mono text-xs font-bold text-tertiary';
+                goldTag.innerText = 'BEARISH ↓';
+                goldTag.className = 'font-mono text-xs font-bold text-error';
+            } else if (type === 'BELOW') {
+                badge.innerText = 'DOVISH FLOW (MISS)';
+                badge.className = 'text-[9px] bg-error/20 text-error border border-error/40 px-2 py-0.5 rounded font-bold';
+
+                nodeLabor.className = 'bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+                nodeFed.className = 'bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+                nodeUsdYield.className = 'bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+                node10y.className = 'bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+                nodeGold.className = 'bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+
+                usdTag.innerText = 'BEARISH ↓';
+                usdTag.className = 'font-mono text-xs font-bold text-error';
+                goldTag.innerText = 'BULLISH ↑';
+                goldTag.className = 'font-mono text-xs font-bold text-tertiary';
+            } else {
+                badge.innerText = 'NEUTRAL FLOW (IN LINE)';
+                badge.className = 'text-[9px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded font-bold';
+
+                nodeLabor.className = 'bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+                nodeFed.className = 'bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+                nodeUsdYield.className = 'bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+                node10y.className = 'bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+                nodeGold.className = 'bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
+
+                usdTag.innerText = 'NEUTRAL —';
+                usdTag.className = 'font-mono text-xs font-bold text-primary';
+                goldTag.innerText = 'NEUTRAL —';
+                goldTag.className = 'font-mono text-xs font-bold text-primary';
             }
         }
 
@@ -362,7 +484,14 @@
         function renderUI(d) {
             document.getElementById('disp-cycle-time').innerText = d.currentCycleLao;
             
-            // 1. Render Plain Digest
+            // 1. Red Event Header
+            const evt = d.activeRedEvent;
+            document.getElementById('red-event-title').innerText = evt.title;
+            document.getElementById('red-event-forecast').innerText = evt.forecast;
+            document.getElementById('red-event-previous').innerText = evt.previous;
+            document.getElementById('red-event-date').innerText = evt.dateGMT7;
+
+            // 2. Render Digest
             const digest = d.plainDigest;
             document.getElementById('txt-big-picture').innerText = digest.bigPictureSummary;
 
@@ -392,7 +521,7 @@
                 </div>
             `).join('');
 
-            // 2. Render Probability Predictions Cards
+            // 3. Render Predictions
             const predGrid = document.getElementById('predictions-grid');
             predGrid.innerHTML = d.upcomingPredictions.map(p => `
                 <div class="bg-surface p-3.5 border border-outline-variant space-y-2.5 flex flex-col justify-between">
@@ -415,7 +544,7 @@
                         <div class="space-y-1.5 font-mono text-[11px]">
                             <div>
                                 <div class="flex justify-between text-[10px] mb-0.5">
-                                    <span class="text-error font-bold">🔥 ສູງກວ່າຄາດ (Above):</span>
+                                    <span class="text-error font-bold">🔥 ໂອກາດສູງກວ່າຄາດ:</span>
                                     <span class="font-bold text-error">${p.probAbove}%</span>
                                 </div>
                                 <div class="w-full bg-surface-low h-1.5 border border-outline-variant">
@@ -424,7 +553,7 @@
                             </div>
                             <div>
                                 <div class="flex justify-between text-[10px] mb-0.5">
-                                    <span class="text-primary">↔️ ຕາມຄາດ (In-line):</span>
+                                    <span class="text-primary">↔️ ໂອກາດຕາມຄາດ:</span>
                                     <span class="font-bold text-primary">${p.probInline}%</span>
                                 </div>
                                 <div class="w-full bg-surface-low h-1.5 border border-outline-variant">
@@ -439,37 +568,6 @@
                         <p class="text-[11px] text-on-surface-variant">${p.reasoning}</p>
                     </div>
                 </div>
-            `).join('');
-
-            // 3. Render Released Table
-            document.getElementById('tbl-released-body').innerHTML = d.releasedEvents.map(e => `
-                <tr class="hover:bg-surface-container transition-colors">
-                    <td class="p-2 text-white">${e.dateGMT7} <span class="text-primary font-bold">${e.timeGMT7}</span></td>
-                    <td class="p-2 text-center">
-                        <span class="px-2 py-0.5 text-[9px] font-bold ${e.impact === 'High' ? 'bg-red-500/20 text-red-400' : 'bg-orange-500/20 text-orange-400'}">
-                            ${e.impact === 'High' ? '🟥 ແດງ' : '🟧 ສົ້ມ'}
-                        </span>
-                    </td>
-                    <td class="p-2 text-white font-bold">${e.title}</td>
-                    <td class="p-2 text-right font-bold text-primary text-sm">${e.actual}</td>
-                    <td class="p-2 text-right text-on-surface-variant">${e.forecast}</td>
-                    <td class="p-2 text-right text-on-surface-variant">${e.previous}</td>
-                </tr>
-            `).join('');
-
-            // 4. Render Calendar
-            document.getElementById('tbl-calendar-body').innerHTML = d.upcomingEvents.map(e => `
-                <tr class="hover:bg-surface-container transition-colors">
-                    <td class="p-2 text-white">${e.dateGMT7} ${e.timeGMT7}</td>
-                    <td class="p-2 text-center">
-                        <span class="px-1.5 py-0.5 text-[9px] font-bold ${e.impact === 'High' ? 'bg-red-500/20 text-red-400' : 'bg-orange-500/20 text-orange-400'}">
-                            ${e.impact === 'High' ? '🟥 ແດງ' : '🟧 ສົ້ມ'}
-                        </span>
-                    </td>
-                    <td class="p-2 text-white font-bold">${e.title}</td>
-                    <td class="p-2 text-right text-on-surface-variant">${e.forecast}</td>
-                    <td class="p-2 text-right text-on-surface-variant">${e.previous}</td>
-                </tr>
             `).join('');
         }
 
