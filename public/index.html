@@ -179,3 +179,175 @@ finnhubSocket.onmessage = (event) => {
         });
     }
 };
+<!-- ============================================================== -->
+<!-- INTERACTIVE SCENARIO ENGINE & TRANSMISSION GRAPH MODULE        -->
+<!-- ============================================================== -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-5 my-6">
+
+    <!-- LEFT (8 Cols): INTERACTIVE SCENARIO CONTROLLER & YIELD CALCULATOR -->
+    <div class="lg:col-span-7 space-y-4">
+        
+        <!-- Scenario Controls Card -->
+        <div class="bg-surface-container-high rounded-xl p-5 border border-outline-variant/40 space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                    <span class="material-symbols-outlined text-sm">tune</span>
+                    <span data-i18n="scenarioEngine">INTERACTIVE SCENARIO ENGINE</span>
+                </h3>
+                <span class="text-[11px] font-mono text-on-surface-variant">CONSENSUS: <span id="consensus-anchor" class="text-white font-bold">175K</span></span>
+            </div>
+
+            <!-- Preset Scenario Triggers -->
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="engine.setScenario('ABOVE')" id="btn-scen-above" class="scenario-btn p-3 rounded-lg border border-outline-variant/40 bg-surface-container hover:border-tertiary text-left transition-all group">
+                    <div class="text-[10px] font-mono text-gray-400 group-hover:text-tertiary">SCENARIO A</div>
+                    <div class="text-xs font-bold text-tertiary mt-0.5" data-i18n="nfpAbove">> 200K (BEAT)</div>
+                    <div class="text-[10px] text-gray-400 font-mono mt-1">Prob: 20%</div>
+                </button>
+
+                <button onclick="engine.setScenario('IN_LINE')" id="btn-scen-inline" class="scenario-btn p-3 rounded-lg border-2 border-primary bg-primary/10 text-left transition-all group">
+                    <div class="text-[10px] font-mono text-primary">SCENARIO B</div>
+                    <div class="text-xs font-bold text-white mt-0.5">150K - 190K</div>
+                    <div class="text-[10px] text-gray-400 font-mono mt-1">Prob: 60%</div>
+                </button>
+
+                <button onclick="engine.setScenario('BELOW')" id="btn-scen-below" class="scenario-btn p-3 rounded-lg border border-outline-variant/40 bg-surface-container hover:border-error text-left transition-all group">
+                    <div class="text-[10px] font-mono text-gray-400 group-hover:text-error">SCENARIO C</div>
+                    <div class="text-xs font-bold text-error mt-0.5" data-i18n="nfpBelow">< 150K (MISS)</div>
+                    <div class="text-[10px] text-gray-400 font-mono mt-1">Prob: 20%</div>
+                </button>
+            </div>
+
+            <!-- Dynamic Slider Input -->
+            <div class="pt-2 border-t border-outline-variant/30 space-y-2">
+                <div class="flex justify-between items-center font-mono text-xs">
+                    <span class="text-on-surface-variant">CUSTOM OUTCOME SLIDER:</span>
+                    <span id="slider-display-val" class="font-bold text-white text-sm bg-surface-container px-2 py-0.5 rounded border border-outline-variant/40">175K</span>
+                </div>
+                <input type="range" id="outcome-slider" min="50" max="300" step="5" value="175" 
+                       oninput="engine.handleSlider(this.value)"
+                       class="w-full h-1.5 bg-[#334155] rounded-lg appearance-none cursor-pointer accent-secondary"/>
+                <div class="flex justify-between text-[10px] font-mono text-gray-400">
+                    <span>50K (Severe Contraction)</span>
+                    <span>175K (Consensus)</span>
+                    <span>300K (Overheated)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Yield Shift Result Panel -->
+        <div class="bg-surface-container rounded-xl p-5 border border-outline-variant/30 space-y-3">
+            <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-on-surface-variant font-mono uppercase" data-i18n="yieldSensitivity">10Y YIELD TRANSMISSION CALC</span>
+                <span class="text-[11px] font-mono text-primary">Baseline: 4.250%</span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div class="bg-surface-container-high p-3 rounded-lg border border-outline-variant/30">
+                    <div class="text-[10px] font-mono text-gray-400">DELTA FROM CONSENSUS</div>
+                    <div id="calc-delta-consensus" class="font-mono text-base font-bold text-white mt-1">0K (0.0σ)</div>
+                </div>
+
+                <div class="bg-surface-container-high p-3 rounded-lg border border-outline-variant/30">
+                    <div class="text-[10px] font-mono text-gray-400">ESTIMATED YIELD SHIFT</div>
+                    <div id="calc-yield-shift" class="font-mono text-base font-bold text-primary mt-1">0.0 bps</div>
+                </div>
+
+                <div class="bg-surface-container-high p-3 rounded-lg border border-outline-variant/30 col-span-2 sm:col-span-1">
+                    <div class="text-[10px] font-mono text-gray-400">IMPLIED 10Y TARGET</div>
+                    <div id="calc-target-yield" class="font-mono text-base font-bold text-white mt-1">4.250%</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RIGHT (5 Cols): VISUAL TRANSMISSION MECHANISM GRAPH -->
+    <div class="lg:col-span-5">
+        <div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/40 relative h-full flex flex-col justify-between overflow-hidden">
+            
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-xs font-bold text-on-surface-variant font-mono uppercase tracking-wider" data-i18n="transmissionMechanism">TRANSMISSION MECHANISM</h3>
+                <span id="trans-status-badge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-primary/20 text-primary border border-primary/40">NEUTRAL FLOW</span>
+            </div>
+
+            <!-- Visual Flow Network -->
+            <div class="relative py-2 flex flex-col items-center gap-3">
+                
+                <!-- NODE 1: DATA EVENT -->
+                <div id="node-event" class="node-box w-64 bg-surface-container border-2 border-outline-variant p-2.5 rounded-lg flex items-center justify-between transition-all duration-500 z-10">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary text-lg">engineering</span>
+                        <div>
+                            <div class="text-[10px] font-mono text-gray-400">INPUT EVENT</div>
+                            <div class="text-xs font-bold text-white font-mono" id="node-event-title">NFP: 175K</div>
+                        </div>
+                    </div>
+                    <span id="node-event-tag" class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-surface-variant text-gray-300">IN LINE</span>
+                </div>
+
+                <!-- CONNECTOR 1 -->
+                <div class="h-4 w-0.5 bg-outline-variant/50 relative overflow-hidden">
+                    <div id="flow-line-1" class="absolute inset-0 bg-primary opacity-60"></div>
+                </div>
+
+                <!-- NODE 2: FED POLICY BIAS -->
+                <div id="node-fed" class="node-box w-64 bg-surface-container border-2 border-outline-variant p-2.5 rounded-lg flex items-center justify-between transition-all duration-500 z-10">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-lg">account_balance</span>
+                        <div>
+                            <div class="text-[10px] font-mono text-gray-400">CENTRAL BANK</div>
+                            <div class="text-xs font-bold text-white font-mono" id="node-fed-title">FED BIAS</div>
+                        </div>
+                    </div>
+                    <span id="node-fed-tag" class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-surface-variant text-gray-300">BALANCED</span>
+                </div>
+
+                <!-- CONNECTOR 2 -->
+                <div class="h-4 w-0.5 bg-outline-variant/50 relative overflow-hidden">
+                    <div id="flow-line-2" class="absolute inset-0 bg-primary opacity-60"></div>
+                </div>
+
+                <!-- NODE 3: 10Y YIELD TRANSMISSION -->
+                <div id="node-yield" class="node-box w-64 bg-surface-container border-2 border-outline-variant p-2.5 rounded-lg flex items-center justify-between transition-all duration-500 z-10">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary text-lg">show_chart</span>
+                        <div>
+                            <div class="text-[10px] font-mono text-gray-400">RATES TRANSMISSION</div>
+                            <div class="text-xs font-bold text-white font-mono" id="node-yield-title">US 10Y: 4.250%</div>
+                        </div>
+                    </div>
+                    <span id="node-yield-tag" class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-surface-variant text-gray-300">FLAT</span>
+                </div>
+
+                <!-- CONNECTOR 3 (FORK) -->
+                <div class="flex items-center justify-center w-48 h-4 relative">
+                    <div class="w-36 h-0.5 bg-outline-variant/50"></div>
+                </div>
+
+                <!-- NODE 4 & 5: ASSET IMPACT FORK -->
+                <div class="grid grid-cols-2 gap-2 w-full max-w-[280px] z-10">
+                    <!-- USD -->
+                    <div id="node-usd" class="node-box bg-surface-container border-2 border-outline-variant p-2 rounded-lg text-center transition-all duration-500">
+                        <div class="text-[10px] font-mono text-gray-400">USD INDEX</div>
+                        <div class="text-xs font-bold text-white font-mono mt-0.5" id="node-usd-val">NEUTRAL</div>
+                    </div>
+                    <!-- GOLD -->
+                    <div id="node-gold" class="node-box bg-surface-container border-2 border-outline-variant p-2 rounded-lg text-center transition-all duration-500">
+                        <div class="text-[10px] font-mono text-gray-400">GOLD (XAU)</div>
+                        <div class="text-xs font-bold text-white font-mono mt-0.5" id="node-gold-val">NEUTRAL</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footnote / Methodology Tag -->
+            <div class="mt-3 text-[10px] text-gray-400 font-mono border-t border-outline-variant/20 pt-2 flex justify-between">
+                <span>Model: Term Premia Sensitivity</span>
+                <span>Std Dev: σ = 25K</span>
+            </div>
+
+        </div>
+    </div>
+
+</div>
