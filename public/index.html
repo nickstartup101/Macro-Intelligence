@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>FOREX FACTORY // Auto Macro Intelligence</title>
+    <title>MACRO_TERMINAL // Economic Intelligence & Probability Engine</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Noto+Sans+Lao:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
@@ -14,7 +14,9 @@
             theme: {
                 extend: {
                     colors: {
+                        "surface-dim": "#0c1324",
                         "surface": "#0c1324",
+                        "surface-container-lowest": "#070d1f",
                         "surface-container-low": "#151b2d",
                         "surface-container": "#191f31",
                         "surface-container-high": "#23293c",
@@ -25,6 +27,7 @@
                         "on-surface": "#dce1fb",
                         "on-surface-variant": "#bdc8d1"
                     },
+                    borderRadius: { "DEFAULT": "0px", "sm": "0px", "md": "2px", "lg": "2px" },
                     fontFamily: {
                         sans: ['Inter', 'Noto Sans Lao', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace']
@@ -36,180 +39,348 @@
 </head>
 <body class="bg-[#0c1324] text-[#dce1fb] min-h-screen flex flex-col font-sans selection:bg-primary selection:text-black">
 
-    <!-- Top Command Header -->
-    <header class="fixed top-0 left-0 w-full h-11 z-50 flex items-center justify-between px-4 bg-surface border-b border-outline-variant select-none">
+    <!-- TOP APP BAR -->
+    <header class="fixed top-0 left-0 w-full h-10 z-50 flex items-center justify-between px-3 bg-surface border-b border-outline-variant select-none">
         <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-primary text-xl">rss_feed</span>
-            <h1 class="font-mono text-xs font-bold text-primary tracking-wider uppercase">FOREX_FACTORY // AUTO_INTELLIGENCE</h1>
-            <span class="hidden sm:inline-flex items-center gap-1 font-mono text-[10px] text-green-400 bg-green-500/10 border border-green-500/30 px-2 py-0.5 rounded">
-                <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-ping"></span>
-                <span>AUTO-SYNC ACTIVE</span>
-            </span>
+            <div class="flex items-center gap-1.5 cursor-pointer" onclick="navigate('#/')">
+                <span class="material-symbols-outlined text-primary text-[18px]">psychology</span>
+                <h1 class="font-mono text-xs font-bold text-primary tracking-tighter uppercase">MACRO_TERMINAL // FORECAST_PRO</h1>
+            </div>
+
+            <!-- View Switcher Tabs -->
+            <nav class="hidden md:flex items-center h-full ml-4 font-mono text-[11px]">
+                <button onclick="navigate('#/released')" id="tab-released" class="h-10 px-3 flex items-center text-primary border-b-2 border-primary font-bold bg-surface-container-low">⚡ ຕົວເລກປະກາດແລ້ວ &amp; ວິເຄາະ (RELEASED)</button>
+                <button onclick="navigate('#/upcoming')" id="tab-upcoming" class="h-10 px-3 flex items-center text-on-surface-variant hover:bg-surface-container transition-colors">🔮 ຄາດການຄວາມໜ້າຈະເປັນຂ່າວຖັດໄປ (PROBABILITY)</button>
+                <button onclick="navigate('#/calendar')" id="tab-calendar" class="h-10 px-3 flex items-center text-on-surface-variant hover:bg-surface-container transition-colors">📅 ປະຕິທິນ FOREX FACTORY (CALENDAR)</button>
+            </nav>
         </div>
 
-        <div class="flex items-center gap-2 font-mono text-xs">
-            <span id="sync-time" class="text-[10px] text-on-surface-variant hidden md:inline">SYNCING...</span>
-            <button onclick="forceSyncForexFactory()" class="flex items-center gap-1 px-3 py-1 bg-primary text-black font-bold hover:bg-white transition-colors text-[11px]">
+        <div class="flex items-center gap-2">
+            <button onclick="fetchMacroTerminalData()" class="flex items-center gap-1 px-3 py-1 bg-primary text-black font-mono text-[11px] font-bold hover:bg-white transition-colors">
                 <span class="material-symbols-outlined text-[14px]">sync</span>
-                <span>ດຶງຂໍ້ມູນດຽວນີ້ (SYNC NOW)</span>
+                <span>SYNC FOREX FACTORY</span>
             </button>
         </div>
     </header>
 
-    <!-- Main Workspace -->
-    <main class="flex-1 p-4 max-w-[1400px] mx-auto w-full pt-16 pb-12 space-y-4">
+    <!-- MAIN WORKSPACE -->
+    <main class="flex-1 p-3 max-w-[1600px] mx-auto w-full pt-14 pb-12 space-y-3">
         
-        <!-- Executive Summary Banner -->
-        <div class="bg-surface-container-high border-l-4 border-l-primary border-y border-r border-outline-variant p-4">
-            <div class="flex items-center gap-2 font-mono text-xs font-bold text-primary mb-1">
-                <span class="material-symbols-outlined text-base">auto_awesome</span>
-                <span>ສະຫຼຸບຜົນວິເຄາະອັດຕະໂນມັດຈາກ FOREX FACTORY (LIVE AUTO-SYNTHESIS)</span>
-            </div>
-            <p id="txt-summary" class="text-sm text-white font-medium leading-relaxed">
-                ກຳລັງດຶງຕົວເລກຫຼ້າສຸດຈາກ Forex Factory...
-            </p>
-        </div>
-
-        <!-- 4 Explanatory Pillars -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- ============================================================== -->
+        <!-- VIEW 1: RELEASED MATRIX & NATURAL EXPLANATIONS (#/released)     -->
+        <!-- ============================================================== -->
+        <div id="view-released" class="space-y-3">
             
-            <!-- Pillar 1: Labor -->
-            <div class="bg-surface p-4 border border-outline-variant space-y-3">
-                <div class="flex justify-between items-center border-b border-outline-variant pb-2">
-                    <span class="font-mono text-xs font-bold text-primary flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-base">badge</span>
-                        <span>1. ຕະຫຼາດການຈ້າງງານ (NFP &amp; UNEMPLOYMENT)</span>
-                    </span>
-                    <span id="badge-labor" class="font-mono text-[10px] bg-primary/20 text-primary px-2 py-0.5 font-bold">--</span>
+            <!-- Executive Summary -->
+            <div class="bg-surface-container-high border-l-4 border-l-primary border-y border-r border-outline-variant p-4">
+                <div class="flex items-center gap-2 font-mono text-xs font-bold text-primary mb-1">
+                    <span class="material-symbols-outlined text-base">auto_awesome</span>
+                    <span>ສະຫຼຸບພາບລວມຕົວເລກເສດຖະກິດຫຼ້າສຸດ (EXECUTIVE SUMMARY)</span>
                 </div>
-                <div class="grid grid-cols-3 gap-2 font-mono text-xs text-center">
-                    <div class="bg-surface-container-low p-2 border border-outline-variant"><span class="text-[10px] text-on-surface-variant block">NFP ACTUAL</span><strong id="val-nfp" class="text-primary font-bold text-sm">--</strong></div>
-                    <div class="bg-surface-container-low p-2 border border-outline-variant"><span class="text-[10px] text-on-surface-variant block">ADP PRIVATE</span><strong id="val-adp" class="text-white font-bold text-sm">--</strong></div>
-                    <div class="bg-surface-container-low p-2 border border-outline-variant"><span class="text-[10px] text-on-surface-variant block">UNEMP RATE</span><strong id="val-unemp" class="text-error font-bold text-sm">--</strong></div>
-                </div>
-                <div class="p-3 bg-surface-container-low border border-outline-variant">
-                    <div class="text-[11px] font-bold text-primary mb-1">💡 ຕົວເລກນີ້ບອກຫຍັງເຮົາ?</div>
-                    <p id="exp-labor" class="text-xs text-on-surface leading-relaxed">...</p>
-                </div>
+                <p id="txt-exec-summary" class="text-sm text-white font-medium leading-relaxed">
+                    ກຳລັງດຶງຂໍ້ມູນ ແລະ ປະມວນຜົນການວິເຄາະ...
+                </p>
             </div>
 
-            <!-- Pillar 2: ISM Manufacturing -->
-            <div class="bg-surface p-4 border border-outline-variant space-y-3">
-                <div class="flex justify-between items-center border-b border-outline-variant pb-2">
-                    <span class="font-mono text-xs font-bold text-tertiary flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-base">factory</span>
-                        <span>2. ພາກການຜະລິດ (ISM MANUFACTURING)</span>
-                    </span>
-                    <span id="badge-ism" class="font-mono text-[10px] bg-error/20 text-error px-2 py-0.5 font-bold">--</span>
-                </div>
-                <div class="font-mono text-xs">
-                    <span>ISM ACTUAL: <strong id="val-ism" class="text-white text-sm">--</strong> (ເກນຕັດສິນ: 50.0%)</span>
-                </div>
-                <div class="p-3 bg-surface-container-low border border-outline-variant">
-                    <div class="text-[11px] font-bold text-tertiary mb-1">💡 ຕົວເລກນີ້ບອກຫຍັງເຮົາ?</div>
-                    <p id="exp-ism" class="text-xs text-on-surface leading-relaxed">...</p>
-                </div>
-            </div>
+            <!-- Economic Release Table Matrix -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter bg-outline-variant border border-outline-variant p-[1px]">
+                <div class="lg:col-span-8 bg-surface p-3.5 space-y-3">
+                    <div class="flex items-center justify-between border-b border-outline-variant pb-1.5 font-mono">
+                        <span class="text-xs font-bold text-primary uppercase">ECONOMIC DATA MATRIX (FOREX FACTORY SYNCED)</span>
+                        <span id="sync-time" class="text-[10px] text-on-surface-variant">SYNCING...</span>
+                    </div>
 
-            <!-- Pillar 3: Fed Policy -->
-            <div class="bg-surface p-4 border border-outline-variant space-y-3">
-                <div class="flex justify-between items-center border-b border-outline-variant pb-2">
-                    <span class="font-mono text-xs font-bold text-primary flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-base">account_balance</span>
-                        <span>3. ທິດທາງດອກເບ້ຍ FED (CENTRAL BANK STANCE)</span>
-                    </span>
-                    <span id="badge-fed" class="font-mono text-[10px] bg-primary text-black px-2 py-0.5 font-bold">--</span>
+                    <div class="overflow-x-auto border border-outline-variant">
+                        <table class="w-full text-left font-mono text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-outline-variant text-[10px] text-on-surface-variant uppercase">
+                                    <th class="p-2">Indicator</th>
+                                    <th class="p-2 text-right">Actual</th>
+                                    <th class="p-2 text-right">Forecast</th>
+                                    <th class="p-2 text-right">Prev</th>
+                                    <th class="p-2 pl-4">Meaning &amp; Market Impact</th>
+                                </tr>
+                            </thead>
+                            <tbody id="matrix-tbody" class="divide-y divide-outline-variant bg-surface">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="p-3 bg-surface-container-low border border-outline-variant">
-                    <div class="text-[11px] font-bold text-primary mb-1">🏛️ Fed ຈະເຮັດແນວໃດຕໍ່ກັບດອກເບ້ຍ?</div>
-                    <p id="exp-fed" class="text-xs text-on-surface leading-relaxed">...</p>
-                </div>
-            </div>
 
-            <!-- Pillar 4: Gold & Assets -->
-            <div class="bg-surface p-4 border border-outline-variant space-y-3">
-                <div class="flex justify-between items-center border-b border-outline-variant pb-2">
-                    <span class="font-mono text-xs font-bold text-tertiary flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-base">monitoring</span>
-                        <span>4. ຜົນກະທົບຕໍ່ທອງຄຳ (GOLD) &amp; USD</span>
-                    </span>
-                    <span class="font-mono text-[10px] text-primary">USD: <strong id="val-usd">--</strong></span>
-                </div>
-                <div class="p-3 bg-surface-container-low border border-outline-variant">
-                    <div class="text-[11px] font-bold text-tertiary mb-1">📈 ທ່າອ່ຽງລາຄາທອງຄຳ (XAU/USD):</div>
-                    <p id="exp-gold" class="text-xs text-on-surface leading-relaxed">...</p>
+                <!-- Technical Gold & Cross-Asset Card -->
+                <div class="lg:col-span-4 bg-surface p-3.5 space-y-3 font-mono">
+                    <div class="flex items-center justify-between border-b border-outline-variant pb-1.5">
+                        <span class="text-xs font-bold text-tertiary">XAU/USD &amp; CROSS-ASSET IMPACT</span>
+                        <span class="text-[10px] bg-surface-container px-2 py-0.5 border border-outline-variant text-tertiary font-bold">REVERSAL WATCH</span>
+                    </div>
+                    <div class="bg-surface-container-low border border-outline-variant p-3 space-y-2">
+                        <div class="text-xs text-on-surface-variant">USD: <strong id="lbl-usd" class="text-primary">--</strong></div>
+                        <div class="text-xs text-on-surface-variant">10Y YIELD: <strong id="lbl-yield" class="text-primary">--</strong></div>
+                        <div class="p-2 bg-surface border border-outline-variant text-xs text-on-surface font-sans leading-relaxed" id="txt-gold-exp">
+                            ...
+                        </div>
+                    </div>
                 </div>
             </div>
 
         </div>
 
-        <!-- Pillar 5: Next Catalyst -->
-        <div class="bg-surface border border-outline-variant p-4 flex items-start gap-3">
-            <span class="material-symbols-outlined text-primary text-2xl">event_upcoming</span>
-            <div>
-                <div class="font-mono text-xs font-bold text-primary uppercase">ຕົວເລກສຳຄັນຖັດໄປທີ່ຕ້ອງຕິດຕາມ (NEXT CATALYST):</div>
-                <p id="exp-next" class="text-xs text-on-surface mt-1 leading-relaxed">...</p>
+        <!-- ============================================================== -->
+        <!-- VIEW 2: UPCOMING PROBABILITY & FORECASTING ENGINE (#/upcoming)  -->
+        <!-- ============================================================== -->
+        <div id="view-upcoming" class="space-y-3 hidden">
+            
+            <div class="bg-surface-container-high border border-outline-variant p-3 flex justify-between items-center font-mono">
+                <div>
+                    <span class="text-xs font-bold text-primary uppercase">🔮 UPCOMING RELEASE PROBABILITY INFERENCE</span>
+                    <p class="text-[11px] text-on-surface-variant font-sans">ຄາດການຄວາມໜ້າຈະເປັນຂອງຂ່າວທີ່ຈະອອກ ໂດຍວິເຄາະຈາກຕົວເລກຊີ້ວັດນຳໜ້າ (Leading Indicators)</p>
+                </div>
+                <span class="text-xs bg-primary text-black font-bold px-2 py-0.5">MACRO INFERENCE MODEL</span>
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                
+                <!-- Prediction Card 1: CPI -->
+                <div class="bg-surface p-4 border border-outline-variant space-y-3">
+                    <div class="flex justify-between items-center border-b border-outline-variant pb-2">
+                        <span class="font-mono text-xs font-bold text-primary">1. ຄາດການຄວາມໜ້າຈະເປັນ: ດັດຊະນີເງິນເຟີ້ CPI</span>
+                        <span class="font-mono text-[10px] bg-primary/20 text-primary px-2 py-0.5 font-bold" id="cpi-target-date">10 APR 2025</span>
+                    </div>
+
+                    <!-- Probability Bars -->
+                    <div class="space-y-2 font-mono text-xs">
+                        <div>
+                            <div class="flex justify-between text-[11px] mb-1">
+                                <span class="text-error font-bold">🔥 ໂອກາດຮ້ອນແຮງກວ່າຄາດ (Hot CPI):</span>
+                                <span id="prob-cpi-hot" class="font-bold text-error">70%</span>
+                            </div>
+                            <div class="w-full bg-surface-container h-2 border border-outline-variant">
+                                <div id="bar-cpi-hot" class="bg-error h-full" style="width: 70%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-[11px] mb-1">
+                                <span class="text-primary">↔️ ໂອກາດອອກຕາມຄາດ (In-Line):</span>
+                                <span id="prob-cpi-inline" class="font-bold text-primary">20%</span>
+                            </div>
+                            <div class="w-full bg-surface-container h-2 border border-outline-variant">
+                                <div id="bar-cpi-inline" class="bg-primary h-full" style="width: 20%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-[11px] mb-1">
+                                <span class="text-tertiary">❄️ ໂອກາດເຢັນລົງກວ່າຄາດ (Cool CPI):</span>
+                                <span id="prob-cpi-cool" class="font-bold text-tertiary">10%</span>
+                            </div>
+                            <div class="w-full bg-surface-container h-2 border border-outline-variant">
+                                <div id="bar-cpi-cool" class="bg-tertiary h-full" style="width: 10%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-surface-container-low border border-outline-variant">
+                        <div class="text-[11px] font-bold text-primary mb-1">💡 ເປັນຫຍັງລະບົບຈຶ່ງຄາດການແບບນີ້?</div>
+                        <p id="txt-cpi-reason" class="text-xs text-on-surface leading-relaxed">...</p>
+                    </div>
+                </div>
+
+                <!-- Prediction Card 2: FOMC -->
+                <div class="bg-surface p-4 border border-outline-variant space-y-3">
+                    <div class="flex justify-between items-center border-b border-outline-variant pb-2">
+                        <span class="font-mono text-xs font-bold text-tertiary">2. ຄາດການຄວາມໜ້າຈະເປັນ: ດອກເບ້ຍທະນາຄານກາງ FED</span>
+                        <span class="font-mono text-[10px] bg-tertiary/20 text-tertiary px-2 py-0.5 font-bold" id="fomc-target-date">MAY 2025</span>
+                    </div>
+
+                    <!-- Probability Bars -->
+                    <div class="space-y-2 font-mono text-xs">
+                        <div>
+                            <div class="flex justify-between text-[11px] mb-1">
+                                <span class="text-primary font-bold">🏛️ ຄົງດອກເບ້ຍສູງຕໍ່ໄປ (Hold 5.25%-5.50%):</span>
+                                <span id="prob-fomc-hold" class="font-bold text-primary">85%</span>
+                            </div>
+                            <div class="w-full bg-surface-container h-2 border border-outline-variant">
+                                <div id="bar-fomc-hold" class="bg-primary h-full" style="width: 85%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-[11px] mb-1">
+                                <span class="text-tertiary">📉 ຫຼຸດດອກເບ້ຍລົງ (-25bps Cut):</span>
+                                <span id="prob-fomc-cut" class="font-bold text-tertiary">15%</span>
+                            </div>
+                            <div class="w-full bg-surface-container h-2 border border-outline-variant">
+                                <div id="bar-fomc-cut" class="bg-tertiary h-full" style="width: 15%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-surface-container-low border border-outline-variant">
+                        <div class="text-[11px] font-bold text-tertiary mb-1">💡 ວິເຄາະຜົນກະທົບຕໍ່ນະໂຍບາຍ Fed:</div>
+                        <p id="txt-fomc-reason" class="text-xs text-on-surface leading-relaxed">...</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- VIEW 3: UPCOMING FOREX FACTORY CALENDAR (#/calendar)           -->
+        <!-- ============================================================== -->
+        <div id="view-calendar" class="space-y-3 hidden">
+            
+            <div class="bg-surface-container-high border border-outline-variant p-3 flex justify-between items-center font-mono">
+                <span class="text-xs font-bold text-primary uppercase">📅 UPCOMING HIGH &amp; MEDIUM IMPACT CALENDAR (FOREX FACTORY)</span>
+                <span class="text-[10px] text-on-surface-variant">AUTO-FILTERED: USD EVENTS</span>
+            </div>
+
+            <div class="overflow-x-auto border border-outline-variant">
+                <table class="w-full text-left font-mono text-xs border-collapse">
+                    <thead>
+                        <tr class="bg-surface-container-low border-b border-outline-variant text-[10px] text-on-surface-variant uppercase">
+                            <th class="p-2">Date &amp; Time</th>
+                            <th class="p-2">Impact</th>
+                            <th class="p-2">Event Title</th>
+                            <th class="p-2 text-right">Forecast</th>
+                            <th class="p-2 text-right">Previous</th>
+                        </tr>
+                    </thead>
+                    <tbody id="calendar-tbody" class="divide-y divide-outline-variant bg-surface">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
         </div>
 
     </main>
 
-    <!-- Client Script -->
+    <!-- CLIENT SCRIPT -->
     <script>
-        async function loadLiveForexFactoryData() {
-            try {
-                const res = await fetch('/api/forexfactory-live');
-                const json = await res.json();
-                if (json.success) renderDashboard(json);
-            } catch (err) {
-                console.error('[Fetch Error]:', err);
+        function navigate(hash) { window.location.hash = hash; }
+        
+        function handleRoute() {
+            const hash = window.location.hash || '#/released';
+            document.getElementById('view-released').classList.add('hidden');
+            document.getElementById('view-upcoming').classList.add('hidden');
+            document.getElementById('view-calendar').classList.add('hidden');
+
+            ['tab-released', 'tab-upcoming', 'tab-calendar'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.className = 'h-10 px-3 flex items-center text-on-surface-variant hover:bg-surface-container transition-colors';
+            });
+
+            if (hash === '#/upcoming') {
+                document.getElementById('view-upcoming').classList.remove('hidden');
+                document.getElementById('tab-upcoming').className = 'h-10 px-3 flex items-center text-primary border-b-2 border-primary font-bold bg-surface-container-low';
+            } else if (hash === '#/calendar') {
+                document.getElementById('view-calendar').classList.remove('hidden');
+                document.getElementById('tab-calendar').className = 'h-10 px-3 flex items-center text-primary border-b-2 border-primary font-bold bg-surface-container-low';
+            } else {
+                document.getElementById('view-released').classList.remove('hidden');
+                document.getElementById('tab-released').className = 'h-10 px-3 flex items-center text-primary border-b-2 border-primary font-bold bg-surface-container-low';
             }
         }
 
-        async function forceSyncForexFactory() {
-            document.getElementById('sync-time').innerText = 'SYNCING NOW...';
+        async function fetchMacroTerminalData() {
             try {
-                const res = await fetch('/api/forexfactory-sync-now', { method: 'POST' });
+                const res = await fetch('/api/live-macro-analysis');
                 const json = await res.json();
-                if (json.success) {
-                    await loadLiveForexFactoryData();
-                }
+                if (json.success) renderDashboard(json.data);
             } catch (err) {
                 console.error(err);
             }
         }
 
-        function renderDashboard(payload) {
-            const raw = payload.raw;
-            const a = payload.analysis;
-            const d = a.details;
+        function renderDashboard(data) {
+            document.getElementById('sync-time').innerText = `SYNCED: ${new Date(data.timestamp).toLocaleTimeString()}`;
+            document.getElementById('txt-exec-summary').innerText = data.executiveSummary;
 
-            document.getElementById('sync-time').innerText = `UPDATED: ${new Date(payload.analysis.lastUpdated).toLocaleTimeString()}`;
-            document.getElementById('txt-summary').innerText = a.summary;
+            // Render Released Matrix Table
+            const m = data.releasedMetrics;
+            document.getElementById('matrix-tbody').innerHTML = `
+                <tr class="hover:bg-surface-container transition-colors">
+                    <td class="p-2 text-white font-bold">❇️ ISM Manufacturing</td>
+                    <td class="p-2 text-right ${m.ism.actual < 50 ? 'text-error' : 'text-primary'} font-bold">${m.ism.actual}%</td>
+                    <td class="p-2 text-right text-on-surface-variant">${m.ism.forecast}%</td>
+                    <td class="p-2 text-right text-on-surface-variant">${m.ism.previous}%</td>
+                    <td class="p-2 pl-4 text-xs font-sans text-on-surface-variant border-l border-outline-variant">
+                        ${m.ism.actual < 50 ? 'ພາກການຜະລິດຊະລໍຕົວລົງ (< 50%) ອາດມາຈາກຕົ້ນທຶນພາສີນຳເຂົ້າ 🇺🇸' : 'ພາກການຜະລິດຂະຫຍາຍຕົວ'}
+                    </td>
+                </tr>
+                <tr class="hover:bg-surface-container transition-colors">
+                    <td class="p-2 text-white font-bold">🔄 ADP Private Payrolls</td>
+                    <td class="p-2 text-right text-primary font-bold">${m.adp.actual}K</td>
+                    <td class="p-2 text-right text-on-surface-variant">${m.adp.forecast}K</td>
+                    <td class="p-2 text-right text-on-surface-variant">--</td>
+                    <td class="p-2 pl-4 text-xs font-sans text-primary border-l border-outline-variant font-bold">
+                        ການຈ້າງງານພາກເອກະຊົນເພີ່ມຂຶ້ນສູງກວ່າຄາດໝາຍ (+${m.adp.actual}K)
+                    </td>
+                </tr>
+                <tr class="bg-surface-container-low border-l-2 border-primary hover:bg-surface-container transition-colors">
+                    <td class="p-2 text-white font-bold">‼️ Non-Farm Payrolls (NFP)</td>
+                    <td class="p-2 text-right text-primary font-bold text-sm">${m.nfp.actual}K</td>
+                    <td class="p-2 text-right text-on-surface-variant">${m.nfp.forecast}K</td>
+                    <td class="p-2 text-right text-on-surface-variant">${m.nfp.previous}K</td>
+                    <td class="p-2 pl-4 text-xs font-sans text-primary font-bold border-l border-outline-variant">
+                        MAJOR BEAT: ຕະຫຼາດແຮງງານແຂງແກ່ນຫຼາຍ (ຫຼາຍກວ່າຄາດ +${m.nfp.actual - m.nfp.forecast}K)
+                    </td>
+                </tr>
+                <tr class="hover:bg-surface-container transition-colors">
+                    <td class="p-2 text-white font-bold">‼️ Unemployment Rate</td>
+                    <td class="p-2 text-right text-error font-bold">${m.unemp.actual}%</td>
+                    <td class="p-2 text-right text-on-surface-variant">${m.unemp.forecast}%</td>
+                    <td class="p-2 text-right text-on-surface-variant">${m.unemp.previous}%</td>
+                    <td class="p-2 pl-4 text-xs font-sans text-error border-l border-outline-variant">
+                        ອັດຕາຫວ່າງງານເພີ່ມຂຶ້ນເລັກນ້ອຍເປັນ ${m.unemp.actual}%
+                    </td>
+                </tr>
+            `;
 
-            // Raw values
-            document.getElementById('val-nfp').innerText = `${raw.nfp}K`;
-            document.getElementById('val-adp').innerText = `${raw.adp}K`;
-            document.getElementById('val-unemp').innerText = `${raw.unemp}%`;
-            document.getElementById('val-ism').innerText = `${raw.ism}%`;
-            document.getElementById('val-usd').innerText = d.assets.usd;
+            // Asset Forecast
+            document.getElementById('lbl-usd').innerText = data.assetForecast.usd;
+            document.getElementById('lbl-yield').innerText = data.assetForecast.yield10y;
+            document.getElementById('txt-gold-exp').innerText = data.assetForecast.explanation;
 
-            // Badges
-            document.getElementById('badge-labor').innerText = d.labor.strength;
-            document.getElementById('badge-ism').innerText = d.ism.isContraction ? 'CONTRACTION (<50%)' : 'EXPANDING (>50%)';
-            document.getElementById('badge-fed').innerText = d.fed.stance;
+            // Upcoming Probability Model
+            const probCpi = data.upcomingProbabilities.cpi.probabilities;
+            document.getElementById('cpi-target-date').innerText = data.upcomingProbabilities.cpi.targetDate;
+            document.getElementById('prob-cpi-hot').innerText = `${probCpi.hot}%`;
+            document.getElementById('bar-cpi-hot').style.width = `${probCpi.hot}%`;
+            document.getElementById('prob-cpi-inline').innerText = `${probCpi.inline}%`;
+            document.getElementById('bar-cpi-inline').style.width = `${probCpi.inline}%`;
+            document.getElementById('prob-cpi-cool').innerText = `${probCpi.cool}%`;
+            document.getElementById('bar-cpi-cool').style.width = `${probCpi.cool}%`;
+            document.getElementById('txt-cpi-reason').innerText = data.upcomingProbabilities.cpi.reasoning;
 
-            // Auto-generated Explanations
-            document.getElementById('exp-labor').innerText = d.labor.exp;
-            document.getElementById('exp-ism').innerText = d.ism.exp;
-            document.getElementById('exp-fed').innerText = d.fed.exp;
-            document.getElementById('exp-gold').innerText = d.assets.goldExp;
-            document.getElementById('exp-next').innerText = d.nextFocus;
+            const probFomc = data.upcomingProbabilities.fomc.probabilities;
+            document.getElementById('fomc-target-date').innerText = data.upcomingProbabilities.fomc.targetDate;
+            document.getElementById('prob-fomc-hold').innerText = `${probFomc.hold}%`;
+            document.getElementById('bar-fomc-hold').style.width = `${probFomc.hold}%`;
+            document.getElementById('prob-fomc-cut').innerText = `${probFomc.cut}%`;
+            document.getElementById('bar-fomc-cut').style.width = `${probFomc.cut}%`;
+            document.getElementById('txt-fomc-reason').innerText = data.upcomingProbabilities.fomc.reasoning;
+
+            // Calendar Table
+            document.getElementById('calendar-tbody').innerHTML = data.upcomingEvents.map(e => `
+                <tr class="hover:bg-surface-container transition-colors">
+                    <td class="p-2 text-white">${e.date} (${e.time})</td>
+                    <td class="p-2"><span class="px-1.5 py-0.5 text-[9px] font-bold ${e.impact === 'High' ? 'bg-error-container text-white' : 'bg-surface-variant text-primary'}">${e.impact.toUpperCase()}</span></td>
+                    <td class="p-2 text-on-surface font-bold">${e.title}</td>
+                    <td class="p-2 text-right text-primary">${e.forecast}</td>
+                    <td class="p-2 text-right text-on-surface-variant">${e.previous}</td>
+                </tr>
+            `).join('');
         }
 
-        window.addEventListener('DOMContentLoaded', loadLiveForexFactoryData);
-        // Auto-refresh frontend display every 30 seconds
-        setInterval(loadLiveForexFactoryData, 30000);
+        window.addEventListener('hashchange', handleRoute);
+        window.addEventListener('DOMContentLoaded', () => {
+            handleRoute();
+            fetchMacroTerminalData();
+        });
     </script>
 </body>
 </html>
