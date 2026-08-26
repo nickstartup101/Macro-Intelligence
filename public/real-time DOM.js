@@ -171,3 +171,177 @@ window.addEventListener('DOMContentLoaded', () => {
     window.liveTicker = new LiveTickerEngine();
     window.liveTicker.init();
 });
+/**
+ * Interactive Macro Scenario Engine & Transmission Synchronizer
+ */
+class TransmissionScenarioEngine {
+    constructor() {
+        this.baselineYield = 4.250; // 10Y Base (%)
+        this.consensusNFP = 175;   // Consensus (K)
+        this.stdDevNFP = 25;       // Std deviation (K)
+        this.currentValue = 175;
+    }
+
+    init() {
+        this.updateModel(175);
+    }
+
+    setScenario(type) {
+        // Reset active borders on buttons
+        document.querySelectorAll('.scenario-btn').forEach(btn => {
+            btn.className = 'scenario-btn p-3 rounded-lg border border-outline-variant/40 bg-surface-container text-left transition-all';
+        });
+
+        let targetVal = 175;
+        if (type === 'ABOVE') {
+            targetVal = 235;
+            document.getElementById('btn-scen-above').className = 'scenario-btn p-3 rounded-lg border-2 border-tertiary bg-tertiary/10 text-left transition-all';
+        } else if (type === 'IN_LINE') {
+            targetVal = 175;
+            document.getElementById('btn-scen-inline').className = 'scenario-btn p-3 rounded-lg border-2 border-primary bg-primary/10 text-left transition-all';
+        } else if (type === 'BELOW') {
+            targetVal = 115;
+            document.getElementById('btn-scen-below').className = 'scenario-btn p-3 rounded-lg border-2 border-error bg-error/10 text-left transition-all';
+        }
+
+        document.getElementById('outcome-slider').value = targetVal;
+        this.updateModel(targetVal);
+    }
+
+    handleSlider(val) {
+        // Reset presets if customized manually
+        document.querySelectorAll('.scenario-btn').forEach(btn => {
+            btn.className = 'scenario-btn p-3 rounded-lg border border-outline-variant/40 bg-surface-container text-left transition-all';
+        });
+        this.updateModel(Number(val));
+    }
+
+    updateModel(nfpVal) {
+        this.currentValue = nfpVal;
+        const delta = nfpVal - this.consensusNFP;
+        const zScore = (delta / this.stdDevNFP).toFixed(1);
+
+        // Calculate Yield Shift: ~3.5 bps per standard deviation (25K deviation)
+        const bpsShift = Math.round((delta / 25) * 3.5);
+        const targetYield = (this.baselineYield + (bpsShift / 100)).toFixed(3);
+
+        // Update Controller UI Elements
+        document.getElementById('slider-display-val').innerText = `${nfpVal}K`;
+        document.getElementById('calc-delta-consensus').innerText = `${delta >= 0 ? '+' : ''}${delta}K (${zScore >= 0 ? '+' : ''}${zScore}σ)`;
+        
+        const shiftEl = document.getElementById('calc-yield-shift');
+        shiftEl.innerText = `${bpsShift >= 0 ? '+' : ''}${bpsShift} bps`;
+        shiftEl.className = `font-mono text-base font-bold mt-1 ${bpsShift > 0 ? 'text-tertiary' : bpsShift < 0 ? 'text-error' : 'text-primary'}`;
+        
+        document.getElementById('calc-target-yield').innerText = `${targetYield}%`;
+
+        // Synchronize Transmission Visual Nodes
+        this.syncNodes({ nfpVal, delta, bpsShift, targetYield });
+    }
+
+    syncNodes({ nfpVal, delta, bpsShift, targetYield }) {
+        const nodeEvent = document.getElementById('node-event');
+        const nodeFed = document.getElementById('node-fed');
+        const nodeYield = document.getElementById('node-yield');
+        const nodeUsd = document.getElementById('node-usd');
+        const nodeGold = document.getElementById('node-gold');
+        const badge = document.getElementById('trans-status-badge');
+
+        const eventTitle = document.getElementById('node-event-title');
+        const eventTag = document.getElementById('node-event-tag');
+        const fedTag = document.getElementById('node-fed-tag');
+        const yieldTitle = document.getElementById('node-yield-title');
+        const yieldTag = document.getElementById('node-yield-tag');
+        const usdVal = document.getElementById('node-usd-val');
+        const goldVal = document.getElementById('node-gold-val');
+
+        eventTitle.innerText = `NFP: ${nfpVal}K`;
+        yieldTitle.innerText = `US 10Y: ${targetYield}%`;
+
+        if (delta > 15) {
+            // HAWKISH TRANSMISSION REGIME (BEAT)
+            badge.innerText = 'HAWKISH ACCELERATION';
+            badge.className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-tertiary/20 text-tertiary border border-tertiary/40';
+
+            this.applyNodeState(nodeEvent, 'border-tertiary shadow-[0_0_12px_rgba(78,222,163,0.2)]');
+            eventTag.innerText = 'STRONG BEAT';
+            eventTag.className = 'text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-tertiary text-black';
+
+            this.applyNodeState(nodeFed, 'border-tertiary shadow-[0_0_12px_rgba(78,222,163,0.2)]');
+            fedTag.innerText = 'HAWKISH';
+            fedTag.className = 'text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-tertiary text-black';
+
+            this.applyNodeState(nodeYield, 'border-tertiary');
+            yieldTag.innerText = `+${bpsShift} bps ↑`;
+            yieldTag.className = 'text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-tertiary/20 text-tertiary';
+
+            this.applyNodeState(nodeUsd, 'border-tertiary');
+            usdVal.innerText = 'BULLISH ↑';
+            usdVal.className = 'text-xs font-bold text-tertiary font-mono mt-0.5';
+
+            this.applyNodeState(nodeGold, 'border-error');
+            goldVal.innerText = 'BEARISH ↓';
+            goldVal.className = 'text-xs font-bold text-error font-mono mt-0.5';
+
+        } else if (delta < -15) {
+            // DOVISH TRANSMISSION REGIME (MISS)
+            badge.innerText = 'DOVISH EASING FLOW';
+            badge.className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-error/20 text-error border border-error/40';
+
+            this.applyNodeState(nodeEvent, 'border-error shadow-[0_0_12px_rgba(255,180,171,0.2)]');
+            eventTag.innerText = 'WEAK MISS';
+            eventTag.className = 'text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-error text-black';
+
+            this.applyNodeState(nodeFed, 'border-error shadow-[0_0_12px_rgba(255,180,171,0.2)]');
+            fedTag.innerText = 'DOVISH PIVOT';
+            fedTag.className = 'text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-error text-black';
+
+            this.applyNodeState(nodeYield, 'border-error');
+            yieldTag.innerText = `${bpsShift} bps ↓`;
+            yieldTag.className = 'text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-error/20 text-error';
+
+            this.applyNodeState(nodeUsd, 'border-error');
+            usdVal.innerText = 'BEARISH ↓';
+            usdVal.className = 'text-xs font-bold text-error font-mono mt-0.5';
+
+            this.applyNodeState(nodeGold, 'border-tertiary');
+            goldVal.innerText = 'BULLISH ↑';
+            goldVal.className = 'text-xs font-bold text-tertiary font-mono mt-0.5';
+
+        } else {
+            // NEUTRAL / IN-LINE REGIME
+            badge.innerText = 'NEUTRAL FLOW';
+            badge.className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-primary/20 text-primary border border-primary/40';
+
+            this.applyNodeState(nodeEvent, 'border-outline-variant');
+            eventTag.innerText = 'IN LINE';
+            eventTag.className = 'text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-surface-variant text-gray-300';
+
+            this.applyNodeState(nodeFed, 'border-outline-variant');
+            fedTag.innerText = 'BALANCED';
+            fedTag.className = 'text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-surface-variant text-gray-300';
+
+            this.applyNodeState(nodeYield, 'border-outline-variant');
+            yieldTag.innerText = 'FLAT';
+            yieldTag.className = 'text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-surface-variant text-gray-300';
+
+            this.applyNodeState(nodeUsd, 'border-outline-variant');
+            usdVal.innerText = 'NEUTRAL';
+            usdVal.className = 'text-xs font-bold text-white font-mono mt-0.5';
+
+            this.applyNodeState(nodeGold, 'border-outline-variant');
+            goldVal.innerText = 'NEUTRAL';
+            goldVal.className = 'text-xs font-bold text-white font-mono mt-0.5';
+        }
+    }
+
+    applyNodeState(el, classNames) {
+        el.className = `node-box w-64 bg-surface-container border-2 p-2.5 rounded-lg flex items-center justify-between transition-all duration-300 z-10 ${classNames}`;
+    }
+}
+
+// Instantiate on Page Load
+window.addEventListener('DOMContentLoaded', () => {
+    window.engine = new TransmissionScenarioEngine();
+    window.engine.init();
+});
