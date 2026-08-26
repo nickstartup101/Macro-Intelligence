@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>MACRO_TERMINAL // Macroeconomic Intelligence Engine</title>
+    <title>FOREX FACTORY // Auto Macro Intelligence</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Noto+Sans+Lao:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
@@ -14,21 +14,17 @@
             theme: {
                 extend: {
                     colors: {
-                        "surface-dim": "#0c1324",
                         "surface": "#0c1324",
-                        "surface-container-lowest": "#070d1f",
                         "surface-container-low": "#151b2d",
                         "surface-container": "#191f31",
                         "surface-container-high": "#23293c",
                         "primary": "#8ed5ff",
-                        "secondary": "#b9c8de",
                         "tertiary": "#ffc176",
                         "error": "#ffb4ab",
                         "outline-variant": "#3e484f",
                         "on-surface": "#dce1fb",
                         "on-surface-variant": "#bdc8d1"
                     },
-                    borderRadius: { "DEFAULT": "0px", "sm": "0px", "md": "2px", "lg": "2px" },
                     fontFamily: {
                         sans: ['Inter', 'Noto Sans Lao', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace']
@@ -37,249 +33,183 @@
             }
         }
     </script>
-    <style>
-        body { background-color: #0c1324; color: #dce1fb; font-family: 'Noto Sans Lao', 'Inter', sans-serif; }
-    </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col font-sans selection:bg-primary selection:text-black">
+<body class="bg-[#0c1324] text-[#dce1fb] min-h-screen flex flex-col font-sans selection:bg-primary selection:text-black">
 
-    <!-- 1. TOP APP BAR -->
-    <header class="fixed top-0 left-0 w-full h-10 z-50 flex items-center justify-between px-3 bg-surface border-b border-outline-variant select-none">
-        <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-primary text-[18px]">psychology</span>
-            <h1 class="font-mono text-xs font-bold text-primary tracking-tighter uppercase">MACRO_TRANSLATOR // ເຄື່ອງຈັກແປງຂ່າວເສດຖະກິດ</h1>
+    <!-- Top Command Header -->
+    <header class="fixed top-0 left-0 w-full h-11 z-50 flex items-center justify-between px-4 bg-surface border-b border-outline-variant select-none">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary text-xl">rss_feed</span>
+            <h1 class="font-mono text-xs font-bold text-primary tracking-wider uppercase">FOREX_FACTORY // AUTO_INTELLIGENCE</h1>
+            <span class="hidden sm:inline-flex items-center gap-1 font-mono text-[10px] text-green-400 bg-green-500/10 border border-green-500/30 px-2 py-0.5 rounded">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-ping"></span>
+                <span>AUTO-SYNC ACTIVE</span>
+            </span>
         </div>
 
-        <button onclick="openInputModal()" class="flex items-center gap-1 px-3 py-1 bg-primary text-black font-mono text-[11px] font-bold hover:bg-white transition-colors">
-            <span class="material-symbols-outlined text-[14px]">tune</span>
-            <span>ທົດລອງປ່ຽນຕົວເລກຂ່າວ (SIMULATE DATA)</span>
-        </button>
+        <div class="flex items-center gap-2 font-mono text-xs">
+            <span id="sync-time" class="text-[10px] text-on-surface-variant hidden md:inline">SYNCING...</span>
+            <button onclick="forceSyncForexFactory()" class="flex items-center gap-1 px-3 py-1 bg-primary text-black font-bold hover:bg-white transition-colors text-[11px]">
+                <span class="material-symbols-outlined text-[14px]">sync</span>
+                <span>ດຶງຂໍ້ມູນດຽວນີ້ (SYNC NOW)</span>
+            </button>
+        </div>
     </header>
 
-    <!-- 2. MAIN EXPLANATION WORKSPACE -->
-    <main class="flex-1 p-3 max-w-[1500px] mx-auto w-full pt-14 pb-12 space-y-3">
+    <!-- Main Workspace -->
+    <main class="flex-1 p-4 max-w-[1400px] mx-auto w-full pt-16 pb-12 space-y-4">
         
-        <!-- SECTION 1: 1-MINUTE EXECUTIVE SUMMARY -->
+        <!-- Executive Summary Banner -->
         <div class="bg-surface-container-high border-l-4 border-l-primary border-y border-r border-outline-variant p-4">
             <div class="flex items-center gap-2 font-mono text-xs font-bold text-primary mb-1">
-                <span class="material-symbols-outlined text-base">summarize</span>
-                <span>ສະຫຼຸບພາບລວມເສດຖະກິດໃນ 1 ນາທີ (EXECUTIVE SUMMARY)</span>
+                <span class="material-symbols-outlined text-base">auto_awesome</span>
+                <span>ສະຫຼຸບຜົນວິເຄາະອັດຕະໂນມັດຈາກ FOREX FACTORY (LIVE AUTO-SYNTHESIS)</span>
             </div>
-            <p id="txt-exec-summary" class="text-sm text-white font-medium leading-relaxed">
-                ກຳລັງປະມວນຜົນການວິເຄາະ...
+            <p id="txt-summary" class="text-sm text-white font-medium leading-relaxed">
+                ກຳລັງດຶງຕົວເລກຫຼ້າສຸດຈາກ Forex Factory...
             </p>
         </div>
 
-        <!-- SECTION 2: 4 CORE MACRO PILLARS (ແປງຕົວເລກເປັນຄຳອະທິບາຍ) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <!-- 4 Explanatory Pillars -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             
-            <!-- Pillar 1: ຕະຫຼາດແຮງງານ -->
-            <div class="bg-surface p-4 border border-outline-variant space-y-2">
+            <!-- Pillar 1: Labor -->
+            <div class="bg-surface p-4 border border-outline-variant space-y-3">
                 <div class="flex justify-between items-center border-b border-outline-variant pb-2">
                     <span class="font-mono text-xs font-bold text-primary flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-base">badge</span>
-                        <span>1. ຕະຫຼາດການຈ້າງງານ &amp; ແຮງງານ (LABOR MARKET)</span>
+                        <span>1. ຕະຫຼາດການຈ້າງງານ (NFP &amp; UNEMPLOYMENT)</span>
                     </span>
-                    <span id="badge-labor" class="font-mono text-[10px] bg-primary/20 text-primary px-2 py-0.5 font-bold">STRONG</span>
+                    <span id="badge-labor" class="font-mono text-[10px] bg-primary/20 text-primary px-2 py-0.5 font-bold">--</span>
                 </div>
-                <div class="text-xs text-on-surface-variant font-mono space-x-3">
-                    <span>NFP: <strong id="lbl-nfp" class="text-white">--</strong></span>
-                    <span>ADP: <strong id="lbl-adp" class="text-white">--</strong></span>
-                    <span>ຫວ່າງງານ: <strong id="lbl-unemp" class="text-error">--</strong></span>
+                <div class="grid grid-cols-3 gap-2 font-mono text-xs text-center">
+                    <div class="bg-surface-container-low p-2 border border-outline-variant"><span class="text-[10px] text-on-surface-variant block">NFP ACTUAL</span><strong id="val-nfp" class="text-primary font-bold text-sm">--</strong></div>
+                    <div class="bg-surface-container-low p-2 border border-outline-variant"><span class="text-[10px] text-on-surface-variant block">ADP PRIVATE</span><strong id="val-adp" class="text-white font-bold text-sm">--</strong></div>
+                    <div class="bg-surface-container-low p-2 border border-outline-variant"><span class="text-[10px] text-on-surface-variant block">UNEMP RATE</span><strong id="val-unemp" class="text-error font-bold text-sm">--</strong></div>
                 </div>
                 <div class="p-3 bg-surface-container-low border border-outline-variant">
                     <div class="text-[11px] font-bold text-primary mb-1">💡 ຕົວເລກນີ້ບອກຫຍັງເຮົາ?</div>
-                    <p id="txt-labor-exp" class="text-xs text-on-surface leading-relaxed">...</p>
+                    <p id="exp-labor" class="text-xs text-on-surface leading-relaxed">...</p>
                 </div>
             </div>
 
-            <!-- Pillar 2: ພາກການຜະລິດ ແລະ ພາສີນຳເຂົ້າ -->
-            <div class="bg-surface p-4 border border-outline-variant space-y-2">
+            <!-- Pillar 2: ISM Manufacturing -->
+            <div class="bg-surface p-4 border border-outline-variant space-y-3">
                 <div class="flex justify-between items-center border-b border-outline-variant pb-2">
                     <span class="font-mono text-xs font-bold text-tertiary flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-base">factory</span>
-                        <span>2. ພາກການຜະລິດ &amp; ຜົນກະທົບພາສີ (INDUSTRY &amp; TARIFFS)</span>
+                        <span>2. ພາກການຜະລິດ (ISM MANUFACTURING)</span>
                     </span>
-                    <span id="badge-ism" class="font-mono text-[10px] bg-error/20 text-error px-2 py-0.5 font-bold">CONTRACTION</span>
+                    <span id="badge-ism" class="font-mono text-[10px] bg-error/20 text-error px-2 py-0.5 font-bold">--</span>
                 </div>
-                <div class="text-xs text-on-surface-variant font-mono">
-                    <span>ISM Manufacturing: <strong id="lbl-ism" class="text-white">--</strong></span>
+                <div class="font-mono text-xs">
+                    <span>ISM ACTUAL: <strong id="val-ism" class="text-white text-sm">--</strong> (ເກນຕັດສິນ: 50.0%)</span>
                 </div>
                 <div class="p-3 bg-surface-container-low border border-outline-variant">
                     <div class="text-[11px] font-bold text-tertiary mb-1">💡 ຕົວເລກນີ້ບອກຫຍັງເຮົາ?</div>
-                    <p id="txt-ism-exp" class="text-xs text-on-surface leading-relaxed">...</p>
+                    <p id="exp-ism" class="text-xs text-on-surface leading-relaxed">...</p>
                 </div>
             </div>
 
-            <!-- Pillar 3: ທິດທາງດອກເບ້ຍ Fed -->
-            <div class="bg-surface p-4 border border-outline-variant space-y-2">
+            <!-- Pillar 3: Fed Policy -->
+            <div class="bg-surface p-4 border border-outline-variant space-y-3">
                 <div class="flex justify-between items-center border-b border-outline-variant pb-2">
                     <span class="font-mono text-xs font-bold text-primary flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-base">account_balance</span>
-                        <span>3. ທິດທາງດອກເບ້ຍທະນາຄານກາງ FED (MONETARY POLICY)</span>
+                        <span>3. ທິດທາງດອກເບ້ຍ FED (CENTRAL BANK STANCE)</span>
                     </span>
-                    <span id="badge-fed" class="font-mono text-[10px] bg-primary text-black px-2 py-0.5 font-bold">HAWKISH</span>
+                    <span id="badge-fed" class="font-mono text-[10px] bg-primary text-black px-2 py-0.5 font-bold">--</span>
                 </div>
                 <div class="p-3 bg-surface-container-low border border-outline-variant">
                     <div class="text-[11px] font-bold text-primary mb-1">🏛️ Fed ຈະເຮັດແນວໃດຕໍ່ກັບດອກເບ້ຍ?</div>
-                    <p id="txt-fed-exp" class="text-xs text-on-surface leading-relaxed">...</p>
+                    <p id="exp-fed" class="text-xs text-on-surface leading-relaxed">...</p>
                 </div>
             </div>
 
-            <!-- Pillar 4: ຜົນກະທົບຕໍ່ສິນຊັບ (ຄຳ, ໂດລາ, ພັນທະບັດ) -->
-            <div class="bg-surface p-4 border border-outline-variant space-y-2">
+            <!-- Pillar 4: Gold & Assets -->
+            <div class="bg-surface p-4 border border-outline-variant space-y-3">
                 <div class="flex justify-between items-center border-b border-outline-variant pb-2">
                     <span class="font-mono text-xs font-bold text-tertiary flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-base">monitoring</span>
-                        <span>4. ຜົນກະທົບຕໍ່ສິນຊັບການເງິນ (ASSET IMPLICATIONS)</span>
+                        <span>4. ຜົນກະທົບຕໍ່ທອງຄຳ (GOLD) &amp; USD</span>
                     </span>
-                    <span class="font-mono text-[10px] text-on-surface-variant">USD / GOLD / YIELDS</span>
-                </div>
-                <div class="grid grid-cols-3 gap-1 text-center font-mono text-xs mb-1">
-                    <div class="bg-surface-container-low p-1.5 border border-outline-variant"><span class="text-[10px] text-on-surface-variant block">USD</span><strong id="lbl-usd" class="text-primary">--</strong></div>
-                    <div class="bg-surface-container-low p-1.5 border border-outline-variant"><span class="text-[10px] text-on-surface-variant block">GOLD</span><strong id="lbl-gold" class="text-tertiary">--</strong></div>
-                    <div class="bg-surface-container-low p-1.5 border border-outline-variant"><span class="text-[10px] text-on-surface-variant block">US10Y</span><strong id="lbl-yield" class="text-primary">--</strong></div>
+                    <span class="font-mono text-[10px] text-primary">USD: <strong id="val-usd">--</strong></span>
                 </div>
                 <div class="p-3 bg-surface-container-low border border-outline-variant">
                     <div class="text-[11px] font-bold text-tertiary mb-1">📈 ທ່າອ່ຽງລາຄາທອງຄຳ (XAU/USD):</div>
-                    <p id="txt-gold-exp" class="text-xs text-on-surface leading-relaxed">...</p>
+                    <p id="exp-gold" class="text-xs text-on-surface leading-relaxed">...</p>
                 </div>
             </div>
 
         </div>
 
-        <!-- SECTION 3: ສິ່ງທີ່ຕ້ອງຈັບຕາຕໍ່ໄປ (NEXT CATALYST) -->
+        <!-- Pillar 5: Next Catalyst -->
         <div class="bg-surface border border-outline-variant p-4 flex items-start gap-3">
             <span class="material-symbols-outlined text-primary text-2xl">event_upcoming</span>
             <div>
-                <div class="font-mono text-xs font-bold text-primary uppercase">ຕົວເລກສຳຄັນຖັດໄປທີ່ຕ້ອງຕິດຕາມ (NEXT KEY CATALYST):</div>
-                <p id="txt-next-focus" class="text-xs text-on-surface mt-1 leading-relaxed">...</p>
+                <div class="font-mono text-xs font-bold text-primary uppercase">ຕົວເລກສຳຄັນຖັດໄປທີ່ຕ້ອງຕິດຕາມ (NEXT CATALYST):</div>
+                <p id="exp-next" class="text-xs text-on-surface mt-1 leading-relaxed">...</p>
             </div>
         </div>
 
     </main>
 
-    <!-- ============================================================== -->
-    <!-- MODAL: SIMULATOR (ທົດລອງປ່ຽນຕົວເລກແລ້ວເບິ່ງຄຳອະທິບາຍປ່ຽນ)        -->
-    <!-- ============================================================== -->
-    <div id="modal-input" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-4">
-        <div class="w-full max-w-xl bg-surface-container border border-outline-variant font-mono p-5 space-y-4">
-            <div class="flex justify-between items-center border-b border-outline-variant pb-2">
-                <span class="text-xs font-bold text-primary">SIMULATE ECONOMIC RELEASE</span>
-                <button onclick="closeInputModal()" class="text-on-surface-variant hover:text-white"><span class="material-symbols-outlined text-sm">close</span></button>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 text-xs">
-                <div>
-                    <label class="text-[10px] text-on-surface-variant block mb-1">NFP ACTUAL (K) [Forecast: 140K]</label>
-                    <input type="number" id="sim-nfp" value="228" class="w-full bg-surface border border-outline-variant p-2 text-primary font-bold"/>
-                </div>
-                <div>
-                    <label class="text-[10px] text-on-surface-variant block mb-1">ISM MANUFACTURING (%) [Limit: 50%]</label>
-                    <input type="number" step="0.1" id="sim-ism" value="49.0" class="w-full bg-surface border border-outline-variant p-2 text-white font-bold"/>
-                </div>
-                <div>
-                    <label class="text-[10px] text-on-surface-variant block mb-1">ADP PRIVATE (K) [Forecast: 120K]</label>
-                    <input type="number" id="sim-adp" value="155" class="w-full bg-surface border border-outline-variant p-2 text-white font-bold"/>
-                </div>
-                <div>
-                    <label class="text-[10px] text-on-surface-variant block mb-1">UNEMPLOYMENT RATE (%)</label>
-                    <input type="number" step="0.1" id="sim-unemp" value="4.2" class="w-full bg-surface border border-outline-variant p-2 text-error font-bold"/>
-                </div>
-            </div>
-
-            <div class="flex justify-between items-center pt-3 border-t border-outline-variant text-xs">
-                <div class="flex gap-2">
-                    <button onclick="setScenarioPreset('STRONG')" class="text-primary underline">Preset: ຕົວເລກແຮງ</button>
-                    <button onclick="setScenarioPreset('WEAK')" class="text-error underline">Preset: ຕົວເລກອ່ອນ</button>
-                </div>
-                <button onclick="runSimulation()" class="px-4 py-2 bg-primary text-black font-bold hover:bg-white">
-                    ⚡ ປະມວນຜົນຄຳອະທິບາຍທັນທີ
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- JAVASCRIPT CONTROLLER -->
+    <!-- Client Script -->
     <script>
-        function openInputModal() { document.getElementById('modal-input').classList.remove('hidden'); }
-        function closeInputModal() { document.getElementById('modal-input').classList.add('hidden'); }
-
-        function setScenarioPreset(type) {
-            if (type === 'STRONG') {
-                document.getElementById('sim-nfp').value = "260";
-                document.getElementById('sim-ism').value = "51.5";
-                document.getElementById('sim-adp').value = "180";
-                document.getElementById('sim-unemp').value = "3.9";
-            } else {
-                document.getElementById('sim-nfp').value = "95";
-                document.getElementById('sim-ism').value = "46.2";
-                document.getElementById('sim-adp').value = "80";
-                document.getElementById('sim-unemp').value = "4.5";
+        async function loadLiveForexFactoryData() {
+            try {
+                const res = await fetch('/api/forexfactory-live');
+                const json = await res.json();
+                if (json.success) renderDashboard(json);
+            } catch (err) {
+                console.error('[Fetch Error]:', err);
             }
         }
 
-        async function fetchInitialAnalysis() {
+        async function forceSyncForexFactory() {
+            document.getElementById('sync-time').innerText = 'SYNCING NOW...';
             try {
-                const res = await fetch('/api/live-macro-analysis');
+                const res = await fetch('/api/forexfactory-sync-now', { method: 'POST' });
                 const json = await res.json();
-                if (json.success) renderExplanations(json.data, json.raw);
+                if (json.success) {
+                    await loadLiveForexFactoryData();
+                }
             } catch (err) {
                 console.error(err);
             }
         }
 
-        async function runSimulation() {
-            const payload = {
-                nfp: parseFloat(document.getElementById('sim-nfp').value),
-                nfpFc: 140,
-                ism: parseFloat(document.getElementById('sim-ism').value),
-                ismPrev: 50.3,
-                adp: parseFloat(document.getElementById('sim-adp').value),
-                adpFc: 120,
-                unemp: parseFloat(document.getElementById('sim-unemp').value),
-                unempFc: 4.1,
-                cpiYoY: 3.1,
-                oilPrice: 82.50,
-                oilTrend: 'BEARISH'
-            };
+        function renderDashboard(payload) {
+            const raw = payload.raw;
+            const a = payload.analysis;
+            const d = a.details;
 
-            const res = await fetch('/api/analyze-macro', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const json = await res.json();
-            if (json.success) {
-                renderExplanations(json.data, payload);
-                closeInputModal();
-            }
+            document.getElementById('sync-time').innerText = `UPDATED: ${new Date(payload.analysis.lastUpdated).toLocaleTimeString()}`;
+            document.getElementById('txt-summary').innerText = a.summary;
+
+            // Raw values
+            document.getElementById('val-nfp').innerText = `${raw.nfp}K`;
+            document.getElementById('val-adp').innerText = `${raw.adp}K`;
+            document.getElementById('val-unemp').innerText = `${raw.unemp}%`;
+            document.getElementById('val-ism').innerText = `${raw.ism}%`;
+            document.getElementById('val-usd').innerText = d.assets.usd;
+
+            // Badges
+            document.getElementById('badge-labor').innerText = d.labor.strength;
+            document.getElementById('badge-ism').innerText = d.ism.isContraction ? 'CONTRACTION (<50%)' : 'EXPANDING (>50%)';
+            document.getElementById('badge-fed').innerText = d.fed.stance;
+
+            // Auto-generated Explanations
+            document.getElementById('exp-labor').innerText = d.labor.exp;
+            document.getElementById('exp-ism').innerText = d.ism.exp;
+            document.getElementById('exp-fed').innerText = d.fed.exp;
+            document.getElementById('exp-gold').innerText = d.assets.goldExp;
+            document.getElementById('exp-next').innerText = d.nextFocus;
         }
 
-        function renderExplanations(data, raw) {
-            document.getElementById('txt-exec-summary').innerText = data.executiveSummary;
-            
-            // Labels
-            document.getElementById('lbl-nfp').innerText = `${raw.nfp}K`;
-            document.getElementById('lbl-adp').innerText = `${raw.adp}K`;
-            document.getElementById('lbl-unemp').innerText = `${raw.unemp}%`;
-            document.getElementById('lbl-ism').innerText = `${raw.ism}%`;
-
-            // Explanations
-            document.getElementById('txt-labor-exp').innerText = data.details.labor.explanation;
-            document.getElementById('txt-ism-exp').innerText = data.details.ism.explanation;
-            document.getElementById('txt-fed-exp').innerText = data.details.fed.explanation;
-            document.getElementById('txt-gold-exp').innerText = data.details.assets.goldExplanation;
-            document.getElementById('txt-next-focus').innerText = data.details.nextFocus;
-
-            // Asset Tags
-            document.getElementById('lbl-usd').innerText = data.details.assets.usd;
-            document.getElementById('lbl-gold').innerText = data.details.assets.gold;
-            document.getElementById('lbl-yield').innerText = data.details.assets.yield10y;
-            document.getElementById('badge-fed').innerText = data.details.fed.stance;
-        }
-
-        window.addEventListener('DOMContentLoaded', fetchInitialAnalysis);
+        window.addEventListener('DOMContentLoaded', loadLiveForexFactoryData);
+        // Auto-refresh frontend display every 30 seconds
+        setInterval(loadLiveForexFactoryData, 30000);
     </script>
 </body>
 </html>
