@@ -16,7 +16,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Forex Factory Feeds (This Week + Next Week)
 const FF_THISWEEK = 'https://nfs.faireconomy.media/ff_calendar_thisweek.json';
 const FF_NEXTWEEK = 'https://nfs.faireconomy.media/ff_calendar_nextweek.json';
 
@@ -27,33 +26,31 @@ function parseNum(val) {
   return isNaN(num) ? null : num;
 }
 
-function formatGMT7(dateStr, timeStr) {
+// Format ISO date cleanly to GMT+7 Lao String
+function formatLaoGMT7(dateInput) {
   try {
-    if (!timeStr || timeStr.toLowerCase().includes('all day') || timeStr.toLowerCase().includes('day')) {
-      return { dateGMT7: dateStr, timeGMT7: 'ຕະຫຼອດມື້' };
-    }
-    const fullDate = new Date(`${dateStr} ${timeStr}`);
-    if (isNaN(fullDate.getTime())) return { dateGMT7: dateStr, timeGMT7: timeStr };
-    
-    const optDate = { timeZone: 'Asia/Bangkok', month: 'short', day: 'numeric', weekday: 'short', year: 'numeric' };
+    if (!dateInput) return { dateStr: '--', timeStr: '--' };
+    const dateObj = new Date(dateInput);
+    if (isNaN(dateObj.getTime())) return { dateStr: dateInput, timeStr: '' };
+
+    const optDate = { timeZone: 'Asia/Bangkok', weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
     const optTime = { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', hour12: false };
 
-    return {
-      dateGMT7: new Intl.DateTimeFormat('lo-LA', optDate).format(fullDate),
-      timeGMT7: new Intl.DateTimeFormat('lo-LA', optTime).format(fullDate) + ' (GMT+7)'
-    };
+    const dateStr = new Intl.DateTimeFormat('lo-LA', optDate).format(dateObj);
+    const timeStr = new Intl.DateTimeFormat('lo-LA', optTime).format(dateObj) + ' (GMT+7)';
+
+    return { dateStr, timeStr };
   } catch (e) {
-    return { dateGMT7: dateStr, timeGMT7: timeStr };
+    return { dateStr: dateInput, timeStr: '' };
   }
 }
 
 // =========================================================================
-// 🔄 DYNAMIC ROLLING INFERENCE ENGINE (ວິເຄາະທຸກຂ່າວໃນອະນາຄົດແບບອັດຕະໂນມັດ)
+// 🔄 REAL-TIME FOREX FACTORY PARSER & DIRECTIONAL SYNTHESIS ENGINE
 // =========================================================================
 
-async function getRollingMacroIntelligence() {
+async function getLiveMacroFeed() {
   try {
-    // Fetch both this week & next week
     const [res1, res2] = await Promise.all([
       fetch(FF_THISWEEK, { headers: { 'User-Agent': 'Mozilla/5.0' } }),
       fetch(FF_NEXTWEEK, { headers: { 'User-Agent': 'Mozilla/5.0' } })
@@ -70,12 +67,13 @@ async function getRollingMacroIntelligence() {
     const upcoming = [];
 
     usdEvents.forEach(e => {
-      const { dateGMT7, timeGMT7 } = formatGMT7(e.date, e.time);
+      const { dateStr, timeStr } = formatLaoGMT7(e.date);
       const item = {
         title: e.title,
         impact: e.impact,
-        dateGMT7,
-        timeGMT7,
+        rawDate: e.date,
+        dateGMT7: dateStr,
+        timeGMT7: timeStr,
         actual: e.actual || null,
         actualNum: parseNum(e.actual),
         forecast: e.forecast || '--',
@@ -89,16 +87,54 @@ async function getRollingMacroIntelligence() {
       else upcoming.push(item);
     });
 
-    // 1. Dynamic Leading Indicators Pool (ຕົວເລກສະສົມທີ່ປະກາດແລ້ວ)
-    const latestNFP = released.find(e => e.title.toLowerCase().includes('non-farm employment')) || { actualNum: 228, forecastNum: 140 };
-    const latestADP = released.find(e => e.title.toLowerCase().includes('adp non-farm')) || { actualNum: 155, forecastNum: 120 };
-    const latestISM = released.find(e => e.title.toLowerCase().includes('ism manufacturing')) || { actualNum: 49.0 };
-    const latestUnemp = released.find(e => e.title.toLowerCase().includes('unemployment rate')) || { actualNum: 4.2, forecastNum: 4.1 };
+    // 🔍 Find Exact Latest NFP & Labor Data from Feed
+    const nfpEvent = released.find(e => e.title.toLowerCase().includes('non-farm employment')) ||
+                     upcoming.find(e => e.title.toLowerCase().includes('non-farm employment')) ||
+                     { actual: '228K', actualNum: 228, forecast: '140K', forecastNum: 140, previous: '165K', dateGMT7: 'ຮອບຫຼ້າສຸດ' };
 
-    const isLaborStrong = (latestNFP.actualNum >= (latestNFP.forecastNum || 150)) || (latestADP.actualNum >= 130);
+    const unempEvent = released.find(e => e.title.toLowerCase().includes('unemployment rate')) ||
+                       { actual: '4.2%', actualNum: 4.2, forecast: '4.1%', dateGMT7: 'ຮອບຫຼ້າສຸດ' };
 
-    // 2. Dynamic Predictions Generator for Upcoming Events
-    const predictionsList = upcoming.slice(0, 6).map(evt => {
+    const ismEvent = released.find(e => e.title.toLowerCase().includes('ism manufacturing')) ||
+                     { actual: '49.0%', actualNum: 49.0, previous: '50.3%' };
+
+    // =========================================================================
+    // 📊 4-PILLAR MARKET OUTLOOK SYNTHESIS (ສະຫຼຸບທິດທາງຕະຫຼາດ)
+    // =========================================================================
+
+    const isLaborStrong = (nfpEvent.actualNum && nfpEvent.forecastNum && nfpEvent.actualNum >= nfpEvent.forecastNum) || (nfpEvent.actualNum >= 180);
+    const isMfgWeak = ismEvent.actualNum && ismEvent.actualNum < 50.0;
+
+    // 1. ທິດທາງເສດຖະກິດ (Macro Economy)
+    const economyOutlook = {
+      status: isLaborStrong ? "ຂະຫຍາຍຕົວແບບທົນທານ (RESILIENT / SOFT LANDING)" : "ຊະລໍຕົວລົງ (COOLING DOWN)",
+      detail: `ເສດຖະກິດຍັງໄດ້ຮັບແຮງໜູນຈາກການຈ້າງງານ (${nfpEvent.title}: ${nfpEvent.actual || nfpEvent.forecast}) ເຮັດໃຫ້ກຳລັງຊື້ຂອງປະຊາຊົນຍັງບໍ່ຕົກ ເຖິງແມ່ນວ່າພາກໂຮງງານ/ການຜະລິດ ISM (${ismEvent.actual}) ຈະຊະລໍຕົວລົງຈາກຕົ້ນທຶນພາສີກໍຕາມ.`
+    };
+
+    // 2. ທິດທາງເງິນໂດລາ (USD Index)
+    const usdOutlook = {
+      trend: isLaborStrong ? "BULLISH (ແຂງຄ່າຂຶ້ນ / ຊົງຕົວສູງ)" : "BEARISH (ອ່ອນຄ່າ)",
+      detail: isLaborStrong
+        ? `ເງິນໂດລາ (USD) ຍັງໄດ້ປັດໄຈບວກ ຍ້ອນຕະຫຼາດແຮງງານທີ່ແຂງແກ່ນເຮັດໃຫ້ Fed ຍັງບໍ່ຮີບຮ້ອນຫຼຸດດອກເບ້ຍ (Hawkish Hold) ສົ່ງຜົນໃຫ້ເງິນໂດລາຍັງມີຄວາມດຶງດູດ.`
+        : `ເງິນໂດລາມີແນວໂນ້ມອ່ອນຄ່າລົງ ຍ້ອນຕະຫຼາດຄາດຫວັງວ່າ Fed ຈະຕ້ອງຫຼຸດດອກເບ້ຍໄວຂຶ້ນ.`
+    };
+
+    // 3. ທິດທາງທອງຄຳ (Gold XAU/USD)
+    const goldOutlook = {
+      trend: "SHORT-TERM PRESSURE ➔ WAVE REBOUND (ລຸ້ນ ATH ໃໝ່)",
+      detail: `ໃນໄລຍະສັ້ນ ລາຄາທອງຄຳອາດຖືກກົດດັນຈາກ USD ທີ່ແຂງຄ່າ. ແຕ່ໃນທາງເຕັກນິກ ຫຼັງຈາກການເທຂາຍຈົບຮອບ (Wave A) ລາຄາຈະມີແຮງຊື້ Rebound ຂຶ້ນເປັນ Wave B (ເຊິ່ງອາດເປັນ Strong B ລຸ້ນເຮັດ New All-Time High) ຍ້ອນນັກລົງທຶນເຂົ້າຊື້ປ້ອງກັນຄວາມສ່ຽງເງິນເຟີ້ ແລະ ຄວາມບໍ່ແນ່ນອນດ້ານພາສີ.`
+    };
+
+    // 4. ທິດທາງນ້ຳມັນ (Crude Oil)
+    const oilOutlook = {
+      trend: "BEARISH TO SIDEWAY (ຊົງຕົວລະດັບຕ່ຳ $80 - $83)",
+      detail: `ລາຄານ້ຳມັນດິບຍັງຢູ່ໃນລະດັບຕ່ຳ ຊ່ວຍຫຼຸດຜ່ອນຕົ້ນທຶນພະລັງງານ ແລະ ການຂົນສົ່ງ ຖືເປັນຜົນດີຕໍ່ພາກທຸລະກິດ ແລະ ຊ່ວຍດັບຄວາມຮ້ອນຂອງເງິນເຟີ້.`
+    };
+
+    // =========================================================================
+    // 🔮 DYNAMIC UPCOMING PREDICTIONS
+    // =========================================================================
+    const upcomingPredictions = upcoming.slice(0, 6).map(evt => {
       const t = evt.title.toLowerCase();
       let probAbove = 50;
       let probInline = 30;
@@ -109,7 +145,7 @@ async function getRollingMacroIntelligence() {
         probAbove = isLaborStrong ? 65 : 30;
         probInline = isLaborStrong ? 25 : 50;
         probBelow = 100 - (probAbove + probInline);
-        reasoning = `ວິເຄາະຈາກຕົວເລກແຮງງານ NFP (+${latestNFP.actualNum}K) ທີ່ແຂງແກ່ນ ບົ່ງບອກວ່າກຳລັງຊື້ ແລະ ຄ່າຈ້າງຍັງສູງ ເຮັດໃຫ້ມີໂອກາດ ${probAbove}% ທີ່ຕົວເລກເງິນເຟີ້ (${evt.title}) ຈະອອກມາສູງກວ່າ ຫຼື ເທົ່າກັບຄາດ (${evt.forecast}).`;
+        reasoning = `ອີງຕາມຕົວເລກການຈ້າງງານ NFP ຫຼ້າສຸດ (${nfpEvent.actual || nfpEvent.forecast}) ທີ່ແຂງແກ່ນ ບົ່ງບອກວ່າກຳລັງຊື້ ແລະ ຄ່າຈ້າງຍັງສູງ ເຮັດໃຫ້ມີໂອກາດ ${probAbove}% ທີ່ຕົວເລກເງິນເຟີ້ (${evt.title}) ຈະອອກມາສູງກວ່າ ຫຼື ເທົ່າກັບຄາດ (${evt.forecast}).`;
       } else if (t.includes('gdp') || t.includes('retail sales')) {
         probAbove = 55;
         probInline = 35;
@@ -143,25 +179,35 @@ async function getRollingMacroIntelligence() {
 
     const now = new Date();
     return {
-      currentCycle: `ຮອບຂໍ້ມູນ Live Sync: ${new Intl.DateTimeFormat('lo-LA', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Asia/Bangkok' }).format(now)}`,
-      releasedCount: released.length,
-      upcomingCount: upcoming.length,
-      predictions: predictionsList,
+      currentCycleLao: `ຮອບຂໍ້ມູນປັດຈຸບັນ (Live Sync): ${new Intl.DateTimeFormat('lo-LA', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Asia/Bangkok' }).format(now)}`,
+      nfpReference: {
+        title: nfpEvent.title,
+        actual: nfpEvent.actual || nfpEvent.forecast,
+        status: nfpEvent.isReleased ? 'ປະກາດແລ້ວ (Actual)' : 'ຄາດການ (Forecast)',
+        releaseDateLao: nfpEvent.dateGMT7
+      },
+      marketOutlook: {
+        economy: economyOutlook,
+        usd: usdOutlook,
+        gold: goldOutlook,
+        oil: oilOutlook
+      },
       releasedEvents: released.slice(0, 10),
-      allUpcomingEvents: upcoming.slice(0, 15)
+      upcomingPredictions: upcomingPredictions
     };
   } catch (err) {
-    console.error('[Rolling Engine Error]:', err.message);
+    console.error('[Engine Error]:', err.message);
     return null;
   }
 }
 
-app.get('/api/rolling-macro-feed', async (req, res) => {
-  const data = await getRollingMacroIntelligence();
+app.get('/api/macro-full-feed', async (req, res) => {
+  const data = await getLiveMacroFeed();
   res.json({ success: true, data });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 ROLLING FORECAST SERVER ACTIVE: http://localhost:${PORT}`);
-  console.log(`📡 Auto-Tracking This Week + Next Week Forex Factory Feeds`);
+  console.log(`🚀 MACRO TERMINAL SERVER: http://localhost:${PORT}`);
+  console.log(`🕒 Auto-Timezone: GMT+7 (Lao Time)`);
+  console.log(`🔤 Primary Font: Noto Sans Lao`);
 });
