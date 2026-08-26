@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html class="dark" lang="lo">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Economic Intelligence Terminal</title>
+    <title>MACRO TERMINAL // Economic Intelligence</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600;700&amp;family=Noto+Sans+Lao:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;family=Noto+Sans+Lao:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
     
     <script>
         tailwind.config = {
@@ -14,340 +14,609 @@
             theme: {
                 extend: {
                     colors: {
-                        "background": "#051424",
-                        "surface": "#051424",
-                        "surface-container-lowest": "#010f1f",
-                        "surface-container-low": "#0d1c2d",
-                        "surface-container": "#122131",
-                        "surface-container-high": "#1c2b3c",
-                        "surface-container-highest": "#273647",
-                        "surface-variant": "#273647",
-                        "primary": "#bec6e0",
-                        "primary-container": "#0f172a",
-                        "secondary": "#adc6ff",
-                        "secondary-container": "#0566d9",
-                        "on-secondary-container": "#e6ecff",
-                        "tertiary": "#4edea3",
-                        "tertiary-fixed-dim": "#4edea3",
-                        "tertiary-container": "#001c10",
-                        "on-tertiary-container": "#009365",
-                        "error": "#ffb4ab",
-                        "error-container": "#93000a",
-                        "on-error-container": "#ffdad6",
-                        "outline-variant": "#45464d",
-                        "on-surface": "#d4e4fa",
-                        "on-surface-variant": "#c6c6cd"
+                        "term-bg": "#060b13",
+                        "term-panel": "#0c1524",
+                        "term-sub": "#121e33",
+                        "term-border": "#1e314d",
+                        "term-green": "#00e676",
+                        "term-red": "#ff5252",
+                        "term-cyan": "#00e5ff",
+                        "term-amber": "#ffab00",
+                        "term-blue": "#2979ff",
+                        "term-text": "#c9d6df",
+                        "term-muted": "#64748b"
                     },
                     fontFamily: {
-                        sans: ['Inter', 'Noto Sans Lao', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
-                        lao: ['Noto Sans Lao', 'sans-serif']
+                        lao: ['Noto Sans Lao', 'sans-serif'],
+                        sans: ['Inter', 'Noto Sans Lao', 'sans-serif']
                     }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #051424; color: #d4e4fa; }
-        .glass-panel { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(71, 85, 105, 0.4); }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .pulse-red { animation: pulse-red 2s infinite; }
-        @keyframes pulse-red {
-            0% { border-color: rgba(239, 68, 68, 0.2); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-            70% { border-color: rgba(239, 68, 68, 0.8); box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
-            100% { border-color: rgba(239, 68, 68, 0.2); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        body { background-color: #060b13; color: #c9d6df; }
+        .terminal-grid { background-image: radial-gradient(rgba(30, 49, 77, 0.4) 1px, transparent 1px); background-size: 20px 20px; }
+        .node-pulse { animation: pulse-node 2s infinite ease-in-out; }
+        @keyframes pulse-node {
+            0%, 100% { opacity: 0.9; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.01); }
         }
-
-        .line-flow { stroke-dasharray: 5; animation: dash 20s linear infinite; }
-        @keyframes dash { to { stroke-dashoffset: -100; } }
-
-        .ticker-wrap { width: 100%; overflow: hidden; background-color: #010f1f; white-space: nowrap; }
-        .ticker { display: inline-block; animation: ticker 28s linear infinite; }
-        .ticker:hover { animation-play-state: paused; }
-        @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="antialiased min-h-screen pb-24 md:pb-8 selection:bg-secondary-container selection:text-on-secondary-container">
+<body class="antialiased min-h-screen pb-20 font-sans terminal-grid selection:bg-term-blue selection:text-white">
 
-    <!-- LIVE REAL-TIME STREAMING TICKER TAPE -->
-<div class="ticker-wrap h-9 border-b border-outline-variant/40 flex items-center sticky top-0 z-50 bg-[#010f1f]">
-    <div class="flex items-center px-3 bg-surface-container-highest/80 border-r border-outline-variant/30 h-full z-10 shrink-0 gap-1.5">
-        <span class="relative flex h-2 w-2">
-            <span id="ws-pulse" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
-            <span id="ws-dot" class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
-        </span>
-        <span id="ws-status" class="font-mono text-[10px] font-bold text-tertiary uppercase tracking-wider">LIVE WS</span>
-    </div>
-
-    <!-- Continuous Marquee Track -->
-    <div class="overflow-hidden w-full relative flex items-center">
-        <div id="ticker-track" class="ticker flex gap-8 font-mono text-xs px-4 text-on-surface-variant">
-            <!-- Dynamically populated and live-updated by WebSocket engine -->
-        </div>
-    </div>
-</div>
-    
-
-    <!-- 2. TOP APP BAR WITH ROUTE & LANGUAGE SWITCHER -->
-    <header class="bg-surface/90 backdrop-blur-md border-b border-outline-variant/40 flex items-center justify-between px-4 md:px-8 w-full h-16 sticky top-8 z-40">
-        <div class="flex items-center gap-3">
-            <button id="nav-back-btn" onclick="navigate('#/')" class="hidden p-2 rounded-full hover:bg-surface-variant/50 text-on-surface transition-colors">
-                <span class="material-symbols-outlined">arrow_back</span>
-            </button>
+    <!-- 1. TERMINAL COMMAND HEADER -->
+    <header class="bg-term-panel border-b border-term-border px-4 md:px-6 py-2.5 flex items-center justify-between sticky top-0 z-50">
+        <div class="flex items-center gap-4">
             <div class="flex items-center gap-2 cursor-pointer" onclick="navigate('#/')">
-                <span class="material-symbols-outlined text-primary text-2xl">sensors</span>
-                <h1 id="view-title" class="font-bold text-lg md:text-xl tracking-tight text-white">Macro Intelligence</h1>
+                <div class="w-3 h-3 bg-term-green rounded-sm animate-pulse"></div>
+                <span class="font-mono font-extrabold text-white text-base tracking-wider">MACRO<span class="text-term-cyan">_TERMINAL</span></span>
+                <span class="text-[10px] font-mono bg-term-border text-term-cyan px-1.5 py-0.5 rounded">v2.6 PRO</span>
             </div>
+
+            <!-- Terminal Navigation Tabs -->
+            <nav class="hidden md:flex items-center gap-1 font-mono text-xs ml-4">
+                <button onclick="navigate('#/')" id="nav-dash" class="px-3 py-1.5 rounded bg-term-sub text-white border border-term-border font-bold">DASHBOARD</button>
+                <button onclick="navigate('#/nfp')" id="nav-nfp" class="px-3 py-1.5 rounded text-term-muted hover:text-white hover:bg-term-sub transition-colors">NFP_MODEL</button>
+                <button onclick="navigate('#/cpi')" id="nav-cpi" class="px-3 py-1.5 rounded text-term-muted hover:text-white hover:bg-term-sub transition-colors">CPI_INFLATION</button>
+            </nav>
         </div>
 
         <div class="flex items-center gap-3">
-            <!-- Language Switcher Pill -->
-            <div class="bg-surface-container-highest p-0.5 rounded-lg flex border border-outline-variant/50 font-mono text-xs">
-                <button id="lang-btn-en" onclick="setLanguage('EN')" class="px-2.5 py-1 rounded bg-secondary-container text-white font-bold transition-all">EN</button>
-                <button id="lang-btn-lo" onclick="setLanguage('LO')" class="px-2.5 py-1 rounded text-on-surface-variant hover:text-white font-bold transition-all">🇱🇦 ລາວ</button>
+            <!-- Language Switcher -->
+            <div class="bg-term-bg p-0.5 rounded border border-term-border flex font-mono text-xs">
+                <button id="lang-en" onclick="setLanguage('EN')" class="px-2 py-0.5 text-term-muted hover:text-white font-bold transition-all">EN</button>
+                <button id="lang-lo" onclick="setLanguage('LO')" class="px-2 py-0.5 rounded bg-term-blue text-white font-bold transition-all">🇱🇦 ລາວ</button>
             </div>
             
-            <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded bg-error-container/20 border border-error/30 text-error text-[11px] font-mono">
-                <span class="w-1.5 h-1.5 rounded-full bg-error animate-ping"></span>
-                <span data-i18n="pollingBadge">HIGH SENSITIVITY</span>
+            <div class="flex items-center gap-1.5 font-mono text-[11px] text-term-green bg-term-green/10 border border-term-green/30 px-2 py-0.5 rounded">
+                <span class="material-symbols-outlined text-[14px]">sync_saved_loc</span>
+                <span>FEED: ACTIVE</span>
             </div>
         </div>
     </header>
 
-    <!-- 3. VIEW CONTAINER -->
-    <main class="max-w-7xl mx-auto px-4 md:px-8 py-6">
+    <!-- 2. INSTITUTIONAL MARKET OVERVIEW BAR (STATIC DESK CARDS) -->
+    <div class="max-w-7xl mx-auto px-4 md:px-6 pt-4">
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 font-mono text-xs">
+            <div class="bg-term-panel border border-term-border p-2.5 rounded">
+                <div class="flex justify-between text-term-muted text-[10px]"><span>US DOLLAR</span><span class="text-term-green">+0.24%</span></div>
+                <div class="flex justify-between items-baseline mt-1"><span class="font-bold text-white text-sm">DXY</span><span class="text-term-green font-bold">104.45</span></div>
+            </div>
+            <div class="bg-term-panel border border-term-border p-2.5 rounded">
+                <div class="flex justify-between text-term-muted text-[10px]"><span>10Y YIELD</span><span class="text-term-green">+3.2 bps</span></div>
+                <div class="flex justify-between items-baseline mt-1"><span class="font-bold text-white text-sm">US10Y</span><span class="text-term-cyan font-bold">4.258%</span></div>
+            </div>
+            <div class="bg-term-panel border border-term-border p-2.5 rounded">
+                <div class="flex justify-between text-term-muted text-[10px]"><span>S&amp;P 500</span><span class="text-term-red">-0.35%</span></div>
+                <div class="flex justify-between items-baseline mt-1"><span class="font-bold text-white text-sm">SPX</span><span class="text-term-red font-bold">5,482.10</span></div>
+            </div>
+            <div class="bg-term-panel border border-term-border p-2.5 rounded">
+                <div class="flex justify-between text-term-muted text-[10px]"><span>GOLD (XAU)</span><span class="text-term-red">-0.42%</span></div>
+                <div class="flex justify-between items-baseline mt-1"><span class="font-bold text-white text-sm">XAUUSD</span><span class="text-white font-bold">$2,342.50</span></div>
+            </div>
+            <div class="bg-term-panel border border-term-border p-2.5 rounded col-span-2 sm:col-span-1">
+                <div class="flex justify-between text-term-muted text-[10px]"><span>BRENT OIL</span><span class="text-term-green">+1.12%</span></div>
+                <div class="flex justify-between items-baseline mt-1"><span class="font-bold text-white text-sm">BRENT</span><span class="text-term-green font-bold">$82.60</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. MAIN TERMINAL DASHBOARD -->
+    <main class="max-w-7xl mx-auto px-4 md:px-6 py-4 space-y-4">
 
         <!-- ============================================================== -->
-        <!-- VIEW 1: MACRO INTELLIGENCE DASHBOARD (#/ or empty)             -->
+        <!-- VIEW 1: MACRO OVERVIEW DASHBOARD (#/)                          -->
         <!-- ============================================================== -->
-        <div id="view-dashboard" class="space-y-5">
-            <!-- Regime Banner -->
-            <section class="bg-surface-container-high rounded-xl p-5 border border-outline-variant/30 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-36 h-36 bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                <div class="flex justify-between items-start mb-2 relative z-10">
-                    <h2 class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" data-i18n="regimeLabel">ECONOMIC REGIME</h2>
-                    <div class="w-3 h-3 rounded-full bg-[#3B82F6] shadow-[0_0_10px_#3B82F6]"></div>
-                </div>
-                <div class="relative z-10">
-                    <p id="regime-title" class="font-mono text-xl md:text-2xl text-primary font-bold tracking-tight">GROWTH STRONG / INFLATION STICKY</p>
-                    <p class="text-sm text-on-surface-variant mt-1">
-                        <span data-i18n="regimeConf">Regime stability confidence:</span> <span class="font-mono text-on-surface font-semibold" id="regime-conf-val">84%</span>
+        <div id="view-dashboard" class="space-y-4">
+            
+            <!-- Regime & Fed Matrix -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                <!-- Regime Indicator -->
+                <div class="lg:col-span-8 bg-term-panel border border-term-border rounded-lg p-5 relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-mono text-xs text-term-cyan uppercase tracking-wider font-bold" data-i18n="regimeLabel">CURRENT ECONOMIC REGIME</span>
+                        <span class="font-mono text-xs bg-term-blue/20 text-term-blue px-2 py-0.5 rounded border border-term-blue/40 font-bold">CONFIDENCE: 84%</span>
+                    </div>
+                    <h2 id="regime-title" class="font-mono text-xl md:text-2xl font-extrabold text-white tracking-tight mt-2">
+                        GROWTH STRONG / INFLATION STICKY
+                    </h2>
+                    <p class="text-xs text-term-muted mt-2 font-mono" data-i18n="regimeDesc">
+                        Labor market resilient, core inflation running above 2% target. Financial conditions tight.
                     </p>
                 </div>
-            </section>
 
-            <!-- State Scores Gauges -->
-            <section>
-                <h2 class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-3 px-1" data-i18n="stateScoresLabel">STATE SCORES</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <!-- Labor -->
-                    <div class="bg-surface-container-high rounded-lg p-3.5 border border-outline-variant/30">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-medium" data-i18n="labor">LABOR</span>
-                            <span class="font-mono font-bold text-error">+20</span>
+                <!-- Fed Policy Bias -->
+                <div class="lg:col-span-4 bg-term-panel border border-term-border rounded-lg p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between text-xs font-mono text-term-muted">
+                            <span data-i18n="fedPolicyLabel">FED POLICY BIAS</span>
+                            <span class="text-term-cyan font-bold">+52 (HAWKISH)</span>
                         </div>
-                        <div class="w-full h-1.5 bg-[#334155] rounded-full relative mb-1.5">
-                            <div class="absolute left-1/2 w-0.5 h-3 bg-on-surface -top-0.5"></div>
-                            <div class="h-full bg-error rounded-full" style="width: 20%; margin-left: 50%;"></div>
+                        <div class="text-lg font-mono font-bold text-white mt-1" data-i18n="modHawkish">MODERATELY HAWKISH</div>
+                        <div class="w-full bg-term-bg h-2 rounded-full mt-3 overflow-hidden border border-term-border">
+                            <div class="bg-term-cyan h-full" style="width: 76%;"></div>
                         </div>
-                        <div class="text-right text-[11px] font-bold text-error" data-i18n="cooling">COOLING</div>
                     </div>
-                    <!-- Inflation -->
-                    <div class="bg-surface-container-high rounded-lg p-3.5 border border-outline-variant/30">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-medium" data-i18n="inflation">INFLATION</span>
-                            <span class="font-mono font-bold text-[#3B82F
-                                // --- Finnhub Institutional WebSocket Connection (Alternative) ---
-const FINNHUB_KEY = 'da77td1r01qqqkkih8u0da77td1r01qqqkkih8ug';
-const finnhubSocket = new WebSocket(`wss://ws.finnhub.io?token=${FINNHUB_KEY}`);
-
-finnhubSocket.onopen = () => {
-    // Subscribe to Gold, US Treasury Bond ETFs, EUR/USD
-    finnhubSocket.send(JSON.stringify({'type':'subscribe', 'symbol':'OANDA:XAU_USD'}));
-    finnhubSocket.send(JSON.stringify({'type':'subscribe', 'symbol':'BINANCE:BTCUSDT'}));
-    finnhubSocket.send(JSON.stringify({'type':'subscribe', 'symbol':'IC MARKETS:10'}));
-};
-
-finnhubSocket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    if (data.type === 'trade' && data.data) {
-        data.data.forEach(trade => {
-            const price = trade.p;
-            // Feed into LiveTickerEngine.updateDOMItem(...)
-        });
-    }
-};
-<!-- ============================================================== -->
-<!-- INTERACTIVE SCENARIO ENGINE & TRANSMISSION GRAPH MODULE        -->
-<!-- ============================================================== -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-5 my-6">
-
-    <!-- LEFT (8 Cols): INTERACTIVE SCENARIO CONTROLLER & YIELD CALCULATOR -->
-    <div class="lg:col-span-7 space-y-4">
-        
-        <!-- Scenario Controls Card -->
-        <div class="bg-surface-container-high rounded-xl p-5 border border-outline-variant/40 space-y-4">
-            <div class="flex justify-between items-center">
-                <h3 class="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5 font-mono">
-                    <span class="material-symbols-outlined text-sm">tune</span>
-                    <span data-i18n="scenarioEngine">INTERACTIVE SCENARIO ENGINE</span>
-                </h3>
-                <span class="text-[11px] font-mono text-on-surface-variant">CONSENSUS: <span id="consensus-anchor" class="text-white font-bold">175K</span></span>
-            </div>
-
-            <!-- Preset Scenario Triggers -->
-            <div class="grid grid-cols-3 gap-2">
-                <button onclick="engine.setScenario('ABOVE')" id="btn-scen-above" class="scenario-btn p-3 rounded-lg border border-outline-variant/40 bg-surface-container hover:border-tertiary text-left transition-all group">
-                    <div class="text-[10px] font-mono text-gray-400 group-hover:text-tertiary">SCENARIO A</div>
-                    <div class="text-xs font-bold text-tertiary mt-0.5" data-i18n="nfpAbove">> 200K (BEAT)</div>
-                    <div class="text-[10px] text-gray-400 font-mono mt-1">Prob: 20%</div>
-                </button>
-
-                <button onclick="engine.setScenario('IN_LINE')" id="btn-scen-inline" class="scenario-btn p-3 rounded-lg border-2 border-primary bg-primary/10 text-left transition-all group">
-                    <div class="text-[10px] font-mono text-primary">SCENARIO B</div>
-                    <div class="text-xs font-bold text-white mt-0.5">150K - 190K</div>
-                    <div class="text-[10px] text-gray-400 font-mono mt-1">Prob: 60%</div>
-                </button>
-
-                <button onclick="engine.setScenario('BELOW')" id="btn-scen-below" class="scenario-btn p-3 rounded-lg border border-outline-variant/40 bg-surface-container hover:border-error text-left transition-all group">
-                    <div class="text-[10px] font-mono text-gray-400 group-hover:text-error">SCENARIO C</div>
-                    <div class="text-xs font-bold text-error mt-0.5" data-i18n="nfpBelow">< 150K (MISS)</div>
-                    <div class="text-[10px] text-gray-400 font-mono mt-1">Prob: 20%</div>
-                </button>
-            </div>
-
-            <!-- Dynamic Slider Input -->
-            <div class="pt-2 border-t border-outline-variant/30 space-y-2">
-                <div class="flex justify-between items-center font-mono text-xs">
-                    <span class="text-on-surface-variant">CUSTOM OUTCOME SLIDER:</span>
-                    <span id="slider-display-val" class="font-bold text-white text-sm bg-surface-container px-2 py-0.5 rounded border border-outline-variant/40">175K</span>
-                </div>
-                <input type="range" id="outcome-slider" min="50" max="300" step="5" value="175" 
-                       oninput="engine.handleSlider(this.value)"
-                       class="w-full h-1.5 bg-[#334155] rounded-lg appearance-none cursor-pointer accent-secondary"/>
-                <div class="flex justify-between text-[10px] font-mono text-gray-400">
-                    <span>50K (Severe Contraction)</span>
-                    <span>175K (Consensus)</span>
-                    <span>300K (Overheated)</span>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="navigate('#/nfp')" class="flex-1 text-center py-1.5 bg-term-sub hover:bg-term-border border border-term-border rounded font-mono text-xs text-white">NFP ANALYSER →</button>
+                        <button onclick="navigate('#/cpi')" class="flex-1 text-center py-1.5 bg-term-sub hover:bg-term-border border border-term-border rounded font-mono text-xs text-white">CPI MODEL →</button>
+                    </div>
                 </div>
             </div>
+
+            <!-- State Scores Tri-Gauges -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-term-panel border border-term-border p-4 rounded-lg">
+                    <div class="flex justify-between font-mono text-xs">
+                        <span class="text-term-muted" data-i18n="labor">LABOR INDEX</span>
+                        <span class="text-term-red font-bold">+20</span>
+                    </div>
+                    <div class="w-full bg-term-bg h-1.5 rounded-full my-2 relative">
+                        <div class="bg-term-red h-full rounded-full" style="width: 20%; margin-left: 50%;"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px] font-mono">
+                        <span class="text-term-muted">MOMENTUM</span>
+                        <span class="text-term-red font-bold" data-i18n="cooling">COOLING</span>
+                    </div>
+                </div>
+
+                <div class="bg-term-panel border border-term-border p-4 rounded-lg">
+                    <div class="flex justify-between font-mono text-xs">
+                        <span class="text-term-muted" data-i18n="inflation">INFLATION INDEX</span>
+                        <span class="text-term-cyan font-bold">+75</span>
+                    </div>
+                    <div class="w-full bg-term-bg h-1.5 rounded-full my-2 relative">
+                        <div class="bg-term-cyan h-full rounded-full" style="width: 75%; margin-left: 50%;"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px] font-mono">
+                        <span class="text-term-muted">PRESSURE</span>
+                        <span class="text-term-cyan font-bold" data-i18n="sticky">STICKY</span>
+                    </div>
+                </div>
+
+                <div class="bg-term-panel border border-term-border p-4 rounded-lg">
+                    <div class="flex justify-between font-mono text-xs">
+                        <span class="text-term-muted" data-i18n="growth">GROWTH INDEX</span>
+                        <span class="text-term-green font-bold">+62</span>
+                    </div>
+                    <div class="w-full bg-term-bg h-1.5 rounded-full my-2 relative">
+                        <div class="bg-term-green h-full rounded-full" style="width: 62%; margin-left: 50%;"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px] font-mono">
+                        <span class="text-term-muted">GDP TREND</span>
+                        <span class="text-term-green font-bold" data-i18n="strong">EXPANDING</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Macro Conflict Terminal Alert -->
+            <div class="bg-term-panel border-l-4 border-l-term-amber border-y border-r border-term-border p-4 rounded-r-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-term-amber text-2xl">warning</span>
+                    <div>
+                        <div class="font-mono text-xs font-bold text-term-amber uppercase" data-i18n="conflictAlert">MACRO CONFLICT DETECTED</div>
+                        <div class="text-xs text-white mt-0.5">Headline Nonfarm Payrolls <span class="text-term-green font-bold">STRONG</span> vs Underemployment / Revisions <span class="text-term-red font-bold">COOLING</span></div>
+                    </div>
+                </div>
+                <button onclick="navigate('#/nfp')" class="px-3 py-1.5 bg-term-sub hover:bg-term-border border border-term-border rounded text-xs font-mono text-term-cyan font-bold whitespace-nowrap">
+                    TEST SCENARIOS →
+                </button>
+            </div>
+
         </div>
 
-        <!-- Dynamic Yield Shift Result Panel -->
-        <div class="bg-surface-container rounded-xl p-5 border border-outline-variant/30 space-y-3">
-            <div class="flex justify-between items-center">
-                <span class="text-xs font-bold text-on-surface-variant font-mono uppercase" data-i18n="yieldSensitivity">10Y YIELD TRANSMISSION CALC</span>
-                <span class="text-[11px] font-mono text-primary">Baseline: 4.250%</span>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <div class="bg-surface-container-high p-3 rounded-lg border border-outline-variant/30">
-                    <div class="text-[10px] font-mono text-gray-400">DELTA FROM CONSENSUS</div>
-                    <div id="calc-delta-consensus" class="font-mono text-base font-bold text-white mt-1">0K (0.0σ)</div>
-                </div>
-
-                <div class="bg-surface-container-high p-3 rounded-lg border border-outline-variant/30">
-                    <div class="text-[10px] font-mono text-gray-400">ESTIMATED YIELD SHIFT</div>
-                    <div id="calc-yield-shift" class="font-mono text-base font-bold text-primary mt-1">0.0 bps</div>
-                </div>
-
-                <div class="bg-surface-container-high p-3 rounded-lg border border-outline-variant/30 col-span-2 sm:col-span-1">
-                    <div class="text-[10px] font-mono text-gray-400">IMPLIED 10Y TARGET</div>
-                    <div id="calc-target-yield" class="font-mono text-base font-bold text-white mt-1">4.250%</div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- RIGHT (5 Cols): VISUAL TRANSMISSION MECHANISM GRAPH -->
-    <div class="lg:col-span-5">
-        <div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/40 relative h-full flex flex-col justify-between overflow-hidden">
+        <!-- ============================================================== -->
+        <!-- VIEW 2: INTERACTIVE NFP SCENARIO & TRANSMISSION ENGINE         -->
+        <!-- ============================================================== -->
+        <div id="view-nfp" class="space-y-4 hidden">
             
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-xs font-bold text-on-surface-variant font-mono uppercase tracking-wider" data-i18n="transmissionMechanism">TRANSMISSION MECHANISM</h3>
-                <span id="trans-status-badge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-primary/20 text-primary border border-primary/40">NEUTRAL FLOW</span>
+            <!-- View Header -->
+            <div class="bg-term-panel border border-term-border p-4 rounded-lg flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <button onclick="navigate('#/')" class="p-1 rounded hover:bg-term-sub text-term-muted hover:text-white"><span class="material-symbols-outlined">arrow_back</span></button>
+                    <div>
+                        <span class="text-[10px] font-mono text-term-cyan">DATA RELEASE: BLS CES0000000001</span>
+                        <h2 class="text-lg font-mono font-bold text-white">NONFARM PAYROLLS (NFP) TRANSMISSION MODEL</h2>
+                    </div>
+                </div>
+                <div class="flex gap-4 font-mono text-xs">
+                    <div><span class="text-term-muted block text-[10px]">CONSENSUS</span><span class="font-bold text-term-cyan">175K</span></div>
+                    <div><span class="text-term-muted block text-[10px]">PRIOR</span><span class="font-bold text-white">165K</span></div>
+                </div>
             </div>
 
-            <!-- Visual Flow Network -->
-            <div class="relative py-2 flex flex-col items-center gap-3">
+            <!-- Grid Layout: Left (Scenario Controls) | Right (Transmission Graph) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
                 
-                <!-- NODE 1: DATA EVENT -->
-                <div id="node-event" class="node-box w-64 bg-surface-container border-2 border-outline-variant p-2.5 rounded-lg flex items-center justify-between transition-all duration-500 z-10">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-secondary text-lg">engineering</span>
-                        <div>
-                            <div class="text-[10px] font-mono text-gray-400">INPUT EVENT</div>
-                            <div class="text-xs font-bold text-white font-mono" id="node-event-title">NFP: 175K</div>
+                <!-- Left 7 Cols: Controls & Yield Calc -->
+                <div class="lg:col-span-7 space-y-4">
+                    
+                    <div class="bg-term-panel border border-term-border p-5 rounded-lg space-y-4">
+                        <div class="flex justify-between items-center font-mono">
+                            <span class="text-xs font-bold text-white">SCENARIO PRESETS</span>
+                            <span class="text-[11px] text-term-muted">TARGET DEVIATION</span>
+                        </div>
+
+                        <!-- Presets -->
+                        <div class="grid grid-cols-3 gap-2 font-mono">
+                            <button onclick="engine.setScenario('ABOVE')" id="btn-scen-above" class="scenario-btn p-3 rounded bg-term-sub border border-term-border text-left hover:border-term-green transition-all">
+                                <div class="text-[10px] text-term-muted">SCENARIO A</div>
+                                <div class="text-xs font-bold text-term-green mt-1">> 200K (BEAT)</div>
+                                <div class="text-[10px] text-term-muted mt-1">Hawkish Shift</div>
+                            </button>
+                            <button onclick="engine.setScenario('IN_LINE')" id="btn-scen-inline" class="scenario-btn p-3 rounded bg-term-blue/20 border-2 border-term-blue text-left transition-all">
+                                <div class="text-[10px] text-term-blue">SCENARIO B</div>
+                                <div class="text-xs font-bold text-white mt-1">150K - 190K</div>
+                                <div class="text-[10px] text-term-muted mt-1">Neutral / In Line</div>
+                            </button>
+                            <button onclick="engine.setScenario('BELOW')" id="btn-scen-below" class="scenario-btn p-3 rounded bg-term-sub border border-term-border text-left hover:border-term-red transition-all">
+                                <div class="text-[10px] text-term-muted">SCENARIO C</div>
+                                <div class="text-xs font-bold text-term-red mt-1">< 150K (MISS)</div>
+                                <div class="text-[10px] text-term-muted mt-1">Dovish Shift</div>
+                            </button>
+                        </div>
+
+                        <!-- Interactive Range Slider -->
+                        <div class="pt-3 border-t border-term-border space-y-2">
+                            <div class="flex justify-between items-center font-mono text-xs">
+                                <span class="text-term-muted">OUTCOME SIMULATION:</span>
+                                <span id="slider-display-val" class="font-bold text-white bg-term-sub px-2 py-0.5 rounded border border-term-border text-sm">175K</span>
+                            </div>
+                            <input type="range" id="outcome-slider" min="50" max="300" step="5" value="175" 
+                                   oninput="engine.handleSlider(this.value)"
+                                   class="w-full h-1.5 bg-term-sub rounded-lg appearance-none cursor-pointer accent-term-cyan"/>
+                            <div class="flex justify-between text-[10px] font-mono text-term-muted">
+                                <span>50K (Hard Landing)</span>
+                                <span>175K (Consensus)</span>
+                                <span>300K (Overheated)</span>
+                            </div>
                         </div>
                     </div>
-                    <span id="node-event-tag" class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-surface-variant text-gray-300">IN LINE</span>
-                </div>
 
-                <!-- CONNECTOR 1 -->
-                <div class="h-4 w-0.5 bg-outline-variant/50 relative overflow-hidden">
-                    <div id="flow-line-1" class="absolute inset-0 bg-primary opacity-60"></div>
-                </div>
-
-                <!-- NODE 2: FED POLICY BIAS -->
-                <div id="node-fed" class="node-box w-64 bg-surface-container border-2 border-outline-variant p-2.5 rounded-lg flex items-center justify-between transition-all duration-500 z-10">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary text-lg">account_balance</span>
-                        <div>
-                            <div class="text-[10px] font-mono text-gray-400">CENTRAL BANK</div>
-                            <div class="text-xs font-bold text-white font-mono" id="node-fed-title">FED BIAS</div>
+                    <!-- Dynamic Yield Shift Result Cards -->
+                    <div class="bg-term-panel border border-term-border p-4 rounded-lg space-y-3 font-mono">
+                        <div class="flex justify-between text-xs text-term-muted">
+                            <span>10Y YIELD DURATION SENSITIVITY</span>
+                            <span>BASELINE: 4.250%</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="bg-term-sub p-3 rounded border border-term-border">
+                                <div class="text-[10px] text-term-muted">DELTA (Z-SCORE)</div>
+                                <div id="calc-delta-consensus" class="text-sm font-bold text-white mt-1">0K (0.0σ)</div>
+                            </div>
+                            <div class="bg-term-sub p-3 rounded border border-term-border">
+                                <div class="text-[10px] text-term-muted">ESTIMATED YIELD SHIFT</div>
+                                <div id="calc-yield-shift" class="text-sm font-bold text-term-cyan mt-1">0.0 bps</div>
+                            </div>
+                            <div class="bg-term-sub p-3 rounded border border-term-border">
+                                <div class="text-[10px] text-term-muted">IMPLIED 10Y TARGET</div>
+                                <div id="calc-target-yield" class="text-sm font-bold text-white mt-1">4.250%</div>
+                            </div>
                         </div>
                     </div>
-                    <span id="node-fed-tag" class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-surface-variant text-gray-300">BALANCED</span>
+
                 </div>
 
-                <!-- CONNECTOR 2 -->
-                <div class="h-4 w-0.5 bg-outline-variant/50 relative overflow-hidden">
-                    <div id="flow-line-2" class="absolute inset-0 bg-primary opacity-60"></div>
-                </div>
+                <!-- Right 5 Cols: Visual Node Transmission Graph -->
+                <div class="lg:col-span-5">
+                    <div class="bg-term-panel border border-term-border rounded-lg p-5 h-full flex flex-col justify-between">
+                        <div class="flex justify-between items-center font-mono">
+                            <span class="text-xs font-bold text-term-muted uppercase">TRANSMISSION NETWORK</span>
+                            <span id="trans-status-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-term-blue/20 text-term-blue border border-term-blue/30">NEUTRAL FLOW</span>
+                        </div>
 
-                <!-- NODE 3: 10Y YIELD TRANSMISSION -->
-                <div id="node-yield" class="node-box w-64 bg-surface-container border-2 border-outline-variant p-2.5 rounded-lg flex items-center justify-between transition-all duration-500 z-10">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-secondary text-lg">show_chart</span>
-                        <div>
-                            <div class="text-[10px] font-mono text-gray-400">RATES TRANSMISSION</div>
-                            <div class="text-xs font-bold text-white font-mono" id="node-yield-title">US 10Y: 4.250%</div>
+                        <!-- Nodes Flow Diagram -->
+                        <div class="py-4 flex flex-col items-center gap-2.5 font-mono text-xs">
+                            
+                            <!-- Node 1: Event -->
+                            <div id="node-event" class="w-full max-w-xs bg-term-sub border-2 border-term-border p-2.5 rounded flex items-center justify-between transition-all">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-term-cyan text-base">engineering</span>
+                                    <div><div class="text-[9px] text-term-muted">LABOR DATA</div><div class="font-bold text-white" id="node-event-title">NFP: 175K</div></div>
+                                </div>
+                                <span id="node-event-tag" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-term-border text-white">IN LINE</span>
+                            </div>
+
+                            <span class="material-symbols-outlined text-term-muted text-xs">arrow_downward</span>
+
+                            <!-- Node 2: Fed Policy Bias -->
+                            <div id="node-fed" class="w-full max-w-xs bg-term-sub border-2 border-term-border p-2.5 rounded flex items-center justify-between transition-all">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-term-blue text-base">account_balance</span>
+                                    <div><div class="text-[9px] text-term-muted">CENTRAL BANK</div><div class="font-bold text-white" id="node-fed-title">FED BIAS</div></div>
+                                </div>
+                                <span id="node-fed-tag" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-term-border text-white">BALANCED</span>
+                            </div>
+
+                            <span class="material-symbols-outlined text-term-muted text-xs">arrow_downward</span>
+
+                            <!-- Node 3: 10Y Yield -->
+                            <div id="node-yield" class="w-full max-w-xs bg-term-sub border-2 border-term-border p-2.5 rounded flex items-center justify-between transition-all">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-term-cyan text-base">show_chart</span>
+                                    <div><div class="text-[9px] text-term-muted">BENCHMARK RATES</div><div class="font-bold text-white" id="node-yield-title">US 10Y: 4.250%</div></div>
+                                </div>
+                                <span id="node-yield-tag" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-term-border text-white">FLAT</span>
+                            </div>
+
+                            <span class="material-symbols-outlined text-term-muted text-xs">arrow_downward</span>
+
+                            <!-- Node 4 & 5: Markets Fork -->
+                            <div class="grid grid-cols-2 gap-2 w-full max-w-xs">
+                                <div id="node-usd" class="bg-term-sub border-2 border-term-border p-2 rounded text-center transition-all">
+                                    <div class="text-[9px] text-term-muted">USD INDEX</div>
+                                    <div id="node-usd-val" class="font-bold text-white mt-0.5 text-[11px]">NEUTRAL</div>
+                                </div>
+                                <div id="node-gold" class="bg-term-sub border-2 border-term-border p-2 rounded text-center transition-all">
+                                    <div class="text-[9px] text-term-muted">GOLD (XAU)</div>
+                                    <div id="node-gold-val" class="font-bold text-white mt-0.5 text-[11px]">NEUTRAL</div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="text-[10px] font-mono text-term-muted text-right">
+                            σ = 25K | Duration Sensitivity: 3.5bps / 1σ
                         </div>
                     </div>
-                    <span id="node-yield-tag" class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-surface-variant text-gray-300">FLAT</span>
                 </div>
 
-                <!-- CONNECTOR 3 (FORK) -->
-                <div class="flex items-center justify-center w-48 h-4 relative">
-                    <div class="w-36 h-0.5 bg-outline-variant/50"></div>
-                </div>
-
-                <!-- NODE 4 & 5: ASSET IMPACT FORK -->
-                <div class="grid grid-cols-2 gap-2 w-full max-w-[280px] z-10">
-                    <!-- USD -->
-                    <div id="node-usd" class="node-box bg-surface-container border-2 border-outline-variant p-2 rounded-lg text-center transition-all duration-500">
-                        <div class="text-[10px] font-mono text-gray-400">USD INDEX</div>
-                        <div class="text-xs font-bold text-white font-mono mt-0.5" id="node-usd-val">NEUTRAL</div>
-                    </div>
-                    <!-- GOLD -->
-                    <div id="node-gold" class="node-box bg-surface-container border-2 border-outline-variant p-2 rounded-lg text-center transition-all duration-500">
-                        <div class="text-[10px] font-mono text-gray-400">GOLD (XAU)</div>
-                        <div class="text-xs font-bold text-white font-mono mt-0.5" id="node-gold-val">NEUTRAL</div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Footnote / Methodology Tag -->
-            <div class="mt-3 text-[10px] text-gray-400 font-mono border-t border-outline-variant/20 pt-2 flex justify-between">
-                <span>Model: Term Premia Sensitivity</span>
-                <span>Std Dev: σ = 25K</span>
             </div>
 
         </div>
-    </div>
 
-</div>
+        <!-- ============================================================== -->
+        <!-- VIEW 3: CPI INFLATION VIEW (#/cpi)                             -->
+        <!-- ============================================================== -->
+        <div id="view-cpi" class="space-y-4 hidden">
+            <div class="bg-term-panel border border-term-border p-4 rounded-lg flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <button onclick="navigate('#/')" class="p-1 rounded hover:bg-term-sub text-term-muted hover:text-white"><span class="material-symbols-outlined">arrow_back</span></button>
+                    <div>
+                        <span class="text-[10px] font-mono text-term-cyan">BLS CONSUMER PRICE INDEX (CPI-U)</span>
+                        <h2 class="text-lg font-mono font-bold text-white">INFLATION TRAJECTORY &amp; TERM PREMIA</h2>
+                    </div>
+                </div>
+                <div class="flex gap-4 font-mono text-xs">
+                    <div><span class="text-term-muted block text-[10px]">CONSENSUS YoY</span><span class="font-bold text-term-cyan">3.1%</span></div>
+                    <div><span class="text-term-muted block text-[10px]">PRIOR</span><span class="font-bold text-white">3.2%</span></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono">
+                <div class="bg-term-panel border-l-4 border-l-term-red border-y border-r border-term-border p-4 rounded-r">
+                    <div class="text-xs text-term-muted">ABOVE CONSENSUS (> 3.3%)</div>
+                    <div class="text-sm font-bold text-term-red my-1">Hawkish Acceleration</div>
+                    <div class="text-xs text-term-muted">10Y Yield: <span class="text-term-green font-bold">+12 to +18 bps ↑</span></div>
+                </div>
+                <div class="bg-term-panel border-l-4 border-l-term-blue border-y border-r border-term-border p-4 rounded-r">
+                    <div class="text-xs text-term-muted">IN LINE (3.0% - 3.2%)</div>
+                    <div class="text-sm font-bold text-white my-1">Regime Neutral</div>
+                    <div class="text-xs text-term-muted">10Y Yield: <span class="text-white font-bold">+/- 3 bps —</span></div>
+                </div>
+                <div class="bg-term-panel border-l-4 border-l-term-green border-y border-r border-term-border p-4 rounded-r">
+                    <div class="text-xs text-term-muted">BELOW CONSENSUS (< 2.9%)</div>
+                    <div class="text-sm font-bold text-term-green my-1">Disinflation Catalyst</div>
+                    <div class="text-xs text-term-muted">10Y Yield: <span class="text-term-red font-bold">-15 to -22 bps ↓</span></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 4. CLIENT JAVASCRIPT CONTROLLER (ROUTER, I18N, SCENARIO ENGINE) -->
+    <script>
+        const I18N = {
+            EN: {
+                regimeLabel: "CURRENT ECONOMIC REGIME",
+                regimeDesc: "Labor market resilient, core inflation running above 2% target. Financial conditions tight.",
+                fedPolicyLabel: "FED POLICY BIAS",
+                modHawkish: "MODERATELY HAWKISH",
+                labor: "LABOR INDEX",
+                inflation: "INFLATION INDEX",
+                growth: "GROWTH INDEX",
+                cooling: "COOLING",
+                sticky: "STICKY",
+                strong: "EXPANDING",
+                conflictAlert: "MACRO CONFLICT DETECTED"
+            },
+            LO: {
+                regimeLabel: "ລະບອບເສດຖະກິດມະຫາພາກປັດຈຸບັນ",
+                regimeDesc: "ຕະຫຼາດແຮງງານຍັງແຂງແຮງ, ອັດຕາເງິນເຟີ້ພື້ນຖານຍັງສູງກວ່າເປົ້າໝາຍ 2%. ສະພາບການເງິນຍັງເຂັ້ມງວດ.",
+                fedPolicyLabel: "ແນວໂນ້ມນະໂຍບາຍ FED",
+                modHawkish: "ເຂັ້ມງວດປານກາງ",
+                labor: "ດັດຊະນີແຮງງານ",
+                inflation: "ດັດຊະນີເງິນເຟີ້",
+                growth: "ດັດຊະນີການເຕີບໂຕ",
+                cooling: "ເຢັນລົງ",
+                sticky: "ຄົງທີ່/ໜຽວ",
+                strong: "ຂະຫຍາຍຕົວ",
+                conflictAlert: "ກວດພົບຂໍ້ຂັດແຍ່ງມະຫາພາກ"
+            }
+        };
+
+        let currentLang = 'LO';
+
+        // Router
+        function navigate(hash) { window.location.hash = hash; }
+        function handleRoute() {
+            const hash = window.location.hash || '#/';
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-nfp').classList.add('hidden');
+            document.getElementById('view-cpi').classList.add('hidden');
+
+            document.getElementById('nav-dash').className = 'px-3 py-1.5 rounded text-term-muted hover:text-white hover:bg-term-sub transition-colors';
+            document.getElementById('nav-nfp').className = 'px-3 py-1.5 rounded text-term-muted hover:text-white hover:bg-term-sub transition-colors';
+            document.getElementById('nav-cpi').className = 'px-3 py-1.5 rounded text-term-muted hover:text-white hover:bg-term-sub transition-colors';
+
+            if (hash === '#/nfp') {
+                document.getElementById('view-nfp').classList.remove('hidden');
+                document.getElementById('nav-nfp').className = 'px-3 py-1.5 rounded bg-term-sub text-white border border-term-border font-bold';
+            } else if (hash === '#/cpi') {
+                document.getElementById('view-cpi').classList.remove('hidden');
+                document.getElementById('nav-cpi').className = 'px-3 py-1.5 rounded bg-term-sub text-white border border-term-border font-bold';
+            } else {
+                document.getElementById('view-dashboard').classList.remove('hidden');
+                document.getElementById('nav-dash').className = 'px-3 py-1.5 rounded bg-term-sub text-white border border-term-border font-bold';
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Language Switcher
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('lang-en').className = lang === 'EN' ? 'px-2 py-0.5 rounded bg-term-blue text-white font-bold transition-all' : 'px-2 py-0.5 text-term-muted hover:text-white font-bold transition-all';
+            document.getElementById('lang-lo').className = lang === 'LO' ? 'px-2 py-0.5 rounded bg-term-blue text-white font-bold transition-all' : 'px-2 py-0.5 text-term-muted hover:text-white font-bold transition-all';
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (I18N[lang][key]) el.innerText = I18N[lang][key];
+            });
+        }
+
+        // Scenario Engine & Transmission Calculator
+        class TransmissionEngine {
+            constructor() {
+                this.baselineYield = 4.250;
+                this.consensus = 175;
+                this.stdDev = 25;
+            }
+
+            setScenario(type) {
+                document.querySelectorAll('.scenario-btn').forEach(b => b.className = 'scenario-btn p-3 rounded bg-term-sub border border-term-border text-left transition-all');
+                let val = 175;
+                if (type === 'ABOVE') {
+                    val = 235;
+                    document.getElementById('btn-scen-above').className = 'scenario-btn p-3 rounded bg-term-green/20 border-2 border-term-green text-left transition-all';
+                } else if (type === 'IN_LINE') {
+                    val = 175;
+                    document.getElementById('btn-scen-inline').className = 'scenario-btn p-3 rounded bg-term-blue/20 border-2 border-term-blue text-left transition-all';
+                } else if (type === 'BELOW') {
+                    val = 115;
+                    document.getElementById('btn-scen-below').className = 'scenario-btn p-3 rounded bg-term-red/20 border-2 border-term-red text-left transition-all';
+                }
+                document.getElementById('outcome-slider').value = val;
+                this.update(val);
+            }
+
+            handleSlider(val) {
+                document.querySelectorAll('.scenario-btn').forEach(b => b.className = 'scenario-btn p-3 rounded bg-term-sub border border-term-border text-left transition-all');
+                this.update(Number(val));
+            }
+
+            update(val) {
+                const delta = val - this.consensus;
+                const zScore = (delta / this.stdDev).toFixed(1);
+                const bpsShift = Math.round((delta / 25) * 3.5);
+                const targetYield = (this.baselineYield + (bpsShift / 100)).toFixed(3);
+
+                document.getElementById('slider-display-val').innerText = `${val}K`;
+                document.getElementById('calc-delta-consensus').innerText = `${delta >= 0 ? '+' : ''}${delta}K (${zScore >= 0 ? '+' : ''}${zScore}σ)`;
+                
+                const shiftEl = document.getElementById('calc-yield-shift');
+                shiftEl.innerText = `${bpsShift >= 0 ? '+' : ''}${bpsShift} bps`;
+                shiftEl.className = `text-sm font-bold mt-1 ${bpsShift > 0 ? 'text-term-green' : bpsShift < 0 ? 'text-term-red' : 'text-term-cyan'}`;
+                
+                document.getElementById('calc-target-yield').innerText = `${targetYield}%`;
+                this.syncNodes({ val, delta, bpsShift, targetYield });
+            }
+
+            syncNodes({ val, delta, bpsShift, targetYield }) {
+                const nodeEvent = document.getElementById('node-event');
+                const nodeFed = document.getElementById('node-fed');
+                const nodeYield = document.getElementById('node-yield');
+                const nodeUsd = document.getElementById('node-usd');
+                const nodeGold = document.getElementById('node-gold');
+                const badge = document.getElementById('trans-status-badge');
+
+                document.getElementById('node-event-title').innerText = `NFP: ${val}K`;
+                document.getElementById('node-yield-title').innerText = `US 10Y: ${targetYield}%`;
+
+                if (delta > 15) {
+                    badge.innerText = 'HAWKISH ACCELERATION';
+                    badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-term-green/20 text-term-green border border-term-green/40';
+
+                    nodeEvent.className = 'w-full max-w-xs bg-term-sub border-2 border-term-green p-2.5 rounded flex items-center justify-between';
+                    document.getElementById('node-event-tag').className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-term-green text-black';
+                    document.getElementById('node-event-tag').innerText = 'STRONG BEAT';
+
+                    nodeFed.className = 'w-full max-w-xs bg-term-sub border-2 border-term-green p-2.5 rounded flex items-center justify-between';
+                    document.getElementById('node-fed-tag').className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-term-green text-black';
+                    document.getElementById('node-fed-tag').innerText = 'HAWKISH';
+
+                    nodeYield.className = 'w-full max-w-xs bg-term-sub border-2 border-term-green p-2.5 rounded flex items-center justify-between';
+                    document.getElementById('node-yield-tag').innerText = `+${bpsShift} bps ↑`;
+                    document.getElementById('node-yield-tag').className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-term-green/20 text-term-green';
+
+                    nodeUsd.className = 'bg-term-sub border-2 border-term-green p-2 rounded text-center';
+                    document.getElementById('node-usd-val').innerText = 'BULLISH ↑';
+                    document.getElementById('node-usd-val').className = 'font-bold text-term-green mt-0.5 text-[11px]';
+
+                    nodeGold.className = 'bg-term-sub border-2 border-term-red p-2 rounded text-center';
+                    document.getElementById('node-gold-val').innerText = 'BEARISH ↓';
+                    document.getElementById('node-gold-val').className = 'font-bold text-term-red mt-0.5 text-[11px]';
+                } else if (delta < -15) {
+                    badge.innerText = 'DOVISH EASING FLOW';
+                    badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-term-red/20 text-term-red border border-term-red/40';
+
+                    nodeEvent.className = 'w-full max-w-xs bg-term-sub border-2 border-term-red p-2.5 rounded flex items-center justify-between';
+                    document.getElementById('node-event-tag').className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-term-red text-black';
+                    document.getElementById('node-event-tag').innerText = 'WEAK MISS';
+
+                    nodeFed.className = 'w-full max-w-xs bg-term-sub border-2 border-term-red p-2.5 rounded flex items-center justify-between';
+                    document.getElementById('node-fed-tag').className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-term-red text-black';
+                    document.getElementById('node-fed-tag').innerText = 'DOVISH PIVOT';
+
+                    nodeYield.className = 'w-full max-w-xs bg-term-sub border-2 border-term-red p-2.5 rounded flex items-center justify-between';
+                    document.getElementById('node-yield-tag').innerText = `${bpsShift} bps ↓`;
+                    document.getElementById('node-yield-tag').className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-term-red/20 text-term-red';
+
+                    nodeUsd.className = 'bg-term-sub border-2 border-term-red p-2 rounded text-center';
+                    document.getElementById('node-usd-val').innerText = 'BEARISH ↓';
+                    document.getElementById('node-usd-val').className = 'font-bold text-term-red mt-0.5 text-[11px]';
+
+                    nodeGold.className = 'bg-term-sub border-2 border-term-green p-2 rounded text-center';
+                    document.getElementById('node-gold-val').innerText = 'BULLISH ↑';
+                    document.getElementById('node-gold-val').className = 'font-bold text-term-green mt-0.5 text-[11px]';
+                } else {
+                    badge.innerText = 'NEUTRAL FLOW';
+                    badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-term-blue/20 text-term-blue border border-term-blue/30';
+
+                    nodeEvent.className = 'w-full max-w-xs bg-term-sub border-2 border-term-border p-2.5 rounded flex items-center justify-between';
+                    document.getElementById('node-event-tag').className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-term-border text-white';
+                    document.getElementById('node-event-tag').innerText = 'IN LINE';
+
+                    nodeFed.className = 'w-full max-w-xs bg-term-sub border-2 border-term-border p-2.5 rounded flex items-center justify-between';
+                    document.getElementById('node-fed-tag').className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-term-border text-white';
+                    document.getElementById('node-fed-tag').innerText = 'BALANCED';
+
+                    nodeYield.className = 'w-full max-w-xs bg-term-sub border-2 border-term-border p-2.5 rounded flex items-center justify-between';
+                    document.getElementById('node-yield-tag').innerText = 'FLAT';
+                    document.getElementById('node-yield-tag').className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-term-border text-white';
+
+                    nodeUsd.className = 'bg-term-sub border-2 border-term-border p-2 rounded text-center';
+                    document.getElementById('node-usd-val').innerText = 'NEUTRAL';
+                    document.getElementById('node-usd-val').className = 'font-bold text-white mt-0.5 text-[11px]';
+
+                    nodeGold.className = 'bg-term-sub border-2 border-term-border p-2 rounded text-center';
+                    document.getElementById('node-gold-val').innerText = 'NEUTRAL';
+                    document.getElementById('node-gold-val').className = 'font-bold text-white mt-0.5 text-[11px]';
+                }
+            }
+        }
+
+        // Initialize Engine
+        window.addEventListener('hashchange', handleRoute);
+        window.addEventListener('DOMContentLoaded', () => {
+            window.engine = new TransmissionEngine();
+            window.engine.update(175);
+            setLanguage('LO');
+            handleRoute();
+        });
+    </script>
+</body>
+</html>
