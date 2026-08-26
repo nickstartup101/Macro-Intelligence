@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
     <meta name="theme-color" content="#0c1324"/>
     
-    <title>MACRO_TERMINAL // Institutional Trading Cockpit</title>
+    <title>MACRO_TERMINAL // Real-Time Economic Calendar</title>
 
     <!-- 🕯️ Candlestick Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230c1324'/><path d='M10 5v4m0 14v4m-3-18h6v14H7zm12-3v4m0 10v6m-3-12h6v8h-6z' stroke='%238ed5ff' stroke-width='2' fill='%234edea3'/></svg>" />
@@ -61,7 +61,7 @@
                     <span class="material-symbols-outlined text-primary text-xl">candlestick_chart</span>
                     <div>
                         <h1 class="font-mono text-xs font-bold text-primary tracking-wider uppercase">MACRO_TERMINAL</h1>
-                        <span class="text-[9px] font-mono text-on-surface-variant block">LIVE SYSTEM READY</span>
+                        <span class="text-[9px] font-mono text-on-surface-variant block">FOREX FACTORY SYNCED</span>
                     </div>
                 </div>
                 <button onclick="toggleSidebar()" class="lg:hidden text-on-surface-variant hover:text-white">
@@ -71,21 +71,21 @@
 
             <!-- Navigation Links -->
             <nav class="space-y-1 font-mono text-xs">
-                <button onclick="navigate('#/transmission')" id="nav-transmission" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold">
+                <button onclick="navigate('#/calendar')" id="nav-calendar" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold">
+                    <span class="material-symbols-outlined text-base">calendar_month</span>
+                    <span>1. ປະຕິທິນຂ່າວ (HIGH &amp; MEDIUM) 🏷️</span>
+                </button>
+                <button onclick="navigate('#/transmission')" id="nav-transmission" class="w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
                     <span class="material-symbols-outlined text-base">account_tree</span>
-                    <span>1. ໂຄງຂ່າຍການສົ່ງຜ່ານ</span>
+                    <span>2. ໂຄງຂ່າຍການສົ່ງຜ່ານ (TRANSMISSION)</span>
                 </button>
                 <button onclick="navigate('#/playbook')" id="nav-playbook" class="w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
                     <span class="material-symbols-outlined text-base">sports_score</span>
-                    <span>2. ແຜນເທຣດ (PLAYBOOK) 🎯</span>
+                    <span>3. ແຜນເທຣດ (PLAYBOOK) 🎯</span>
                 </button>
                 <button onclick="navigate('#/heatmap')" id="nav-heatmap" class="w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
                     <span class="material-symbols-outlined text-base">thermostat</span>
-                    <span>3. ຄວາມແຂງຄ່າສະກຸນເງິນ 🌡️</span>
-                </button>
-                <button onclick="navigate('#/calendar')" id="nav-calendar" class="w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
-                    <span class="material-symbols-outlined text-base">calendar_month</span>
-                    <span>4. ປະຕິທິນຂ່າວ (USD/GOLD) 🏷️</span>
+                    <span>4. ຄວາມແຂງຄ່າສະກຸນເງິນ 🌡️</span>
                 </button>
                 <button onclick="navigate('#/digest')" id="nav-digest" class="w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
                     <span class="material-symbols-outlined text-base">summarize</span>
@@ -101,7 +101,7 @@
             </button>
             <button onclick="fetchMacroData()" class="w-full py-1.5 bg-primary text-black font-bold text-center hover:bg-white transition-colors text-[11px] flex items-center justify-center gap-1">
                 <span class="material-symbols-outlined text-[14px]">sync</span>
-                <span>SYNC LIVE DATA</span>
+                <span>SYNC LIVE FOREX FACTORY</span>
             </button>
         </div>
     </aside>
@@ -111,21 +111,20 @@
     <!-- MAIN WORKSPACE -->
     <div class="flex-1 lg:pl-64 flex flex-col min-h-screen">
         
-        <!-- Header Bar -->
         <header class="h-12 bg-surface border-b border-outline-variant flex items-center justify-between px-3 sticky top-0 z-30 select-none">
             <div class="flex items-center gap-2">
                 <button onclick="toggleSidebar()" class="lg:hidden p-1 text-on-surface-variant hover:text-white">
                     <span class="material-symbols-outlined text-xl">menu</span>
                 </button>
-                <span id="current-view-title" class="font-mono text-xs font-bold text-primary uppercase truncate max-w-[200px] sm:max-w-none">
-                    1. ໂຄງຂ່າຍການສົ່ງຜ່ານ &amp; SCENARIO ENGINE
+                <span id="current-view-title" class="font-mono text-xs font-bold text-primary uppercase truncate max-w-[220px] sm:max-w-none">
+                    1. ປະຕິທິນຂ່າວ (HIGH &amp; MEDIUM IMPACT)
                 </span>
             </div>
 
             <div class="flex items-center gap-2">
                 <div class="flex items-center gap-1.5 bg-red-500/10 border border-red-500/30 px-2.5 py-1 rounded font-mono text-xs">
                     <span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping"></span>
-                    <span class="text-[10px] text-red-400 uppercase font-bold hidden sm:inline" id="countdown-label">NEXT EVENT:</span>
+                    <span class="text-[10px] text-red-400 uppercase font-bold hidden sm:inline" id="countdown-label">NEXT:</span>
                     <strong class="text-white font-bold tracking-wider text-[11px]" id="countdown-timer">00:00:00</strong>
                 </div>
                 <button onclick="toggleFullScreen()" title="Full Screen" class="p-1.5 rounded bg-surface-low border border-outline-variant text-on-surface-variant hover:text-white transition-colors">
@@ -136,48 +135,74 @@
 
         <main class="flex-1 p-3 md:p-4 max-w-[1500px] w-full mx-auto space-y-3 safe-pb lg:pb-12">
             
-            <!-- VIEW 1: TRANSMISSION -->
-            <div id="view-transmission" class="space-y-3">
-                <!-- Event Selector Bar (Buttons guaranteed to appear!) -->
-                <div class="flex items-center gap-2 overflow-x-auto pb-1 font-mono text-xs" id="event-selector-bar">
-                    <span class="text-on-surface-variant text-xs">ກຳລັງໂຫຼດລາຍການຂ່າວ...</span>
+            <!-- ============================================================== -->
+            <!-- VIEW 1: CALENDAR (HIGH & MEDIUM WITH EXACT TIME) [DEFAULT]     -->
+            <!-- ============================================================== -->
+            <div id="view-calendar" class="space-y-3">
+                <div class="bg-surface border border-outline-variant p-3.5 space-y-2">
+                    <div class="flex justify-between items-center border-b border-outline-variant pb-2 font-mono text-xs">
+                        <span class="font-bold text-primary uppercase">📅 ປະຕິທິນຂ່າວ FOREX FACTORY (ເວລາປະກາດຈິງ GMT+7)</span>
+                        <span class="text-[10px] text-on-surface-variant">REAL-TIME IMPACT EVALUATED</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left font-mono text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-surface-low border-b border-outline-variant text-[10px] text-on-surface-variant uppercase">
+                                    <th class="p-2.5">ວັນທີ &amp; ເວລາ (GMT+7)</th>
+                                    <th class="p-2.5 text-center">IMPACT</th>
+                                    <th class="p-2.5">ຫົວຂໍ້ຂ່າວ (EVENT)</th>
+                                    <th class="p-2.5 text-right">ACTUAL</th>
+                                    <th class="p-2.5 text-right">FORECAST</th>
+                                    <th class="p-2.5 text-center">💵 USD IMPACT</th>
+                                    <th class="p-2.5 text-center">🟡 GOLD IMPACT</th>
+                                    <th class="p-2.5 text-center">ໄລຍະແລ່ນ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbl-calendar-body" class="divide-y divide-outline-variant bg-surface"></tbody>
+                        </table>
+                    </div>
                 </div>
+            </div>
+
+            <!-- VIEW 2: TRANSMISSION -->
+            <div id="view-transmission" class="space-y-3 hidden">
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 font-mono text-xs" id="event-selector-bar"></div>
 
                 <div class="bg-surface-low border border-outline-variant p-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div>
                         <div class="flex items-center gap-2">
                             <span class="px-2 py-0.5 text-[10px] font-mono font-bold bg-red-500/20 text-red-400 border border-red-500/40 rounded">
-                                🟥 ກ່ອງແດງ HIGH IMPACT
+                                🟥 HIGH IMPACT
                             </span>
-                            <span class="text-xs font-mono text-on-surface-variant" id="active-event-date">ວັນພຸດ • 19:30 (GMT+7)</span>
+                            <span class="text-xs font-mono text-on-surface-variant" id="active-event-date">--</span>
                         </div>
-                        <h2 id="active-event-title" class="text-base md:text-lg font-bold text-white mt-1">Core PCE Price Index m/m</h2>
+                        <h2 id="active-event-title" class="text-base md:text-lg font-bold text-white mt-1">--</h2>
                     </div>
 
                     <div class="flex items-center gap-2 sm:gap-3 font-mono text-xs flex-wrap">
                         <div class="bg-surface-container p-2 px-3 border border-outline-variant rounded text-center">
                             <span class="text-[10px] text-tertiary block">📊 EXPECTED PIP RANGE</span>
-                            <strong id="active-event-piprange" class="text-tertiary font-bold text-xs">120 - 250 pips</strong>
+                            <strong id="active-event-piprange" class="text-tertiary font-bold text-xs">150 - 300 pips</strong>
                         </div>
                         <div class="bg-surface-container p-2 px-3 border border-outline-variant rounded text-right">
                             <span class="text-[10px] text-on-surface-variant block">FORECAST</span>
-                            <strong id="active-event-forecast" class="text-primary text-sm font-bold">0.2%</strong>
+                            <strong id="active-event-forecast" class="text-primary text-sm font-bold">--</strong>
                         </div>
                         <div class="bg-surface-container p-2 px-3 border border-outline-variant rounded text-right">
                             <span class="text-[10px] text-on-surface-variant block">PREVIOUS</span>
-                            <strong id="active-event-previous" class="text-white text-sm font-bold">0.1%</strong>
+                            <strong id="active-event-previous" class="text-white text-sm font-bold">--</strong>
                         </div>
                     </div>
                 </div>
 
-                <!-- Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
                     <div class="lg:col-span-7 space-y-3">
                         <div class="space-y-2">
                             <div class="font-mono text-xs font-bold text-on-surface-variant uppercase px-1">SCENARIO ENGINE</div>
                             <div onclick="selectScenario('ABOVE')" id="scen-above-card" class="bg-surface-container rounded-lg p-3.5 border-l-4 border-tertiary hover:bg-surface-high transition-colors cursor-pointer">
                                 <div class="flex justify-between items-start mb-2">
-                                    <div class="font-mono text-xs font-bold text-white" id="scen-above-title">ABOVE EXPECTATION (> 0.2%)</div>
+                                    <div class="font-mono text-xs font-bold text-white" id="scen-above-title">ABOVE EXPECTATION</div>
                                     <span id="scen-above-tag" class="font-mono text-[10px] font-bold bg-green-900/40 text-tertiary px-2 py-0.5 rounded border border-tertiary/30">Hawkish Bias</span>
                                 </div>
                                 <div class="flex flex-wrap gap-4 mt-2 font-mono text-xs">
@@ -188,14 +213,14 @@
                             </div>
                             <div onclick="selectScenario('IN_LINE')" id="scen-inline-card" class="bg-surface-container rounded-lg p-3.5 border-l-4 border-primary hover:bg-surface-high transition-colors cursor-pointer">
                                 <div class="flex justify-between items-start mb-1">
-                                    <div class="font-mono text-xs font-bold text-white" id="scen-inline-title">IN LINE (0.2%)</div>
+                                    <div class="font-mono text-xs font-bold text-white" id="scen-inline-title">IN LINE</div>
                                     <span id="scen-inline-tag" class="font-mono text-[10px] font-bold bg-blue-900/40 text-primary px-2 py-0.5 rounded border border-primary/30">Neutral</span>
                                 </div>
                                 <p class="font-mono text-xs text-on-surface-variant mt-2">Minimal State Change — Current Stance Holds.</p>
                             </div>
                             <div onclick="selectScenario('BELOW')" id="scen-below-card" class="bg-surface-container rounded-lg p-3.5 border-l-4 border-error hover:bg-surface-high transition-colors cursor-pointer">
                                 <div class="flex justify-between items-start mb-2">
-                                    <div class="font-mono text-xs font-bold text-white" id="scen-below-title">BELOW EXPECTATION (< 0.1%)</div>
+                                    <div class="font-mono text-xs font-bold text-white" id="scen-below-title">BELOW EXPECTATION</div>
                                     <span id="scen-below-tag" class="font-mono text-[10px] font-bold bg-red-900/40 text-error px-2 py-0.5 rounded border border-error/30">Dovish Shift</span>
                                 </div>
                                 <div class="flex flex-wrap gap-4 mt-2 font-mono text-xs">
@@ -223,7 +248,6 @@
                         </div>
                     </div>
 
-                    <!-- Flowchart -->
                     <div class="lg:col-span-5">
                         <div class="bg-surface-low rounded-lg p-4 border border-outline-variant h-full flex flex-col justify-between relative overflow-hidden">
                             <div class="font-mono text-xs font-bold text-primary uppercase mb-3 flex items-center justify-between">
@@ -239,7 +263,7 @@
                                 </div>
                                 <div id="node-1" class="bg-surface-container border-2 border-primary px-5 py-1.5 rounded-full flex items-center gap-2 shadow-lg">
                                     <span class="material-symbols-outlined text-primary text-base" id="node-1-icon">price_change</span>
-                                    <span class="font-bold text-white" id="node-1-text">INFLATION DATA</span>
+                                    <span class="font-bold text-white" id="node-1-text">EVENT DATA</span>
                                 </div>
                                 <div id="node-2" class="bg-surface-container border-2 border-primary px-5 py-1.5 rounded-full flex items-center gap-2 shadow-lg">
                                     <span class="material-symbols-outlined text-primary text-base">account_balance</span>
@@ -258,55 +282,28 @@
                                     <span class="font-bold text-white" id="node-5-text">GOLD</span>
                                 </div>
                             </div>
-                            <div class="text-[10px] font-mono text-on-surface-variant text-center pt-2 border-t border-outline-variant">Real-Time Sync Active</div>
+                            <div class="text-[10px] font-mono text-on-surface-variant text-center pt-2 border-t border-outline-variant">Real-Time Forex Factory Feed</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- VIEW 2: PLAYBOOK -->
+            <!-- VIEW 3: PLAYBOOK -->
             <div id="view-playbook" class="space-y-3 hidden">
                 <div class="bg-surface-high border border-outline-variant p-3 flex justify-between items-center font-mono">
-                    <span class="text-xs font-bold text-primary uppercase">🎯 PRE-RELEASE &amp; POST-RELEASE TRADE PLAYBOOK (EMA 50 M5 &amp; WAVE SETUP)</span>
-                    <span class="text-[10px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 font-bold" id="playbook-target-event">CORE PCE</span>
+                    <span class="text-xs font-bold text-primary uppercase">🎯 PRE-RELEASE &amp; POST-RELEASE TRADE PLAYBOOK</span>
+                    <span class="text-[10px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 font-bold" id="playbook-target-event">--</span>
                 </div>
                 <div id="playbook-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
             </div>
 
-            <!-- VIEW 3: HEATMAP -->
+            <!-- VIEW 4: HEATMAP -->
             <div id="view-heatmap" class="space-y-3 hidden">
                 <div class="bg-surface-high border border-outline-variant p-3 font-mono text-xs font-bold text-tertiary uppercase flex items-center gap-1.5">
                     <span class="material-symbols-outlined text-base">thermostat</span>
                     <span>🌡️ CURRENCY STRENGTH &amp; MACRO HEATMAP</span>
                 </div>
                 <div id="heatmap-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
-            </div>
-
-            <!-- VIEW 4: CALENDAR -->
-            <div id="view-calendar" class="space-y-3 hidden">
-                <div class="bg-surface border border-outline-variant p-3.5 space-y-2">
-                    <div class="flex justify-between items-center border-b border-outline-variant pb-2 font-mono text-xs">
-                        <span class="font-bold text-primary uppercase">📅 ປະຕິທິນຂ່າວກ່ອງແດງ &amp; ສົ້ມ (USD/GOLD IMPACT)</span>
-                        <span class="text-[10px] text-on-surface-variant">REAL-TIME IMPACT EVALUATED</span>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left font-mono text-xs border-collapse">
-                            <thead>
-                                <tr class="bg-surface-low border-b border-outline-variant text-[10px] text-on-surface-variant uppercase">
-                                    <th class="p-2">ວັນທີ &amp; ເວລາ GMT+7</th>
-                                    <th class="p-2 text-center">ກ່ອງຂ່າວ</th>
-                                    <th class="p-2">ຫົວຂໍ້ຂ່າວ</th>
-                                    <th class="p-2 text-right">Actual</th>
-                                    <th class="p-2 text-right">Forecast</th>
-                                    <th class="p-2 text-center">💵 USD IMPACT</th>
-                                    <th class="p-2 text-center">🟡 GOLD IMPACT</th>
-                                    <th class="p-2 text-center">ໄລຍະແລ່ນ</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbl-calendar-body" class="divide-y divide-outline-variant bg-surface"></tbody>
-                        </table>
-                    </div>
-                </div>
             </div>
 
             <!-- VIEW 5: DIGEST -->
@@ -352,38 +349,38 @@
         }
 
         function handleRoute() {
-            const hash = window.location.hash || '#/transmission';
-            ['view-transmission', 'view-playbook', 'view-heatmap', 'view-calendar', 'view-digest'].forEach(id => {
+            const hash = window.location.hash || '#/calendar';
+            ['view-calendar', 'view-transmission', 'view-playbook', 'view-heatmap', 'view-digest'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
-            ['nav-transmission', 'nav-playbook', 'nav-heatmap', 'nav-calendar', 'nav-digest'].forEach(id => {
+            ['nav-calendar', 'nav-transmission', 'nav-playbook', 'nav-heatmap', 'nav-digest'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white font-mono text-xs';
             });
 
             const titleEl = document.getElementById('current-view-title');
 
-            if (hash === '#/playbook') {
+            if (hash === '#/transmission') {
+                document.getElementById('view-transmission').classList.remove('hidden');
+                document.getElementById('nav-transmission').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
+                titleEl.innerText = '2. ໂຄງຂ່າຍການສົ່ງຜ່ານ (TRANSMISSION MECHANISM)';
+            } else if (hash === '#/playbook') {
                 document.getElementById('view-playbook').classList.remove('hidden');
                 document.getElementById('nav-playbook').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
-                titleEl.innerText = '2. ແຜນຍຸດທະສາດການເທຣດ (TRADE PLAYBOOK) 🎯';
+                titleEl.innerText = '3. ແຜນຍຸດທະສາດການເທຣດ (TRADE PLAYBOOK) 🎯';
             } else if (hash === '#/heatmap') {
                 document.getElementById('view-heatmap').classList.remove('hidden');
                 document.getElementById('nav-heatmap').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
-                titleEl.innerText = '3. ຄວາມແຂງຄ່າສະກຸນເງິນ (CURRENCY HEATMAP) 🌡️';
-            } else if (hash === '#/calendar') {
-                document.getElementById('view-calendar').classList.remove('hidden');
-                document.getElementById('nav-calendar').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
-                titleEl.innerText = '4. ປະຕິທິນຂ່າວກ່ອງແດງ-ສົ້ມ (USD & GOLD IMPACT) 🏷️';
+                titleEl.innerText = '4. ຄວາມແຂງຄ່າສະກຸນເງິນ (CURRENCY HEATMAP) 🌡️';
             } else if (hash === '#/digest') {
                 document.getElementById('view-digest').classList.remove('hidden');
                 document.getElementById('nav-digest').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
                 titleEl.innerText = '5. ສະຫຼຸບທິດທາງເສດຖະກິດ (PLAIN MACRO DIGEST)';
             } else {
-                document.getElementById('view-transmission').classList.remove('hidden');
-                document.getElementById('nav-transmission').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
-                titleEl.innerText = '1. ໂຄງຂ່າຍການສົ່ງຜ່ານ & SCENARIO ENGINE';
+                document.getElementById('view-calendar').classList.remove('hidden');
+                document.getElementById('nav-calendar').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
+                titleEl.innerText = '1. ປະຕິທິນຂ່າວ (HIGH & MEDIUM IMPACT)';
             }
         }
 
@@ -500,16 +497,13 @@
         }
 
         function renderUI(d) {
-            // 1. Transmission View
             renderTransmission();
 
-            // 2. Countdown Timer
             if (d.activeEvent) {
                 document.getElementById('countdown-label').innerText = `${d.activeEvent.title.slice(0, 14)}...:`;
                 startCountdown(d.activeEvent.isoString);
             }
 
-            // 3. Playbook
             if (d.tradePlaybook && d.tradePlaybook.scenarios) {
                 document.getElementById('playbook-target-event').innerText = d.tradePlaybook.targetEvent;
                 document.getElementById('playbook-cards-container').innerHTML = d.tradePlaybook.scenarios.map(s => `
@@ -531,7 +525,6 @@
                 `).join('');
             }
 
-            // 4. Currency Heatmap
             if (d.currencyHeatmap) {
                 document.getElementById('heatmap-grid').innerHTML = d.currencyHeatmap.map(c => `
                     <div class="bg-surface p-4 border border-outline-variant space-y-2 flex flex-col justify-between">
@@ -547,31 +540,32 @@
                 `).join('');
             }
 
-            // 5. Calendar
+            // 📅 Real-Time Calendar with Exact Times, HIGH/MEDIUM Badges, and Dynamic Actual!
             if (d.allMediumAndHighCalendar) {
                 document.getElementById('tbl-calendar-body').innerHTML = d.allMediumAndHighCalendar.map(e => `
                     <tr class="hover:bg-surface-container transition-colors">
-                        <td class="p-2 text-white">${e.dateGMT7} <span class="text-primary font-bold">${e.timeGMT7}</span></td>
-                        <td class="p-2 text-center">
-                            <span class="px-2 py-0.5 text-[9px] font-bold ${e.impact === 'High' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'}">
-                                ${e.impact === 'High' ? '🟥 ແດງ' : '🟧 ສົ້ມ'}
+                        <td class="p-2.5 text-white">${e.dateGMT7} <span class="text-primary font-bold">${e.timeGMT7}</span></td>
+                        <td class="p-2.5 text-center">
+                            <span class="px-2 py-0.5 text-[10px] font-bold font-mono ${e.impact === 'High' ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'}">
+                                ${e.impact === 'High' ? 'HIGH' : 'MEDIUM'}
                             </span>
                         </td>
-                        <td class="p-2 text-white font-bold">${e.title}</td>
-                        <td class="p-2 text-right font-bold ${e.actual ? 'text-primary text-sm' : 'text-on-surface-variant'}">${e.actual || '--'}</td>
-                        <td class="p-2 text-right text-on-surface-variant">${e.forecast}</td>
-                        <td class="p-2 text-center">
+                        <td class="p-2.5 text-white font-bold">${e.title}</td>
+                        <td class="p-2.5 text-right font-mono font-bold ${e.actual ? 'text-primary text-sm' : 'text-on-surface-variant'}">
+                            ${e.actual ? e.actual : '<span class="text-on-surface-variant text-xs">--</span>'}
+                        </td>
+                        <td class="p-2.5 text-right font-mono text-on-surface-variant">${e.forecast}</td>
+                        <td class="p-2.5 text-center font-mono">
                             <span class="px-2 py-0.5 text-[9px] font-bold border ${e.marketImpact.usdColor}">${e.marketImpact.usdImpact}</span>
                         </td>
-                        <td class="p-2 text-center">
+                        <td class="p-2.5 text-center font-mono">
                             <span class="px-2 py-0.5 text-[9px] font-bold border ${e.marketImpact.goldColor}">${e.marketImpact.goldImpact}</span>
                         </td>
-                        <td class="p-2 text-center text-[10px] font-mono text-tertiary">${e.pipRange.pips}</td>
+                        <td class="p-2.5 text-center text-[10px] font-mono text-tertiary">${e.pipRange.pips}</td>
                     </tr>
                 `).join('');
             }
 
-            // 6. Plain Digest
             if (d.plainDigest) {
                 document.getElementById('txt-big-picture').innerText = d.plainDigest.bigPictureSummary;
                 document.getElementById('plain-qa-container').innerHTML = d.plainDigest.plainQA.map(item => `
