@@ -16,7 +16,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const FF_THISWEEK_URL = 'https://nfs.faireconomy.media/ff_calendar_thisweek.json';
+// Forex Factory Feeds (This Week + Next Week)
+const FF_THISWEEK = 'https://nfs.faireconomy.media/ff_calendar_thisweek.json';
+const FF_NEXTWEEK = 'https://nfs.faireconomy.media/ff_calendar_nextweek.json';
 
 function parseNum(val) {
   if (!val || typeof val !== 'string') return null;
@@ -25,16 +27,14 @@ function parseNum(val) {
   return isNaN(num) ? null : num;
 }
 
-// Convert Forex Factory Time to GMT+7 (Lao Time)
 function formatGMT7(dateStr, timeStr) {
   try {
     if (!timeStr || timeStr.toLowerCase().includes('all day') || timeStr.toLowerCase().includes('day')) {
       return { dateGMT7: dateStr, timeGMT7: 'ຕະຫຼອດມື້' };
     }
     const fullDate = new Date(`${dateStr} ${timeStr}`);
-    if (isNaN(fullDate.getTime())) {
-      return { dateGMT7: dateStr, timeGMT7: `${timeStr} (EST)` };
-    }
+    if (isNaN(fullDate.getTime())) return { dateGMT7: dateStr, timeGMT7: timeStr };
+    
     const optDate = { timeZone: 'Asia/Bangkok', month: 'short', day: 'numeric', weekday: 'short', year: 'numeric' };
     const optTime = { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', hour12: false };
 
@@ -48,158 +48,120 @@ function formatGMT7(dateStr, timeStr) {
 }
 
 // =========================================================================
-// 🧠 MACRO NARRATIVE & LEAD-LAG PROBABILITY INFERENCE ENGINE
+// 🔄 DYNAMIC ROLLING INFERENCE ENGINE (ວິເຄາະທຸກຂ່າວໃນອະນາຄົດແບບອັດຕະໂນມັດ)
 // =========================================================================
 
-function buildMacroNarrativeChain(events) {
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentDateStr = new Intl.DateTimeFormat('lo-LA', { 
-    timeZone: 'Asia/Bangkok', 
-    dateStyle: 'full', 
-    timeStyle: 'short' 
-  }).format(now);
+async function getRollingMacroIntelligence() {
+  try {
+    // Fetch both this week & next week
+    const [res1, res2] = await Promise.all([
+      fetch(FF_THISWEEK, { headers: { 'User-Agent': 'Mozilla/5.0' } }),
+      fetch(FF_NEXTWEEK, { headers: { 'User-Agent': 'Mozilla/5.0' } })
+    ]);
 
-  const usdEvents = events.filter(e => e.country === 'USD' && (e.impact === 'High' || e.impact === 'Medium'));
+    const data1 = res1.ok ? await res1.json() : [];
+    const data2 = res2.ok ? await res2.json() : [];
+    const allEvents = [...data1, ...data2];
 
-  // Separate Released vs Upcoming
-  const released = [];
-  const upcoming = [];
+    // Filter USD High & Medium Impact
+    const usdEvents = allEvents.filter(e => e.country === 'USD' && (e.impact === 'High' || e.impact === 'Medium'));
 
-  usdEvents.forEach(e => {
-    const { dateGMT7, timeGMT7 } = formatGMT7(e.date, e.time);
-    const item = {
-      title: e.title,
-      impact: e.impact,
-      dateGMT7,
-      timeGMT7,
-      actual: e.actual || null,
-      actualNum: parseNum(e.actual),
-      forecast: e.forecast || '--',
-      forecastNum: parseNum(e.forecast),
-      previous: e.previous || '--',
-      previousNum: parseNum(e.previous),
-      isReleased: Boolean(e.actual && e.actual.trim() !== '')
-    };
+    const released = [];
+    const upcoming = [];
 
-    if (item.isReleased) released.push(item);
-    else upcoming.push(item);
-  });
+    usdEvents.forEach(e => {
+      const { dateGMT7, timeGMT7 } = formatGMT7(e.date, e.time);
+      const item = {
+        title: e.title,
+        impact: e.impact,
+        dateGMT7,
+        timeGMT7,
+        actual: e.actual || null,
+        actualNum: parseNum(e.actual),
+        forecast: e.forecast || '--',
+        forecastNum: parseNum(e.forecast),
+        previous: e.previous || '--',
+        previousNum: parseNum(e.previous),
+        isReleased: Boolean(e.actual && e.actual.trim() !== '')
+      };
 
-  // Extract Preceding Released Benchmarks (or use latest dynamic cycle)
-  const ismEvent = released.find(e => e.title.toLowerCase().includes('ism manufacturing')) || { actual: '49.0%', actualNum: 49.0, previous: '50.3%' };
-  const nfpEvent = released.find(e => e.title.toLowerCase().includes('non-farm employment')) || { actual: '228K', actualNum: 228, forecastNum: 140 };
-  const adpEvent = released.find(e => e.title.toLowerCase().includes('adp non-farm')) || { actual: '155K', actualNum: 155, forecastNum: 120 };
-  const unempEvent = released.find(e => e.title.toLowerCase().includes('unemployment rate')) || { actual: '4.2%', actualNum: 4.2, forecastNum: 4.1 };
+      if (item.isReleased) released.push(item);
+      else upcoming.push(item);
+    });
 
-  // =========================================================================
-  // 🔮 1. ວິເຄາະຄວາມໜ້າຈະເປັນຂອງຂ່າວທີ່ຈະອອກ (UPCOMING PROBABILITY INFERENCE)
-  // =========================================================================
+    // 1. Dynamic Leading Indicators Pool (ຕົວເລກສະສົມທີ່ປະກາດແລ້ວ)
+    const latestNFP = released.find(e => e.title.toLowerCase().includes('non-farm employment')) || { actualNum: 228, forecastNum: 140 };
+    const latestADP = released.find(e => e.title.toLowerCase().includes('adp non-farm')) || { actualNum: 155, forecastNum: 120 };
+    const latestISM = released.find(e => e.title.toLowerCase().includes('ism manufacturing')) || { actualNum: 49.0 };
+    const latestUnemp = released.find(e => e.title.toLowerCase().includes('unemployment rate')) || { actualNum: 4.2, forecastNum: 4.1 };
 
-  // A. Core PCE Price Index m/m (Fc: 0.2%, Prev: 0.1%)
-  const isLaborHot = (nfpEvent.actualNum && nfpEvent.actualNum >= 180) || (adpEvent.actualNum && adpEvent.actualNum >= 140);
-  const corePceProb = {
-    above: isLaborHot ? 65 : 30,
-    inline: isLaborHot ? 25 : 50,
-    below: 10,
-    reasoning: `ອີງຕາມຕົວເລກການຈ້າງງານ NFP (+${nfpEvent.actualNum || 228}K) ແລະ ADP (+${adpEvent.actualNum || 155}K) ທີ່ອອກມາແຂງແກ່ນຫຼາຍ ສະແດງວ່າກຳລັງຊື້ ແລະ ຄ່າຈ້າງຍັງບໍ່ຕົກ ບວກກັບຕົ້ນທຶນພາສີນຳເຂົ້າທີ່ຍັງກົດດັນພາກການຜະລິດ. ດັ່ງນັ້ນ, ຕົວເລກ Core PCE ຈຶ່ງມີໂອກາດສູງເຖິງ 65% ທີ່ຈະອອກມາ "ສູງກວ່າ ຫຼື ເທົ່າກັບຄາດການ (≥ 0.2%)" ເຊິ່ງຈະຢືນຢັນວ່າເງິນເຟີ້ພື້ນຖານຍັງໜຽວແໜ້ນ.`
-  };
+    const isLaborStrong = (latestNFP.actualNum >= (latestNFP.forecastNum || 150)) || (latestADP.actualNum >= 130);
 
-  // B. Prelim GDP q/q (Fc: 1.5%, Prev: 1.5%)
-  const prelimGdpProb = {
-    above: 55,
-    inline: 35,
-    below: 10,
-    reasoning: `ເຖິງແມ່ນວ່າພາກການຜະລິດ (ISM ${ismEvent.actualNum || 49.0}%) ຈະຊະລໍຕົວລົງຈາກຜົນກະທົບພາສີ ແຕ່ການຈ້າງງານທີ່ເພີ່ມຂຶ້ນຢ່າງແຂງແກ່ນໄດ້ຊ່ວຍພະຍຸງການບໍລິໂພກພາຍໃນປະເທດ. ດັ່ງນັ້ນ, ຕົວເລກ GDP ຂັ້ນຕົ້ນ (Prelim GDP) ຈຶ່ງມີແນວໂນ້ມຊົງຕົວ ຫຼື ດີກວ່າຄາດເລັກນ້ອຍ (1.5% - 1.7%) ໂດຍຍັງບໍ່ມີສັນຍານເສດຖະກິດຖົດຖອຍຮຸນແຮງ.`
-  };
+    // 2. Dynamic Predictions Generator for Upcoming Events
+    const predictionsList = upcoming.slice(0, 6).map(evt => {
+      const t = evt.title.toLowerCase();
+      let probAbove = 50;
+      let probInline = 30;
+      let probBelow = 20;
+      let reasoning = '';
 
-  // C. CPI & FOMC Stance
-  const fomcProb = {
-    holdRate: 85,
-    cutRate: 15,
-    reasoning: `ການທີ່ແຮງງານແຂງແກ່ນ ແລະ ເງິນເຟີ້ Core PCE ມີແນວໂນ້ມຊົງຕົວສູງ ເຮັດໃຫ້ Fed ມີເຫດຜົນພຽງພໍທີ່ຈະ "ຄົງດອກເບ້ຍສູງຕໍ່ໄປ (Hold 5.25%-5.50%)" ໃນກອງປະຊຸມຖັດໄປ.`
-  };
-
-  // =========================================================================
-  // 📜 2. ການປະຕິດປະຕໍ່ຂ່າວເສດຖະກິດ (CHRONOLOGICAL MACRO NARRATIVE CHAIN)
-  // =========================================================================
-  
-  const macroStoryChain = [
-    {
-      step: "1. ຈຸດເລີ່ມຕົ້ນ: ຕົ້ນທຶນພາສີ & ການຜະລິດຊະລໍຕົວ",
-      badge: "TRIGGER",
-      badgeColor: "text-error border-error/40 bg-error/10",
-      content: `ຕົວເລກ ISM Manufacturing ຫຼຸດລົງມາຢູ່ທີ່ ${ismEvent.actual || '49.0%'} (ຕ່ຳກວ່າເກນ 50%) ສະແດງວ່າພາກໂຮງງານເລີ່ມຊະລໍຕົວລົງ ຍ້ອນຜົນກະທົບຈາກກຳແພງພາສີນຳເຂົ້າ 🇺🇸 ທີ່ເຮັດໃຫ້ຕົ້ນທຶນສິນຄ້າສູງຂຶ້ນ.`
-    },
-    {
-      step: "2. ແຮງພະຍຸງ: ຕະຫຼາດແຮງງານຍັງແຂງແກ່ນເກີນຄາດ",
-      badge: "RESILIENCE",
-      badgeColor: "text-primary border-primary/40 bg-primary/10",
-      content: `ເຖິງວ່າໂຮງງານຈະຊະລໍຕົວ ແຕ່ພາກບໍລິການ ແລະ ການຈ້າງງານລວມ (NFP ${nfpEvent.actual || '228K'} & ADP ${adpEvent.actual || '155K'}) ພັດອອກມາສູງກວ່າຄາດໝາຍຫຼາຍ ເຮັດໃຫ້ເສດຖະກິດສະຫະລັດຍັງບໍ່ເຂົ້າສູ່ພາວະຖົດຖອຍ (Soft Landing / Resilient).`
-    },
-    {
-      step: "3. ຂົວຕໍ່ສຳຄັນ: ແນວໂນ້ມ Core PCE & Prelim GDP",
-      badge: "UPCOMING CATALYST",
-      badgeColor: "text-tertiary border-tertiary/40 bg-tertiary/10",
-      content: `ຈາກແຮງງານທີ່ແຂງແກ່ນ ສົ່ງຕໍ່ມາຍັງເງິນເຟີ້ Core PCE (ຄາດ 0.2%) ທີ່ມີແນວໂນ້ມຊົງຕົວສູງ, ຂະນະທີ່ GDP (ຄາດ 1.5%) ຍັງໄດ້ຮັບແຮງໜູນຈາກການບໍລິໂພກພາຍໃນປະເທດ.`
-    },
-    {
-      step: "4. ບົດສະຫຼຸບນະໂຍບາຍ Fed & ທິດທາງທອງຄຳ (XAU/USD)",
-      badge: "MARKET IMPACT",
-      badgeColor: "text-primary border-primary/40 bg-primary/10",
-      content: `Fed ຈະຍັງຄົງດອກເບ້ຍສູງ (85% ໂອກາດ). ດ້ານລາຄາທອງຄຳ: ຫຼັງຈາກການເທຂາຍຈົບຮອບ (Wave A) ລາຄາຈະດີດຕົວກັບຄືນ (Rebound ເຂົ້າສູ່ Wave B / Strong B) ເພື່ອທົດສອບ New High (ATH) ອີກຄັ້ງ ຍ້ອນແຮງຊື້ປ້ອງກັນຄວາມສ່ຽງເງິນເຟີ້ ແລະ ຄວາມຂັດແຍ່ງດ້ານພາສີ.`
-    }
-  ];
-
-  return {
-    meta: {
-      generatedAtGMT7: currentDateStr,
-      dataPeriod: `ຮອບຂໍ້ມູນປັດຈຸບັນ (Live Sync): ປະຈຳອາທິດ ${now.toLocaleDateString('lo-LA', { month: 'long', year: 'numeric' })}`,
-      activeYear: currentYear
-    },
-    narrativeChain: macroStoryChain,
-    upcomingPredictions: {
-      corePce: {
-        title: "Core PCE Price Index m/m",
-        forecast: "0.2%",
-        previous: "0.1%",
-        prob: corePceProb
-      },
-      prelimGdp: {
-        title: "Prelim GDP q/q",
-        forecast: "1.5%",
-        previous: "1.5%",
-        prob: prelimGdpProb
-      },
-      fomc: {
-        title: "Fed Interest Rate Policy (FOMC)",
-        prob: fomcProb
+      if (t.includes('pce') || t.includes('cpi') || t.includes('ppi') || t.includes('inflation')) {
+        probAbove = isLaborStrong ? 65 : 30;
+        probInline = isLaborStrong ? 25 : 50;
+        probBelow = 100 - (probAbove + probInline);
+        reasoning = `ວິເຄາະຈາກຕົວເລກແຮງງານ NFP (+${latestNFP.actualNum}K) ທີ່ແຂງແກ່ນ ບົ່ງບອກວ່າກຳລັງຊື້ ແລະ ຄ່າຈ້າງຍັງສູງ ເຮັດໃຫ້ມີໂອກາດ ${probAbove}% ທີ່ຕົວເລກເງິນເຟີ້ (${evt.title}) ຈະອອກມາສູງກວ່າ ຫຼື ເທົ່າກັບຄາດ (${evt.forecast}).`;
+      } else if (t.includes('gdp') || t.includes('retail sales')) {
+        probAbove = 55;
+        probInline = 35;
+        probBelow = 10;
+        reasoning = `ການຈ້າງງານທີ່ດີຊ່ວຍພະຍຸງການບໍລິໂພກພາຍໃນປະເທດ ເຮັດໃຫ້ໂອກາດທີ່ (${evt.title}) ຈະຊົງຕົວ ຫຼື ດີກວ່າຄາດ (${evt.forecast}) ມີສູງເຖິງ 55%.`;
+      } else if (t.includes('claims') || t.includes('jobless')) {
+        probAbove = 30;
+        probInline = 50;
+        probBelow = 20;
+        reasoning = `ຕະຫຼາດແຮງງານຍັງແຂງແກ່ນ ຄາດວ່າຕົວເລກຜູ້ຂໍຮັບສະຫວັດດີການຫວ່າງງານຈະຢູ່ໃນເກນປົກກະຕິໃກ້ຄຽງຄາດການ (${evt.forecast}).`;
+      } else {
+        probAbove = isLaborStrong ? 60 : 40;
+        probInline = 30;
+        probBelow = 10;
+        reasoning = `ອີງຕາມສະພາບແວດລ້ອມເສດຖະກິດມະຫາພາກປັດຈຸບັນ ຄາດວ່າມີໂອກາດ ${probAbove}% ທີ່ຈະອອກມາຕາມທິດທາງແຂງແກ່ນ.`;
       }
-    },
-    releasedEvents: released.slice(0, 8),
-    upcomingEvents: upcoming.slice(0, 10)
-  };
+
+      return {
+        title: evt.title,
+        impact: evt.impact,
+        dateGMT7: evt.dateGMT7,
+        timeGMT7: evt.timeGMT7,
+        forecast: evt.forecast,
+        previous: evt.previous,
+        probAbove,
+        probInline,
+        probBelow,
+        reasoning
+      };
+    });
+
+    const now = new Date();
+    return {
+      currentCycle: `ຮອບຂໍ້ມູນ Live Sync: ${new Intl.DateTimeFormat('lo-LA', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Asia/Bangkok' }).format(now)}`,
+      releasedCount: released.length,
+      upcomingCount: upcoming.length,
+      predictions: predictionsList,
+      releasedEvents: released.slice(0, 10),
+      allUpcomingEvents: upcoming.slice(0, 15)
+    };
+  } catch (err) {
+    console.error('[Rolling Engine Error]:', err.message);
+    return null;
+  }
 }
 
-// =========================================================================
-// API ENDPOINTS
-// =========================================================================
-
-app.get('/api/live-macro-narrative', async (req, res) => {
-  try {
-    const resFeed = await fetch(FF_THISWEEK_URL, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
-    });
-    const events = resFeed.ok ? await resFeed.json() : [];
-    const narrativeData = buildMacroNarrativeChain(events);
-    res.json({ success: true, data: narrativeData });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
+app.get('/api/rolling-macro-feed', async (req, res) => {
+  const data = await getRollingMacroIntelligence();
+  res.json({ success: true, data });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 MACRO INTELLIGENCE NARRATIVE SERVER: http://localhost:${PORT}`);
-  console.log(`🕒 Real-time Auto-Sync: GMT+7 (Asia/Bangkok / Vientiane)`);
-  console.log(`🔤 Primary Font: Noto Sans Lao`);
+  console.log(`🚀 ROLLING FORECAST SERVER ACTIVE: http://localhost:${PORT}`);
+  console.log(`📡 Auto-Tracking This Week + Next Week Forex Factory Feeds`);
 });
