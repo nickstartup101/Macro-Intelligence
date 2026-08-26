@@ -159,3 +159,23 @@
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-xs font-medium" data-i18n="inflation">INFLATION</span>
                             <span class="font-mono font-bold text-[#3B82F
+                                // --- Finnhub Institutional WebSocket Connection (Alternative) ---
+const FINNHUB_KEY = 'da77td1r01qqqkkih8u0da77td1r01qqqkkih8ug';
+const finnhubSocket = new WebSocket(`wss://ws.finnhub.io?token=${FINNHUB_KEY}`);
+
+finnhubSocket.onopen = () => {
+    // Subscribe to Gold, US Treasury Bond ETFs, EUR/USD
+    finnhubSocket.send(JSON.stringify({'type':'subscribe', 'symbol':'OANDA:XAU_USD'}));
+    finnhubSocket.send(JSON.stringify({'type':'subscribe', 'symbol':'BINANCE:BTCUSDT'}));
+    finnhubSocket.send(JSON.stringify({'type':'subscribe', 'symbol':'IC MARKETS:10'}));
+};
+
+finnhubSocket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.type === 'trade' && data.data) {
+        data.data.forEach(trade => {
+            const price = trade.p;
+            // Feed into LiveTickerEngine.updateDOMItem(...)
+        });
+    }
+};
