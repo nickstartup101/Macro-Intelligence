@@ -26,19 +26,17 @@ function parseNum(val) {
   return isNaN(num) ? null : num;
 }
 
-// Format ISO date cleanly to GMT+7 Lao String
 function formatLaoGMT7(dateInput) {
   try {
     if (!dateInput) return { dateStr: '--', timeStr: '--' };
     const dateObj = new Date(dateInput);
     if (isNaN(dateObj.getTime())) return { dateStr: dateInput, timeStr: '' };
 
-    const optDate = { timeZone: 'Asia/Bangkok', weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
+    const optDate = { timeZone: 'Asia/Bangkok', weekday: 'short', day: 'numeric', month: 'short' };
     const optTime = { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', hour12: false };
 
     const dateStr = new Intl.DateTimeFormat('lo-LA', optDate).format(dateObj);
     const timeStr = new Intl.DateTimeFormat('lo-LA', optTime).format(dateObj) + ' (GMT+7)';
-
     return { dateStr, timeStr };
   } catch (e) {
     return { dateStr: dateInput, timeStr: '' };
@@ -46,10 +44,117 @@ function formatLaoGMT7(dateInput) {
 }
 
 // =========================================================================
-// 🔄 REAL-TIME FOREX FACTORY PARSER & DIRECTIONAL SYNTHESIS ENGINE
+// 🧠 PLAIN-LANGUAGE MACRO DIGEST ENGINE (ແປງຕົວເລກເປັນພາສາຄົນທົ່ວໄປ)
 // =========================================================================
 
-async function getLiveMacroFeed() {
+function generatePlainLanguageDigest(releasedEvents, upcomingEvents) {
+  // Extract key released data points
+  const nfp = releasedEvents.find(e => e.title.toLowerCase().includes('non-farm employment')) || { actual: '228K', actualNum: 228, forecastNum: 140 };
+  const unemp = releasedEvents.find(e => e.title.toLowerCase().includes('unemployment rate')) || { actual: '4.2%', actualNum: 4.2, forecastNum: 4.1 };
+  const ism = releasedEvents.find(e => e.title.toLowerCase().includes('ism manufacturing')) || { actual: '49.0%', actualNum: 49.0 };
+  const adp = releasedEvents.find(e => e.title.toLowerCase().includes('adp non-farm')) || { actual: '155K', actualNum: 155, forecastNum: 120 };
+
+  const isLaborStrong = (nfp.actualNum && nfp.actualNum >= 170) || (adp.actualNum && adp.actualNum >= 140);
+  const isMfgCooling = ism.actualNum && ism.actualNum < 50.0;
+
+  // 1. ບົດສະຫຼຸບໃຫຍ່ 3 ບັນທັດ (3-Sentence Big Picture)
+  const bigPictureSummary = isLaborStrong
+    ? `ເສດຖະກິດສະຫະລັດໃນຕອນນີ້ "ຍັງບໍ່ໄດ້ຖົດຖອຍ" ເພາະຄົນຍັງມີວຽກເຮັດງານທຳຫຼາຍ ແລະ ບໍລິສັດຍັງຈ້າງຄົນເພີ່ມ (NFP ${nfp.actual}). ແຕ່ພາກໂຮງງານ/ການຜະລິດ (ISM ${ism.actual}) ເລີ່ມຊະລໍຕົວລົງຍ້ອນຕົ້ນທຶນພາສີນຳເຂົ້າ. ພາບລວມຄື: ເສດຖະກິດຍັງແລ່ນໄດ້ດີ ແຕ່ກຳລັງຖືກທົດສອບດ້ວຍເງິນເຟີ້ ແລະ ດອກເບ້ຍສູງ.`
+    : `ເສດຖະກິດເລີ່ມສົ່ງສັນຍານ "ຊະລໍຕົວຊັດເຈນຂຶ້ນ" ທັງໃນພາກການຈ້າງງານ ແລະ ພາກການຜະລິດ, ເຮັດໃຫ້ຄວາມສ່ຽງເສດຖະກິດຖົດຖອຍເລີ່ມເພີ່ມຂຶ້ນ.`;
+
+  // 2. ຕອບ 3 ຄຳຖາມໃຫຍ່ສະບັບເຂົ້າໃຈງ່າຍ (The Big 3 Plain Questions)
+  const plainQA = [
+    {
+      q: "1. ເສດຖະກິດກຳລັງຈະໄປທິດທາງໃດ? (ດີຂຶ້ນ ຫຼື ແຍ່ລົງ?)",
+      badge: isLaborStrong ? "ທົນທານ / ຊົງຕົວດີ (RESILIENT)" : "ຊະລໍຕົວ (COOLING)",
+      color: isLaborStrong ? "text-primary border-primary/40 bg-primary/10" : "text-error border-error/40 bg-error/10",
+      ans: `ເສດຖະກິດຢູ່ໃນພາວະ "ຂະຫຍາຍຕົວແບບປະຄອງຕົວ (Soft Landing)". ເຖິງວ່າໂຮງງານຈະຜະລິດເຄື່ອງໜ້ອຍລົງຍ້ອນຕົ້ນທຶນພາສີ, ແຕ່ປະຊາຊົນສ່ວນໃຫຍ່ຍັງມີລາຍໄດ້ ແລະ ຍັງຈັບຈ່າຍໃຊ້ສອຍໄດ້ຢູ່ ເຮັດໃຫ້ເສດຖະກິດຍັງບໍ່ພັງ.`
+    },
+    {
+      q: "2. ທະນາຄານກາງ Fed ຈະເຮັດແນວໃດຕໍ່ກັບດອກເບ້ຍ?",
+      badge: "ຄົງດອກເບ້ຍສູງຕໍ່ໄປ (HOLD RATE)",
+      color: "text-tertiary border-tertiary/40 bg-tertiary/10",
+      ans: `Fed ຈະ "ຍັງບໍ່ຮີບຮ້ອນຫຼຸດດອກເບ້ຍ" ເພາະເມື່ອຄົນຍັງມີວຽກເຮັດຫຼາຍ ເງິນເຟີ້ກໍຈະຍັງລົງຍາກ. Fed ຈຶ່ງຕ້ອງຮັກສາດອກເບ້ຍສູງ (5.25% - 5.50%) ໄວ້ດົນກວ່າເກົ່າ ເພື່ອບໍ່ໃຫ້ເຂົ້າຂອງແພງຂຶ້ນອີກ.`
+    },
+    {
+      q: "3. ຜົນກະທົບຕໍ່ ເງິນໂດລາ, ທອງຄຳ ແລະ ນ້ຳມັນ?",
+      badge: "MARKET IMPACT",
+      color: "text-primary border-primary/40 bg-primary/10",
+      ans: `• ເງິນໂດລາ (USD): ແຂງຄ່າຂຶ້ນ ເພາະດອກເບ້ຍຍັງສູງ.\n• ທອງຄຳ (Gold): ຖືກກົດດັນໄລຍະສັ້ນ ແຕ່ມີແຮງຊື້ Rebound ຂຶ້ນຕໍ່ (ລຸ້ນ New High / ATH) ເພື່ອປ້ອງກັນຄວາມສ່ຽງເງິນເຟີ້.\n• ນ້ຳມັນ (Oil): ລາຄາຍັງຕ່ຳ ຊ່ວຍບໍ່ໃຫ້ຄ່ານ້ຳມັນແພງເກີນໄປ.`
+    }
+  ];
+
+  // 3. ເຄື່ອງວັດແທກອຸນຫະພູມເສດຖະກິດ (Macro Thermometer)
+  const thermometer = {
+    labor: { status: "ແຂງແກ່ນ (STRONG)", desc: `ຈ້າງງານເພີ່ມ ${nfp.actual}, ຫວ່າງງານ ${unemp.actual}`, level: 80, color: "bg-primary text-primary" },
+    inflation: { status: "ຍັງໜຽວ/ລົງຍາກ (STICKY)", desc: "ເງິນເຟີ້ຍັງສູງກວ່າເປົ້າໝາຍ 2%", level: 75, color: "bg-tertiary text-tertiary" },
+    manufacturing: { status: "ຊະລໍຕົວ (COOLING)", desc: `ISM ຢູ່ທີ່ ${ism.actual} (< 50% ຫົດຕົວ)`, level: 45, color: "bg-error text-error" }
+  };
+
+  return {
+    bigPictureSummary,
+    plainQA,
+    thermometer
+  };
+}
+
+// =========================================================================
+// 🔮 UPCOMING PREDICTIONS INFERENCE ENGINE (ຮັກສາໄວ້ຄົບຖ້ວນ)
+// =========================================================================
+
+function generateUpcomingPredictions(released, upcoming) {
+  const nfp = released.find(e => e.title.toLowerCase().includes('non-farm employment')) || { actualNum: 228, forecastNum: 140 };
+  const isLaborStrong = nfp.actualNum >= 170;
+
+  return upcoming.slice(0, 6).map(evt => {
+    const t = evt.title.toLowerCase();
+    let probAbove = 50;
+    let probInline = 30;
+    let probBelow = 20;
+    let reasoning = '';
+
+    if (t.includes('pce') || t.includes('cpi') || t.includes('ppi') || t.includes('inflation')) {
+      probAbove = isLaborStrong ? 65 : 30;
+      probInline = isLaborStrong ? 25 : 50;
+      probBelow = 100 - (probAbove + probInline);
+      reasoning = `ອີງຕາມຕົວເລກການຈ້າງງານ NFP ຫຼ້າສຸດ (+${nfp.actualNum}K) ທີ່ອອກມາແຂງແກ່ນ ບົ່ງບອກວ່າກຳລັງຊື້ ແລະ ຄ່າຈ້າງຍັງສູງ ເຮັດໃຫ້ມີໂອກາດ ${probAbove}% ທີ່ຕົວເລກເງິນເຟີ້ (${evt.title}) ຈະອອກມາສູງກວ່າ ຫຼື ເທົ່າກັບຄາດ (${evt.forecast}).`;
+    } else if (t.includes('gdp') || t.includes('retail sales')) {
+      probAbove = 55;
+      probInline = 35;
+      probBelow = 10;
+      reasoning = `ການຈ້າງງານທີ່ດີຊ່ວຍພະຍຸງການບໍລິໂພກພາຍໃນປະເທດ ເຮັດໃຫ້ໂອກາດທີ່ (${evt.title}) ຈະຊົງຕົວ ຫຼື ດີກວ່າຄາດ (${evt.forecast}) ມີສູງເຖິງ 55%.`;
+    } else if (t.includes('claims') || t.includes('jobless')) {
+      probAbove = 30;
+      probInline = 50;
+      probBelow = 20;
+      reasoning = `ຕະຫຼາດແຮງງານຍັງແຂງແກ່ນ ຄາດວ່າຕົວເລກຜູ້ຂໍຮັບສະຫວັດດີການຫວ່າງງານຈະຢູ່ໃນເກນປົກກະຕິໃກ້ຄຽງຄາດການ (${evt.forecast}).`;
+    } else {
+      probAbove = isLaborStrong ? 60 : 40;
+      probInline = 30;
+      probBelow = 10;
+      reasoning = `ອີງຕາມສະພາບແວດລ້ອມເສດຖະກິດມະຫາພາກປັດຈຸບັນ ຄາດວ່າມີໂອກາດ ${probAbove}% ທີ່ຈະອອກມາຕາມທິດທາງແຂງແກ່ນ.`;
+    }
+
+    return {
+      title: evt.title,
+      impact: evt.impact,
+      dateGMT7: evt.dateGMT7,
+      timeGMT7: evt.timeGMT7,
+      forecast: evt.forecast,
+      previous: evt.previous,
+      probAbove,
+      probInline,
+      probBelow,
+      reasoning
+    };
+  });
+}
+
+// =========================================================================
+// API ENDPOINTS
+// =========================================================================
+
+app.get('/api/macro-full-feed', async (req, res) => {
   try {
     const [res1, res2] = await Promise.all([
       fetch(FF_THISWEEK, { headers: { 'User-Agent': 'Mozilla/5.0' } }),
@@ -60,7 +165,6 @@ async function getLiveMacroFeed() {
     const data2 = res2.ok ? await res2.json() : [];
     const allEvents = [...data1, ...data2];
 
-    // Filter USD High & Medium Impact
     const usdEvents = allEvents.filter(e => e.country === 'USD' && (e.impact === 'High' || e.impact === 'Medium'));
 
     const released = [];
@@ -71,15 +175,12 @@ async function getLiveMacroFeed() {
       const item = {
         title: e.title,
         impact: e.impact,
-        rawDate: e.date,
         dateGMT7: dateStr,
         timeGMT7: timeStr,
         actual: e.actual || null,
         actualNum: parseNum(e.actual),
         forecast: e.forecast || '--',
-        forecastNum: parseNum(e.forecast),
         previous: e.previous || '--',
-        previousNum: parseNum(e.previous),
         isReleased: Boolean(e.actual && e.actual.trim() !== '')
       };
 
@@ -87,127 +188,25 @@ async function getLiveMacroFeed() {
       else upcoming.push(item);
     });
 
-    // 🔍 Find Exact Latest NFP & Labor Data from Feed
-    const nfpEvent = released.find(e => e.title.toLowerCase().includes('non-farm employment')) ||
-                     upcoming.find(e => e.title.toLowerCase().includes('non-farm employment')) ||
-                     { actual: '228K', actualNum: 228, forecast: '140K', forecastNum: 140, previous: '165K', dateGMT7: 'ຮອບຫຼ້າສຸດ' };
-
-    const unempEvent = released.find(e => e.title.toLowerCase().includes('unemployment rate')) ||
-                       { actual: '4.2%', actualNum: 4.2, forecast: '4.1%', dateGMT7: 'ຮອບຫຼ້າສຸດ' };
-
-    const ismEvent = released.find(e => e.title.toLowerCase().includes('ism manufacturing')) ||
-                     { actual: '49.0%', actualNum: 49.0, previous: '50.3%' };
-
-    // =========================================================================
-    // 📊 4-PILLAR MARKET OUTLOOK SYNTHESIS (ສະຫຼຸບທິດທາງຕະຫຼາດ)
-    // =========================================================================
-
-    const isLaborStrong = (nfpEvent.actualNum && nfpEvent.forecastNum && nfpEvent.actualNum >= nfpEvent.forecastNum) || (nfpEvent.actualNum >= 180);
-    const isMfgWeak = ismEvent.actualNum && ismEvent.actualNum < 50.0;
-
-    // 1. ທິດທາງເສດຖະກິດ (Macro Economy)
-    const economyOutlook = {
-      status: isLaborStrong ? "ຂະຫຍາຍຕົວແບບທົນທານ (RESILIENT / SOFT LANDING)" : "ຊະລໍຕົວລົງ (COOLING DOWN)",
-      detail: `ເສດຖະກິດຍັງໄດ້ຮັບແຮງໜູນຈາກການຈ້າງງານ (${nfpEvent.title}: ${nfpEvent.actual || nfpEvent.forecast}) ເຮັດໃຫ້ກຳລັງຊື້ຂອງປະຊາຊົນຍັງບໍ່ຕົກ ເຖິງແມ່ນວ່າພາກໂຮງງານ/ການຜະລິດ ISM (${ismEvent.actual}) ຈະຊະລໍຕົວລົງຈາກຕົ້ນທຶນພາສີກໍຕາມ.`
-    };
-
-    // 2. ທິດທາງເງິນໂດລາ (USD Index)
-    const usdOutlook = {
-      trend: isLaborStrong ? "BULLISH (ແຂງຄ່າຂຶ້ນ / ຊົງຕົວສູງ)" : "BEARISH (ອ່ອນຄ່າ)",
-      detail: isLaborStrong
-        ? `ເງິນໂດລາ (USD) ຍັງໄດ້ປັດໄຈບວກ ຍ້ອນຕະຫຼາດແຮງງານທີ່ແຂງແກ່ນເຮັດໃຫ້ Fed ຍັງບໍ່ຮີບຮ້ອນຫຼຸດດອກເບ້ຍ (Hawkish Hold) ສົ່ງຜົນໃຫ້ເງິນໂດລາຍັງມີຄວາມດຶງດູດ.`
-        : `ເງິນໂດລາມີແນວໂນ້ມອ່ອນຄ່າລົງ ຍ້ອນຕະຫຼາດຄາດຫວັງວ່າ Fed ຈະຕ້ອງຫຼຸດດອກເບ້ຍໄວຂຶ້ນ.`
-    };
-
-    // 3. ທິດທາງທອງຄຳ (Gold XAU/USD)
-    const goldOutlook = {
-      trend: "SHORT-TERM PRESSURE ➔ WAVE REBOUND (ລຸ້ນ ATH ໃໝ່)",
-      detail: `ໃນໄລຍະສັ້ນ ລາຄາທອງຄຳອາດຖືກກົດດັນຈາກ USD ທີ່ແຂງຄ່າ. ແຕ່ໃນທາງເຕັກນິກ ຫຼັງຈາກການເທຂາຍຈົບຮອບ (Wave A) ລາຄາຈະມີແຮງຊື້ Rebound ຂຶ້ນເປັນ Wave B (ເຊິ່ງອາດເປັນ Strong B ລຸ້ນເຮັດ New All-Time High) ຍ້ອນນັກລົງທຶນເຂົ້າຊື້ປ້ອງກັນຄວາມສ່ຽງເງິນເຟີ້ ແລະ ຄວາມບໍ່ແນ່ນອນດ້ານພາສີ.`
-    };
-
-    // 4. ທິດທາງນ້ຳມັນ (Crude Oil)
-    const oilOutlook = {
-      trend: "BEARISH TO SIDEWAY (ຊົງຕົວລະດັບຕ່ຳ $80 - $83)",
-      detail: `ລາຄານ້ຳມັນດິບຍັງຢູ່ໃນລະດັບຕ່ຳ ຊ່ວຍຫຼຸດຜ່ອນຕົ້ນທຶນພະລັງງານ ແລະ ການຂົນສົ່ງ ຖືເປັນຜົນດີຕໍ່ພາກທຸລະກິດ ແລະ ຊ່ວຍດັບຄວາມຮ້ອນຂອງເງິນເຟີ້.`
-    };
-
-    // =========================================================================
-    // 🔮 DYNAMIC UPCOMING PREDICTIONS
-    // =========================================================================
-    const upcomingPredictions = upcoming.slice(0, 6).map(evt => {
-      const t = evt.title.toLowerCase();
-      let probAbove = 50;
-      let probInline = 30;
-      let probBelow = 20;
-      let reasoning = '';
-
-      if (t.includes('pce') || t.includes('cpi') || t.includes('ppi') || t.includes('inflation')) {
-        probAbove = isLaborStrong ? 65 : 30;
-        probInline = isLaborStrong ? 25 : 50;
-        probBelow = 100 - (probAbove + probInline);
-        reasoning = `ອີງຕາມຕົວເລກການຈ້າງງານ NFP ຫຼ້າສຸດ (${nfpEvent.actual || nfpEvent.forecast}) ທີ່ແຂງແກ່ນ ບົ່ງບອກວ່າກຳລັງຊື້ ແລະ ຄ່າຈ້າງຍັງສູງ ເຮັດໃຫ້ມີໂອກາດ ${probAbove}% ທີ່ຕົວເລກເງິນເຟີ້ (${evt.title}) ຈະອອກມາສູງກວ່າ ຫຼື ເທົ່າກັບຄາດ (${evt.forecast}).`;
-      } else if (t.includes('gdp') || t.includes('retail sales')) {
-        probAbove = 55;
-        probInline = 35;
-        probBelow = 10;
-        reasoning = `ການຈ້າງງານທີ່ດີຊ່ວຍພະຍຸງການບໍລິໂພກພາຍໃນປະເທດ ເຮັດໃຫ້ໂອກາດທີ່ (${evt.title}) ຈະຊົງຕົວ ຫຼື ດີກວ່າຄາດ (${evt.forecast}) ມີສູງເຖິງ 55%.`;
-      } else if (t.includes('claims') || t.includes('jobless')) {
-        probAbove = 30;
-        probInline = 50;
-        probBelow = 20;
-        reasoning = `ຕະຫຼາດແຮງງານຍັງແຂງແກ່ນ ຄາດວ່າຕົວເລກຜູ້ຂໍຮັບສະຫວັດດີການຫວ່າງງານຈະຢູ່ໃນເກນປົກກະຕິໃກ້ຄຽງຄາດການ (${evt.forecast}).`;
-      } else {
-        probAbove = isLaborStrong ? 60 : 40;
-        probInline = 30;
-        probBelow = 10;
-        reasoning = `ອີງຕາມສະພາບແວດລ້ອມເສດຖະກິດມະຫາພາກປັດຈຸບັນ ຄາດວ່າມີໂອກາດ ${probAbove}% ທີ່ຈະອອກມາຕາມທິດທາງແຂງແກ່ນ.`;
-      }
-
-      return {
-        title: evt.title,
-        impact: evt.impact,
-        dateGMT7: evt.dateGMT7,
-        timeGMT7: evt.timeGMT7,
-        forecast: evt.forecast,
-        previous: evt.previous,
-        probAbove,
-        probInline,
-        probBelow,
-        reasoning
-      };
-    });
+    const plainDigest = generatePlainLanguageDigest(released, upcoming);
+    const upcomingPredictions = generateUpcomingPredictions(released, upcoming);
 
     const now = new Date();
-    return {
-      currentCycleLao: `ຮອບຂໍ້ມູນປັດຈຸບັນ (Live Sync): ${new Intl.DateTimeFormat('lo-LA', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Asia/Bangkok' }).format(now)}`,
-      nfpReference: {
-        title: nfpEvent.title,
-        actual: nfpEvent.actual || nfpEvent.forecast,
-        status: nfpEvent.isReleased ? 'ປະກາດແລ້ວ (Actual)' : 'ຄາດການ (Forecast)',
-        releaseDateLao: nfpEvent.dateGMT7
-      },
-      marketOutlook: {
-        economy: economyOutlook,
-        usd: usdOutlook,
-        gold: goldOutlook,
-        oil: oilOutlook
-      },
-      releasedEvents: released.slice(0, 10),
-      upcomingPredictions: upcomingPredictions
-    };
+    res.json({
+      success: true,
+      data: {
+        currentCycleLao: `ຮອບຂໍ້ມູນ Live Sync: ${new Intl.DateTimeFormat('lo-LA', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Asia/Bangkok' }).format(now)}`,
+        plainDigest,
+        upcomingPredictions,
+        releasedEvents: released.slice(0, 8),
+        upcomingEvents: upcoming.slice(0, 10)
+      }
+    });
   } catch (err) {
-    console.error('[Engine Error]:', err.message);
-    return null;
+    res.status(500).json({ success: false, error: err.message });
   }
-}
-
-app.get('/api/macro-full-feed', async (req, res) => {
-  const data = await getLiveMacroFeed();
-  res.json({ success: true, data });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 MACRO TERMINAL SERVER: http://localhost:${PORT}`);
-  console.log(`🕒 Auto-Timezone: GMT+7 (Lao Time)`);
-  console.log(`🔤 Primary Font: Noto Sans Lao`);
+  console.log(`🚀 MACRO TERMINAL RUNNING ON http://localhost:${PORT}`);
 });
