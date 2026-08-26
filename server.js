@@ -29,22 +29,27 @@ function parseNum(val) {
   return isNaN(num) ? null : num;
 }
 
-function formatLaoGMT7(dateInput) {
+// 🕒 Accurate Time Converter: Forex Factory ISO string -> GMT+7 (Asia/Bangkok/Vientiane)
+function formatForexFactoryDate(isoString) {
   try {
-    if (!dateInput) return { dateStr: 'ວັນພຸດ', timeStr: '19:30 (GMT+7)', isoString: new Date().toISOString() };
-    const dateObj = new Date(dateInput);
-    if (isNaN(dateObj.getTime())) return { dateStr: dateInput, timeStr: '19:30 (GMT+7)', isoString: new Date().toISOString() };
+    if (!isoString) return { dateStr: '--', timeStr: '--', timestamp: 0 };
+    const dateObj = new Date(isoString);
+    if (isNaN(dateObj.getTime())) return { dateStr: '--', timeStr: '--', timestamp: 0 };
 
     const optDate = { timeZone: 'Asia/Bangkok', weekday: 'short', day: 'numeric', month: 'short' };
     const optTime = { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', hour12: false };
 
+    const dateStr = new Intl.DateTimeFormat('lo-LA', optDate).format(dateObj);
+    const timeStr = new Intl.DateTimeFormat('en-GB', optTime).format(dateObj) + ' (GMT+7)';
+
     return {
-      dateStr: new Intl.DateTimeFormat('lo-LA', optDate).format(dateObj),
-      timeStr: new Intl.DateTimeFormat('lo-LA', optTime).format(dateObj) + ' (GMT+7)',
+      dateStr,
+      timeStr,
+      timestamp: dateObj.getTime(),
       isoString: dateObj.toISOString()
     };
   } catch (e) {
-    return { dateStr: 'ວັນພຸດ', timeStr: '19:30 (GMT+7)', isoString: new Date().toISOString() };
+    return { dateStr: '--', timeStr: '--', timestamp: 0 };
   }
 }
 
@@ -111,71 +116,80 @@ function buildEventTransmissionModel(evt) {
   };
 }
 
-// 🛡️ Guaranteed Base Events (ຮັບປະກັນວ່າມີຂໍ້ມູນສະແດງຜົນສະເໝີ 100%)
-const GUARANTEED_BENCHMARK_EVENTS = [
-  { title: "Core PCE Price Index m/m", impact: "High", forecast: "0.2%", previous: "0.1%", actual: null, date: new Date(Date.now() + 86400000).toISOString() },
-  { title: "Prelim GDP q/q", impact: "High", forecast: "1.5%", previous: "1.5%", actual: null, date: new Date(Date.now() + 86400000 * 2).toISOString() },
-  { title: "Non-Farm Employment Change", impact: "High", forecast: "140K", previous: "165K", actual: "228K", date: new Date(Date.now() - 86400000).toISOString() },
-  { title: "Unemployment Claims", impact: "Medium", forecast: "232K", previous: "231K", actual: "229K", date: new Date(Date.now() + 86400000 * 3).toISOString() },
-  { title: "ISM Manufacturing PMI", impact: "High", forecast: "50.0%", previous: "50.3%", actual: "49.0%", date: new Date(Date.now() - 86400000 * 2).toISOString() },
-  { title: "Unemployment Rate", impact: "High", forecast: "4.1%", previous: "4.1%", actual: "4.2%", date: new Date(Date.now() - 86400000).toISOString() }
-];
+// Telegram Broadcaster
+async function sendTelegramAlert(htmlMessage) {
+  try {
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: htmlMessage,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true
+      })
+    });
+    const json = await res.json();
+    return json.ok;
+  } catch (err) {
+    return false;
+  }
+}
 
+// Real-time API Router
 app.get('/api/macro-full-feed', async (req, res) => {
   try {
-    let allEvents = [];
-    try {
-      const [res1, res2] = await Promise.all([
-        fetch(FF_THISWEEK, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(4000) }),
-        fetch(FF_NEXTWEEK, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(4000) })
-      ]);
-      const data1 = res1.ok ? await res1.json() : [];
-      const data2 = res2.ok ? await res2.json() : [];
-      allEvents = [...data1, ...data2];
-    } catch (e) {
-      console.log('[ForexFactory Live Notice]: Using guaranteed benchmark dataset.');
-      allEvents = GUARANTEED_BENCHMARK_EVENTS;
-    }
+    const [res1, res2] = await Promise.all([
+      fetch(FF_THISWEEK, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(5000) }),
+      fetch(FF_NEXTWEEK, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(5000) })
+    ]);
 
-    if (!allEvents || allEvents.length === 0) {
-      allEvents = GUARANTEED_BENCHMARK_EVENTS;
-    }
+    const data1 = res1.ok ? await res1.json() : [];
+    const data2 = res2.ok ? await res2.json() : [];
+    const allEvents = [...data1, ...data2];
 
-    const highAndMed = allEvents.filter(e => (!e.country || e.country === 'USD') && (e.impact === 'High' || e.impact === 'Medium'));
-    const sourceList = highAndMed.length > 0 ? highAndMed : GUARANTEED_BENCHMARK_EVENTS;
+    // Filter ONLY USD + High & Medium Impact
+    const filteredUSD = allEvents.filter(e => e.country === 'USD' && (e.impact === 'High' || e.impact === 'Medium'));
 
-    const processedEvents = sourceList.map(e => {
-      const { dateStr, timeStr, isoString } = formatLaoGMT7(e.date);
+    const processedEvents = filteredUSD.map(e => {
+      const { dateStr, timeStr, timestamp, isoString } = formatForexFactoryDate(e.date);
       const actualNum = parseNum(e.actual);
       const forecastNum = parseNum(e.forecast);
       const previousNum = parseNum(e.previous);
       const isReleased = Boolean(e.actual && String(e.actual).trim() !== '');
 
       return {
-        title: e.title || 'Economic Event',
-        impact: e.impact || 'High',
+        title: e.title,
+        impact: e.impact, // 'High' or 'Medium'
         dateGMT7: dateStr,
         timeGMT7: timeStr,
+        timestamp,
         isoString,
-        actual: e.actual || null,
+        actual: isReleased ? e.actual : null, // If not released, strictly null
         actualNum,
         forecast: e.forecast || '--',
         forecastNum,
         previous: e.previous || '--',
         previousNum,
         isReleased,
-        pipRange: getExpectedPipRange(e.title || ''),
-        marketImpact: calculateEventImpact({ title: e.title || '', actualNum, forecastNum, actual: e.actual }),
-        transmissionModel: buildEventTransmissionModel({ title: e.title || '', forecast: e.forecast || '0.2%' })
+        pipRange: getExpectedPipRange(e.title),
+        marketImpact: calculateEventImpact({ title: e.title, actualNum, forecastNum, actual: e.actual }),
+        transmissionModel: buildEventTransmissionModel({ title: e.title, forecast: e.forecast || '--' })
       };
     });
 
+    // Sort chronologically by real event release time
+    processedEvents.sort((a, b) => a.timestamp - b.timestamp);
+
     const highImpactList = processedEvents.filter(e => e.impact === 'High');
-    const displayHighImpactList = highImpactList.length > 0 ? highImpactList : processedEvents.slice(0, 5);
+    const displayHighImpactList = highImpactList.length > 0 ? highImpactList : processedEvents.slice(0, 6);
 
-    const activeEvent = displayHighImpactList.find(e => !e.isReleased) || displayHighImpactList[0];
+    const nowTime = Date.now();
+    const upcomingEvents = processedEvents.filter(e => e.timestamp > nowTime || !e.isReleased);
+    const activeEvent = upcomingEvents.find(e => e.impact === 'High') || upcomingEvents[0] || displayHighImpactList[0];
 
-    // Guaranteed Currency Heatmap
+    // Currency Strength Heatmap
     const currencyHeatmap = [
       { pair: 'USD (US Dollar)', score: '+8.2', status: 'STRONG BULLISH', color: 'text-primary bg-primary/10 border-primary/30', desc: 'ແຂງຄ່າຈາກດອກເບ້ຍສູງ & ຕະຫຼາດແຮງງານແຂງແກ່ນ' },
       { pair: 'XAU (Gold)', score: '+5.5', status: 'HEDGE DEMAND', color: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30', desc: 'ມີແຮງຊື້ປ້ອງກັນຄວາມສ່ຽງເງິນເຟີ້ & ພາສີ' },
@@ -184,9 +198,9 @@ app.get('/api/macro-full-feed', async (req, res) => {
       { pair: 'JPY (Yen)', score: '-6.5', status: 'VERY WEAK', color: 'text-error bg-error/10 border-error/30', desc: 'ດອກເບ້ຍຕ່າງກັນຫຼາຍທຽບກັບ USD' }
     ];
 
-    // Guaranteed Trade Playbook
+    // Trade Playbook
     const tradePlaybook = {
-      targetEvent: activeEvent?.title || 'Core PCE Price Index m/m',
+      targetEvent: activeEvent?.title || 'High Impact Event',
       scenarios: [
         {
           caseTitle: 'ກໍລະນີທີ 1: ຕົວເລກສູງກວ່າຄາດ (BEAT - Hawkish)',
@@ -215,18 +229,18 @@ app.get('/api/macro-full-feed', async (req, res) => {
       ]
     };
 
-    // Guaranteed Plain Macro Digest
+    // Plain Macro Digest
     const plainDigest = {
-      bigPictureSummary: `ເສດຖະກິດສະຫະລັດໃນຕອນນີ້ "ຍັງບໍ່ໄດ້ຖົດຖອຍ" ເພາະຄົນຍັງມີວຽກເຮັດງານທຳຫຼາຍ ແລະ ບໍລິສັດຍັງຈ້າງຄົນເພີ່ມ (NFP 228K). ແຕ່ພາກໂຮງງານເລີ່ມຊະລໍຕົວລົງຍ້ອນຕົ້ນທຶນພາສີນຳເຂົ້າ (ISM 49.0%). ພາບລວມຄື: ເສດຖະກິດຍັງແລ່ນໄດ້ດີ ແຕ່ກຳລັງຖືກທົດສອບດ້ວຍເງິນເຟີ້ ແລະ ດອກເບ້ຍສູງ.`,
+      bigPictureSummary: `ເສດຖະກິດສະຫະລັດໃນຕອນນີ້ "ຍັງບໍ່ໄດ້ຖົດຖອຍ" ເພາະຄົນຍັງມີວຽກເຮັດງານທຳຫຼາຍ ແລະ ບໍລິສັດຍັງຈ້າງຄົນເພີ່ມ. ແຕ່ພາກໂຮງງານເລີ່ມຊະລໍຕົວລົງຍ້ອນຕົ້ນທຶນພາສີນຳເຂົ້າ. ພາບລວມຄື: ເສດຖະກິດຍັງແລ່ນໄດ້ດີ ແຕ່ກຳລັງຖືກທົດສອບດ້ວຍເງິນເຟີ້ ແລະ ດອກເບ້ຍສູງ.`,
       plainQA: [
-        { q: "1. ເສດຖະກິດກຳລັງຈະໄປທິດທາງໃດ?", badge: "ທົນທານ (RESILIENT)", color: "text-primary border-primary/40 bg-primary/10", ans: "ເສດຖະກິດຢູ່ໃນພາວະ Soft Landing. ຄົນສ່ວນໃຫຍ່ຍັງມີລາຍໄດ້ ແລະ ຍັງຈັບຈ່າຍໃຊ້ສອຍໄດ້ຢູ່ ເຮັດໃຫ້ເສດຖະກິດຍັງບໍ່ຖົດຖອຍ." },
-        { q: "2. Fed ຈະເຮັດແນວໃດຕໍ່ກັບດອກເບ້ຍ?", badge: "ຄົງດອກເບ້ຍສູງ (HOLD RATE)", color: "text-tertiary border-tertiary/40 bg-tertiary/10", ans: "Fed ຈະຍັງບໍ່ຮີບຮ້ອນຫຼຸດດອກເບ້ຍ ເພື່ອຄຸມເງິນເຟີ້ໃຫ້ຢູ່ໝັດ ຍ້ອນຕະຫຼາດແຮງງານຍັງແຂງແກ່ນ." },
-        { q: "3. ຜົນກະທົບຕໍ່ ໂດລາ, ທອງຄຳ ແລະ ນ້ຳມັນ?", badge: "MARKET IMPACT", color: "text-primary border-primary/40 bg-primary/10", ans: "• USD: ແຂງຄ່າ\n• ທອງຄຳ (Gold): ຖືກກົດດັນໄລຍະສັ້ນ ແຕ່ມີແຮງຊື້ Rebound (ລຸ້ນ ATH ໃໝ່)\n• ນ້ຳມັນ: ລາຄາຍັງຊົງຕົວລະດັບຕ່ຳ." }
+        { q: "1. ເສດຖະກິດກຳລັງຈະໄປທິດທາງໃດ?", badge: "ທົນທານ (RESILIENT)", color: "text-primary border-primary/40 bg-primary/10", ans: "ເສດຖະກິດຢູ່ໃນພາວະ Soft Landing. ຄົນສ່ວນໃຫຍ່ຍັງມີລາຍໄດ້ ແລະ ຍັງຈັບຈ່າຍໃຊ້ສອຍໄດ້ຢູ່." },
+        { q: "2. Fed ຈະເຮັດແນວໃດຕໍ່ກັບດອກເບ້ຍ?", badge: "ຄົງດອກເບ້ຍສູງ (HOLD RATE)", color: "text-tertiary border-tertiary/40 bg-tertiary/10", ans: "Fed ຈະຍັງບໍ່ຮີບຮ້ອນຫຼຸດດອກເບ້ຍ ເພື່ອຄຸມເງິນເຟີ້ໃຫ້ຢູ່ໝັດ." },
+        { q: "3. ຜົນກະທົບຕໍ່ ໂດລາ, ທອງຄຳ ແລະ ນ້ຳມັນ?", badge: "MARKET IMPACT", color: "text-primary border-primary/40 bg-primary/10", ans: "• USD: ແຂງຄ່າ\n• ທອງຄຳ: ຖືກກົດດັນໄລຍະສັ້ນ ແຕ່ລຸ້ນ Rebound (ATH)\n• ນ້ຳມັນ: ລາຄາຍັງຊົງຕົວລະດັບຕ່ຳ." }
       ],
       thermometer: {
-        labor: { status: "ແຂງແກ່ນ (STRONG)", desc: "ການຈ້າງງານ NFP 228K ເພີ່ມຂຶ້ນດີ", level: 80 },
-        inflation: { status: "ຍັງໜຽວ (STICKY)", desc: "Core PCE ຄາດ 0.2% ຍັງສູງກວ່າເປົ້າໝາຍ", level: 75 },
-        manufacturing: { status: "ຊະລໍຕົວ (COOLING)", desc: "ISM 49.0% (< 50% ຫົດຕົວຈາກພາສີ)", level: 45 }
+        labor: { status: "ແຂງແກ່ນ (STRONG)", desc: "ການຈ້າງງານ NFP ເພີ່ມຂຶ້ນດີ", level: 80 },
+        inflation: { status: "ຍັງໜຽວ (STICKY)", desc: "ເງິນເຟີ້ຍັງສູງກວ່າເປົ້າໝາຍ 2%", level: 75 },
+        manufacturing: { status: "ຊະລໍຕົວ (COOLING)", desc: "ISM < 50% ຫົດຕົວຈາກພາສີ", level: 45 }
       }
     };
 
@@ -244,7 +258,6 @@ app.get('/api/macro-full-feed', async (req, res) => {
       }
     });
   } catch (err) {
-    console.error('[Engine API Error]:', err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -258,7 +271,7 @@ app.post('/api/test-telegram', async (req, res) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: TELEGRAM_CHAT_ID,
-        text: `🚨 <b>[TEST ALERT] ລະບົບ MACRO TERMINAL ເຊື່ອມຕໍ່ສຳເລັດ!</b>\n━━━━━━━━━━━━━━━━━━━━\n📊 <b>ຂ່າວ:</b> Core PCE Price Index m/m\n⏰ <b>ເວລາ:</b> ວັນພຸດ • 19:30 (GMT+7)\n🎯 <b>ສະຫຼຸບ:</b> ລະບົບພ້ອມຍິງຂ່າວດ່ວນ ແລະ ແຜນເທຣດອັດຕະໂນມັດ 24/7!`,
+        text: `🚨 <b>[TEST ALERT] ລະບົບ MACRO TERMINAL ເຊື່ອມຕໍ່ສຳເລັດ!</b>\n━━━━━━━━━━━━━━━━━━━━\n📊 <b>ຂ່າວ:</b> Forex Factory Live Ingestion\n⏰ <b>ເວລາ:</b> GMT+7 (ໂມງລາວ)\n🎯 <b>ສະຖານະ:</b> ລະບົບພ້ອມຍິງຂ່າວດ່ວນ ແລະ ແຜນເທຣດ 24/7!`,
         parse_mode: 'HTML'
       })
     });
