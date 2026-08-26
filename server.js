@@ -28,73 +28,87 @@ function parseNum(val) {
 
 function formatLaoGMT7(dateInput) {
   try {
-    if (!dateInput) return { dateStr: '--', timeStr: '--' };
+    if (!dateInput) return { dateStr: '--', timeStr: '--', isoString: null };
     const dateObj = new Date(dateInput);
-    if (isNaN(dateObj.getTime())) return { dateStr: dateInput, timeStr: '' };
+    if (isNaN(dateObj.getTime())) return { dateStr: dateInput, timeStr: '', isoString: null };
 
     const optDate = { timeZone: 'Asia/Bangkok', weekday: 'short', day: 'numeric', month: 'short' };
     const optTime = { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', hour12: false };
 
     const dateStr = new Intl.DateTimeFormat('lo-LA', optDate).format(dateObj);
     const timeStr = new Intl.DateTimeFormat('lo-LA', optTime).format(dateObj) + ' (GMT+7)';
-    return { dateStr, timeStr };
+    return { dateStr, timeStr, isoString: dateObj.toISOString() };
   } catch (e) {
-    return { dateStr: dateInput, timeStr: '' };
+    return { dateStr: dateInput, timeStr: '', isoString: null };
   }
 }
 
-// Build Dynamic Transmission Data for any High-Impact Event
+// Calculate Volatility & Pip Range for each event type
+function getExpectedPipRange(title) {
+  const t = title.toLowerCase();
+  if (t.includes('non-farm') || t.includes('payrolls')) return { pips: '150 - 300 pips', usdRange: '$15 - $30', level: 'EXTREME' };
+  if (t.includes('cpi') || t.includes('pce')) return { pips: '120 - 250 pips', usdRange: '$12 - $25', level: 'VERY HIGH' };
+  if (t.includes('fomc') || t.includes('fed funds')) return { pips: '200 - 400 pips', usdRange: '$20 - $40', level: 'MAXIMUM' };
+  if (t.includes('gdp') || t.includes('retail sales')) return { pips: '80 - 160 pips', usdRange: '$8 - $16', level: 'HIGH' };
+  return { pips: '40 - 90 pips', usdRange: '$4 - $9', level: 'MODERATE' };
+}
+
+// Calculate Real-time Impact Tag on USD and Gold
+function calculateEventImpact(e) {
+  const isReleased = Boolean(e.actual && e.actual.trim() !== '');
+  const actual = e.actualNum;
+  const forecast = e.forecastNum;
+  const t = e.title.toLowerCase();
+
+  // If not released yet, predict from typical Hawkish beat
+  let isHawkish = true;
+  if (isReleased && actual !== null && forecast !== null) {
+    if (t.includes('unemployment') || t.includes('claims')) {
+      isHawkish = actual < forecast; // Lower unemployment = Hawkish
+    } else {
+      isHawkish = actual >= forecast; // Higher NFP/CPI/GDP = Hawkish
+    }
+  }
+
+  return {
+    isHawkish,
+    usdImpact: isHawkish ? 'BULLISH ↑' : 'BEARISH ↓',
+    usdColor: isHawkish ? 'text-primary bg-primary/10 border-primary/30' : 'text-error bg-error/10 border-error/30',
+    goldImpact: isHawkish ? 'BEARISH ↓' : 'BULLISH ↑',
+    goldColor: isHawkish ? 'text-error bg-error/10 border-error/30' : 'text-primary bg-primary/10 border-primary/30'
+  };
+}
+
+// Transmission node builder
 function buildEventTransmissionModel(evt) {
   const t = evt.title.toLowerCase();
   let eventType = 'INFLATION';
   let node1Name = 'INFLATION DATA';
   let node1Icon = 'price_change';
-  let node2Name = 'FED RATE BIAS';
-  let node3Name = 'REAL YIELDS';
-  let node4Name = '10Y YIELD';
-  let node5Name = 'GOLD (XAU)';
-
-  let scenarioAbove = { title: `ABOVE EXPECTATION (> ${evt.forecast})`, state: 'Hawkish Pressures', hawkish: true, usd: '↑', gold: '↓' };
-  let scenarioInline = { title: `IN LINE (${evt.forecast})`, state: 'Neutral / Holds', hawkish: false, usd: '—', gold: '—' };
-  let scenarioBelow = { title: `BELOW EXPECTATION (< ${evt.forecast})`, state: 'Dovish Relief', hawkish: false, usd: '↓', gold: '↑' };
 
   if (t.includes('employment') || t.includes('payrolls') || t.includes('adp') || t.includes('labor')) {
     eventType = 'LABOR';
     node1Name = 'LABOR MKT';
     node1Icon = 'engineering';
-    node2Name = 'FED BIAS';
-    node3Name = 'USD/YIELD';
-    node4Name = '10Y YIELD';
-    node5Name = 'GOLD';
-    scenarioAbove = { title: `ABOVE EXPECTATION (> ${evt.forecast})`, state: 'Strong Labor State', hawkish: true, usd: '↑', gold: '↓' };
-    scenarioInline = { title: `IN LINE (${evt.forecast})`, state: 'Neutral State', hawkish: false, usd: '—', gold: '—' };
-    scenarioBelow = { title: `BELOW EXPECTATION (< ${evt.forecast})`, state: 'Weak Labor State', hawkish: false, usd: '↓', gold: '↑' };
   } else if (t.includes('gdp') || t.includes('sales') || t.includes('pmi')) {
     eventType = 'GROWTH';
     node1Name = 'GDP GROWTH';
     node1Icon = 'trending_up';
-    node2Name = 'RECESSION RISK';
-    node3Name = 'BOND YIELDS';
-    node4Name = 'USD INDEX';
-    node5Name = 'GOLD & EQUITIES';
-    scenarioAbove = { title: `ABOVE EXPECTATION (> ${evt.forecast})`, state: 'Expanding Economy', hawkish: true, usd: '↑', gold: '↓' };
-    scenarioInline = { title: `IN LINE (${evt.forecast})`, state: 'Soft Landing', hawkish: false, usd: '—', gold: '—' };
-    scenarioBelow = { title: `BELOW EXPECTATION (< ${evt.forecast})`, state: 'Contraction Risk', hawkish: false, usd: '↓', gold: '↑' };
   }
 
   return {
     eventType,
     nodes: [
       { name: node1Name, icon: node1Icon },
-      { name: node2Name, icon: 'account_balance' },
-      { name: node3Name, icon: 'payments' },
-      { name: node4Name, icon: 'show_chart' },
-      { name: node5Name, icon: 'diamond' }
+      { name: 'FED BIAS', icon: 'account_balance' },
+      { name: 'USD/YIELD', icon: 'payments' },
+      { name: '10Y YIELD', icon: 'show_chart' },
+      { name: 'GOLD', icon: 'diamond' }
     ],
     scenarios: {
-      above: scenarioAbove,
-      inline: scenarioInline,
-      below: scenarioBelow
+      above: { title: `ABOVE EXPECTATION (> ${evt.forecast})`, state: 'Hawkish Bias', usd: '↑', gold: '↓' },
+      inline: { title: `IN LINE (${evt.forecast})`, state: 'Neutral / Holds', usd: '—', gold: '—' },
+      below: { title: `BELOW EXPECTATION (< ${evt.forecast})`, state: 'Dovish Shift', usd: '↓', gold: '↑' }
     }
   };
 }
@@ -110,59 +124,105 @@ app.get('/api/macro-full-feed', async (req, res) => {
     const data2 = res2.ok ? await res2.json() : [];
     const allEvents = [...data1, ...data2];
 
-    const highImpactUSD = allEvents.filter(e => e.country === 'USD' && e.impact === 'High');
+    const highAndMed = allEvents.filter(e => e.country === 'USD' && (e.impact === 'High' || e.impact === 'Medium'));
 
-    const highImpactList = highImpactUSD.map(e => {
-      const { dateStr, timeStr } = formatLaoGMT7(e.date);
+    const released = [];
+    const upcoming = [];
+
+    highAndMed.forEach(e => {
+      const { dateStr, timeStr, isoString } = formatLaoGMT7(e.date);
+      const actualNum = parseNum(e.actual);
+      const forecastNum = parseNum(e.forecast);
+      const previousNum = parseNum(e.previous);
+      const isReleased = Boolean(e.actual && e.actual.trim() !== '');
+
       const item = {
         title: e.title,
         impact: e.impact,
         dateGMT7: dateStr,
         timeGMT7: timeStr,
+        isoString,
         actual: e.actual || null,
-        actualNum: parseNum(e.actual),
+        actualNum,
+        forecast: e.forecast || '--',
+        forecastNum,
+        previous: e.previous || '--',
+        previousNum,
+        isReleased,
+        pipRange: getExpectedPipRange(e.title),
+        marketImpact: calculateEventImpact({ title: e.title, actualNum, forecastNum, actual: e.actual })
+      };
+
+      if (isReleased) released.push(item);
+      else upcoming.push(item);
+    });
+
+    const highImpactList = highAndMed.filter(e => e.impact === 'High').map(e => {
+      const { dateStr, timeStr, isoString } = formatLaoGMT7(e.date);
+      return {
+        title: e.title,
+        impact: e.impact,
+        dateGMT7: dateStr,
+        timeGMT7: timeStr,
+        isoString,
         forecast: e.forecast || '--',
         previous: e.previous || '--',
-        isReleased: Boolean(e.actual && e.actual.trim() !== '')
-      };
-      return {
-        ...item,
-        transmissionModel: buildEventTransmissionModel(item)
+        isReleased: Boolean(e.actual && e.actual.trim() !== ''),
+        pipRange: getExpectedPipRange(e.title),
+        transmissionModel: buildEventTransmissionModel({ title: e.title, forecast: e.forecast || '--' })
       };
     });
 
-    // Select primary active event (Upcoming Core PCE / GDP / or latest NFP)
-    const activeEvent = highImpactList.find(e => !e.isReleased) || highImpactList[0] || {
-      title: "Core PCE Price Index m/m",
-      forecast: "0.2%",
-      previous: "0.1%",
-      dateGMT7: "ວັນພຸດ",
-      timeGMT7: "19:30 (GMT+7)",
-      transmissionModel: buildEventTransmissionModel({ title: "Core PCE Price Index m/m", forecast: "0.2%" })
+    // Find next upcoming high impact event for Countdown Timer
+    const nextUpcomingEvent = upcoming.find(e => e.impact === 'High') || upcoming[0] || highImpactList[0];
+
+    // Currency Strength Heatmap Data
+    const currencyHeatmap = [
+      { pair: 'USD (US Dollar)', score: '+8.2', status: 'STRONG BULLISH', color: 'text-primary bg-primary/10 border-primary/30', desc: 'ແຂງຄ່າຈາກດອກເບ້ຍສູງ & NFP แขງແກ່ນ' },
+      { pair: 'XAU (Gold)', score: '+5.5', status: 'HEDGE DEMAND', color: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30', desc: 'ມີແຮງຊື້ປ້ອງກັນຄວາມສ່ຽງເງິນເຟີ້ & ພາສີ' },
+      { pair: 'EUR (Euro)', score: '-3.8', status: 'WEAK', color: 'text-error bg-error/10 border-error/30', desc: 'ຖືກກົດດັນຈາກການຫຼຸດດອກເບ້ຍ ECB' },
+      { pair: 'GBP (Pound)', score: '+1.2', status: 'NEUTRAL', color: 'text-white bg-surface-container border-outline-variant', desc: 'ຊົງຕົວຕາມເງິນເຟີ້ອັງກິດ' },
+      { pair: 'JPY (Yen)', score: '-6.5', status: 'VERY WEAK', color: 'text-error bg-error/10 border-error/30', desc: 'ດອກເບ້ຍຕ່າງກັນຫຼາຍທຽບກັບ USD' }
+    ];
+
+    // Trade Playbook Matrix
+    const tradePlaybook = {
+      targetEvent: nextUpcomingEvent?.title || 'High Impact Event',
+      scenarios: [
+        {
+          caseTitle: 'ກໍລະນີທີ 1: ຕົວເລກອອກມາສູງກວ່າຄາດ (BEAT - Hawkish)',
+          tag: 'HAWKISH BEAT',
+          tagColor: 'text-primary border-primary bg-primary/10',
+          planGold: 'Sell Gold ຕາມ Momentum ໄລຍະສັ້ນ ຫຼື ລໍຖ້າດັກ Buy ຢູ່ແນວຮັບ Wave A bottom ເພື່ອລຸ້ນ Rebound.',
+          planUSD: 'Buy USD ຕາມແຮງໜູນດອກເບ້ຍ Fed.',
+          riskNote: 'ລະວັງ Spread ຖ່າງ ແລະ ຄວາມຜັນຜວນໃນ 5 ນາທີທຳອິດ.'
+        },
+        {
+          caseTitle: 'ກໍລະນີທີ 2: ຕົວເລກອອກມາຕ່ຳກວ່າຄາດ (MISS - Dovish)',
+          tag: 'DOVISH MISS',
+          tagColor: 'text-error border-error bg-error/10',
+          planGold: 'Buy Gold ທັນທີ! ເປົ້າໝາຍທົດສອບແນວຕ້ານ ATH (New High) ຍ້ອນຕະຫຼາດເລັ່ງຕອບຮັບການຫຼຸດດອກເບ້ຍ.',
+          planUSD: 'Sell USD ຍ້ອນຜົນຕອບແທນພັນທະບັດຫຼຸດລົງ.',
+          riskNote: 'ຕັ້ງ Stop Loss ໃຕ້ແນວຮັບຫຼ້າສຸດສະເໝີ.'
+        },
+        {
+          caseTitle: 'ກໍລະນີທີ 3: ຕົວເລກອອກມາຕາມຄາດ (IN-LINE - Neutral)',
+          tag: 'NEUTRAL IN-LINE',
+          tagColor: 'text-tertiary border-tertiary bg-tertiary/10',
+          planGold: 'ລະວັງ Fakeout (ລາຄາສະບັດໄປກິນ Stop Loss ທັງສອງຝັ່ງ), ແນະນຳລໍຖ້າໃຫ້ຕະຫຼາດເລືອກທາງຫຼັງ 15 ນາທີ.',
+          planUSD: 'ຕະຫຼາດຈະ Sideway ໃນກອບ.',
+          riskNote: 'ຫຼີກລ່ຽງການເປີດ Lot ໃຫຍ່ໃນຊ່ວງຂ່າວອອກຕາມຄາດ.'
+        }
+      ]
     };
 
-    // Macro Digest
+    // Plain Digest & Predictions
     const plainDigest = {
-      bigPictureSummary: `ເສດຖະກິດສະຫະລັດໃນຕອນນີ້ "ຍັງບໍ່ໄດ້ຖົດຖອຍ" ເພາະຄົນຍັງມີວຽກເຮັດງານທຳຫຼາຍ ແລະ ບໍລິສັດຍັງຈ້າງຄົນເພີ່ມ. ແຕ່ພາກໂຮງງານເລີ່ມຊະລໍຕົວລົງຍ້ອນຕົ້ນທຶນພາສີນຳເຂົ້າ. ພາບລວມຄື: ເສດຖະກິດຍັງແລ່ນໄດ້ດີ ແຕ່ກຳລັງຖືກທົດສອບດ້ວຍເງິນເຟີ້ ແລະ ດອກເບ້ຍສູງ.`,
+      bigPictureSummary: `ເສດຖະກິດສະຫະລັດຍັງແຂງແກ່ນຈາກຕະຫຼາດແຮງງານ ເຮັດໃຫ້ກຳລັງຊື້ຍັງບໍ່ຕົກ ເຖິງແມ່ນວ່າພາກໂຮງງານ/ການຜະລິດ ISM ຈະຊະລໍຕົວລົງຈາກຕົ້ນທຶນພາສີນຳເຂົ້າ. ພາບລວມຄື: ເສດຖະກິດຍັງແລ່ນໄດ້ດີ ແຕ່ກຳລັງຖືກທົດສອບດ້ວຍເງິນເຟີ້ ແລະ ດອກເບ້ຍສູງ.`,
       plainQA: [
-        {
-          q: "1. ເສດຖະກິດກຳລັງຈະໄປທິດທາງໃດ?",
-          badge: "ທົນທານ / ຊົງຕົວດີ (RESILIENT)",
-          color: "text-primary border-primary/40 bg-primary/10",
-          ans: `ເສດຖະກິດຢູ່ໃນພາວະ "Soft Landing". ຄົນສ່ວນໃຫຍ່ຍັງມີລາຍໄດ້ ແລະ ຍັງຈັບຈ່າຍໃຊ້ສອຍໄດ້ຢູ່ ເຮັດໃຫ້ເສດຖະກິດຍັງບໍ່ຖົດຖອຍ.`
-        },
-        {
-          q: "2. Fed ຈະເຮັດແນວໃດຕໍ່ກັບດອກເບ້ຍ?",
-          badge: "ຄົງດອກເບ້ຍສູງຕໍ່ໄປ (HOLD RATE)",
-          color: "text-tertiary border-tertiary/40 bg-tertiary/10",
-          ans: `Fed ຈະ "ຍັງບໍ່ຮີບຮ້ອນຫຼຸດດອກເບ້ຍ" ເພາະເມື່ອແຮງງານຍັງແຂງແຮງ ເງິນເຟີ້ກໍຈະຍັງລົງຍາກ Fed ຈຶ່ງຕ້ອງຮັກສາດອກເບ້ຍສູງ (5.25% - 5.50%) ໄວ້ດົນກວ່າເກົ່າ.`
-        },
-        {
-          q: "3. ຜົນກະທົບຕໍ່ ໂດລາ, ທອງຄຳ ແລະ ນ້ຳມັນ?",
-          badge: "MARKET IMPACT",
-          color: "text-primary border-primary/40 bg-primary/10",
-          ans: `• USD: ແຂງຄ່າຂຶ້ນ ເພາະດອກເບ້ຍຍັງສູງ.\n• ທອງຄຳ (Gold): ຖືກກົດດັນໄລຍະສັ້ນ ແຕ່ມີແຮງຊື້ Rebound (ລຸ້ນ ATH ໃໝ່).\n• ນ້ຳມັນ: ລາຄາຍັງຊົງຕົວລະດັບຕ່ຳ.`
-        }
+        { q: "1. ເສດຖະກິດກຳລັງຈະໄປທິດທາງໃດ?", badge: "ທົນທານ (RESILIENT)", color: "text-primary border-primary/40 bg-primary/10", ans: "ເສດຖະກິດຢູ່ໃນພາວະ Soft Landing. ຄົນຍັງມີວຽກເຮັດງານທຳ ແລະ ຍັງຈັບຈ່າຍໃຊ້ສອຍໄດ້." },
+        { q: "2. Fed ຈະເຮັດແນວໃດຕໍ່ກັບດອກເບ້ຍ?", badge: "ຄົງດອກເບ້ຍສູງ (HOLD RATE)", color: "text-tertiary border-tertiary/40 bg-tertiary/10", ans: "Fed ຈະຍັງບໍ່ຮີບຮ້ອນຫຼຸດດອກເບ້ຍ ເພື່ອຄຸມເງິນເຟີ້ໃຫ້ຢູ່ໝັດ." },
+        { q: "3. ຜົນກະທົບຕໍ່ ໂດລາ, ທອງຄຳ ແລະ ນ້ຳມັນ?", badge: "MARKET IMPACT", color: "text-primary border-primary/40 bg-primary/10", ans: "• USD: ແຂງຄ່າ\n• ທອງຄຳ: ຖືກກົດດັນໄລຍະສັ້ນ ແຕ່ລຸ້ນ Rebound (ATH)\n• ນ້ຳມັນ: ລາຄາຍັງຊົງຕົວລະດັບຕ່ຳ." }
       ],
       thermometer: {
         labor: { status: "ແຂງແກ່ນ (STRONG)", desc: "ການຈ້າງງານຍັງເພີ່ມຂຶ້ນດີ", level: 80 },
@@ -176,9 +236,12 @@ app.get('/api/macro-full-feed', async (req, res) => {
       success: true,
       data: {
         currentCycleLao: `ຮອບຂໍ້ມູນ Live Sync: ${new Intl.DateTimeFormat('lo-LA', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Asia/Bangkok' }).format(now)}`,
-        activeEvent,
-        allHighImpactEvents: highImpactList,
-        plainDigest
+        nextUpcomingEvent,
+        tradePlaybook,
+        currencyHeatmap,
+        highImpactList,
+        plainDigest,
+        allMediumAndHighCalendar: [...released, ...upcoming]
       }
     });
   } catch (err) {
@@ -187,5 +250,5 @@ app.get('/api/macro-full-feed', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 LIVE DYNAMIC TRANSMISSION SERVER: http://localhost:${PORT}`);
+  console.log(`🚀 MACRO TERMINAL RUNNING ON http://localhost:${PORT}`);
 });
