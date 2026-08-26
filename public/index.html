@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>MACRO_TERMINAL // Transmission Network &amp; Scenario Engine</title>
+    <title>MACRO_TERMINAL // Live Dynamic Transmission Engine</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
@@ -57,10 +57,10 @@
         <div class="p-3 space-y-4">
             <div class="flex items-center justify-between border-b border-outline-variant pb-3">
                 <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-xl">account_tree</span>
+                    <span class="material-symbols-outlined text-primary text-xl">hub</span>
                     <div>
                         <h1 class="font-mono text-xs font-bold text-primary tracking-wider uppercase">MACRO_TERMINAL</h1>
-                        <span class="text-[9px] font-mono text-on-surface-variant block">TRANSMISSION COCKPIT</span>
+                        <span class="text-[9px] font-mono text-on-surface-variant block">LIVE TRANSMISSION v3.0</span>
                     </div>
                 </div>
                 <button onclick="toggleSidebar()" class="lg:hidden text-on-surface-variant hover:text-white">
@@ -70,29 +70,23 @@
 
             <!-- Navigation Links -->
             <nav class="space-y-1 font-mono text-xs">
-                <!-- Menu Item 1: ໂຄງຂ່າຍການສົ່ງຜ່ານ (Main Screenshot View) -->
+                <!-- Menu Item 1: ໂຄງຂ່າຍການສົ່ງຜ່ານ Real-Time -->
                 <button onclick="navigate('#/transmission')" id="nav-transmission" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold">
-                    <span class="material-symbols-outlined text-base">hub</span>
-                    <span>1. ໂຄງຂ່າຍການສົ່ງຜ່ານ (TRANSMISSION)</span>
+                    <span class="material-symbols-outlined text-base">account_tree</span>
+                    <span>1. ໂຄງຂ່າຍການສົ່ງຜ່ານ (LIVE ENGINE)</span>
                 </button>
 
                 <!-- Menu Item 2: ສະຫຼຸບເສດຖະກິດ -->
-                <button onclick="navigate('#/digest')" id="nav-digest" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
+                <button onclick="navigate('#/digest')" id="nav-digest" class="w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
                     <span class="material-symbols-outlined text-base">summarize</span>
                     <span>2. ສະຫຼຸບທິດທາງເສດຖະກິດ</span>
-                </button>
-
-                <!-- Menu Item 3: ການຄາດການຂ່າວ -->
-                <button onclick="navigate('#/predictions')" id="nav-predictions" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white">
-                    <span class="material-symbols-outlined text-base">psychology</span>
-                    <span>3. ການຄາດການຄວາມໜ້າຈະເປັນ</span>
                 </button>
             </nav>
         </div>
 
         <div class="p-3 border-t border-outline-variant bg-surface-low font-mono text-xs space-y-2">
             <div class="flex justify-between items-center text-[10px]">
-                <span class="text-on-surface-variant">HIGH IMPACT FEED:</span>
+                <span class="text-on-surface-variant">HIGH IMPACT:</span>
                 <span class="text-red-400 font-bold">🟥 ກ່ອງແດງ ACTIVE</span>
             </div>
             <button onclick="fetchMacroData()" class="w-full py-1.5 bg-primary text-black font-bold text-center hover:bg-white transition-colors text-[11px] flex items-center justify-center gap-1">
@@ -117,7 +111,7 @@
                     <span class="material-symbols-outlined text-xl">menu</span>
                 </button>
                 <span id="current-view-title" class="font-mono text-xs font-bold text-primary uppercase">
-                    1. ໂຄງຂ່າຍການສົ່ງຜ່ານ &amp; SCENARIO ENGINE (TRANSMISSION MECHANISM)
+                    1. ໂຄງຂ່າຍການສົ່ງຜ່ານ &amp; SCENARIO ENGINE (DYNAMIC LIVE)
                 </span>
             </div>
             <span id="disp-cycle-time" class="text-[10px] font-mono text-on-surface-variant hidden sm:inline">
@@ -128,53 +122,58 @@
         <main class="flex-1 p-3 md:p-4 max-w-[1500px] w-full mx-auto space-y-3">
             
             <!-- ============================================================== -->
-            <!-- VIEW 1: TRANSMISSION MECHANISM & SCENARIO ENGINE (SCREENSHOT)  -->
+            <!-- VIEW 1: DYNAMIC TRANSMISSION & SCENARIO ENGINE                 -->
             <!-- ============================================================== -->
             <div id="view-transmission" class="space-y-3">
                 
-                <!-- Red Box Active Event Header Card -->
+                <!-- Quick Event Selector Buttons for High-Impact Events -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 font-mono text-xs" id="event-selector-bar">
+                    <!-- Injected dynamically based on Forex Factory Red Events -->
+                </div>
+
+                <!-- Active Event Header Card -->
                 <div class="bg-surface-low border border-outline-variant p-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div>
                         <div class="flex items-center gap-2">
                             <span class="px-2 py-0.5 text-[10px] font-mono font-bold bg-red-500/20 text-red-400 border border-red-500/40 rounded">
                                 🟥 ກ່ອງແດງ HIGH IMPACT
                             </span>
-                            <span class="text-xs font-mono text-on-surface-variant" id="red-event-date">ວັນສຸກ • 19:30 (GMT+7)</span>
+                            <span class="text-xs font-mono text-on-surface-variant" id="active-event-date">--</span>
                         </div>
-                        <h2 id="red-event-title" class="text-base md:text-lg font-bold text-white mt-1">
-                            Non-Farm Employment Change (NFP)
+                        <h2 id="active-event-title" class="text-base md:text-lg font-bold text-white mt-1">
+                            --
                         </h2>
                     </div>
 
                     <div class="flex gap-4 font-mono text-xs">
                         <div class="bg-surface-container p-2 px-3 border border-outline-variant rounded">
                             <span class="text-[10px] text-on-surface-variant block">FORECAST</span>
-                            <strong id="red-event-forecast" class="text-primary text-sm font-bold">140K</strong>
+                            <strong id="active-event-forecast" class="text-primary text-sm font-bold">--</strong>
                         </div>
                         <div class="bg-surface-container p-2 px-3 border border-outline-variant rounded">
                             <span class="text-[10px] text-on-surface-variant block">PREVIOUS</span>
-                            <strong id="red-event-previous" class="text-white text-sm font-bold">165K</strong>
+                            <strong id="active-event-previous" class="text-white text-sm font-bold">--</strong>
                         </div>
                     </div>
                 </div>
 
-                <!-- Main Transmission Grid (Matches Screenshot) -->
+                <!-- Main Transmission Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
                     
                     <!-- Left Column: Scenario Engine & Market Bias (7 Cols) -->
                     <div class="lg:col-span-7 space-y-3">
                         
-                        <!-- SCENARIO ENGINE -->
+                        <!-- SCENARIO ENGINE (Calculated dynamically for this event) -->
                         <div class="space-y-2">
                             <div class="font-mono text-xs font-bold text-on-surface-variant uppercase px-1">
-                                SCENARIO ENGINE
+                                SCENARIO ENGINE (DYNAMIC FOR THIS EVENT)
                             </div>
 
-                            <!-- Scenario 1: Above -->
+                            <!-- Above -->
                             <div onclick="selectScenario('ABOVE')" id="scen-above-card" class="bg-surface-container rounded-lg p-3.5 border-l-4 border-tertiary hover:bg-surface-high transition-colors cursor-pointer">
                                 <div class="flex justify-between items-start mb-2">
-                                    <div class="font-mono text-xs font-bold text-white">ABOVE EXPECTATION (> 200K)</div>
-                                    <span class="font-mono text-[10px] font-bold bg-green-900/40 text-tertiary px-2 py-0.5 rounded border border-tertiary/30">Strong Labor State</span>
+                                    <div class="font-mono text-xs font-bold text-white" id="scen-above-title">ABOVE EXPECTATION</div>
+                                    <span id="scen-above-tag" class="font-mono text-[10px] font-bold bg-green-900/40 text-tertiary px-2 py-0.5 rounded border border-tertiary/30">Hawkish Bias</span>
                                 </div>
                                 <div class="flex flex-wrap gap-4 mt-2 font-mono text-xs">
                                     <span class="text-tertiary flex items-center gap-0.5">Hawkish Bias <span class="material-symbols-outlined text-[14px]">arrow_upward</span></span>
@@ -183,20 +182,20 @@
                                 </div>
                             </div>
 
-                            <!-- Scenario 2: In Line -->
+                            <!-- In Line -->
                             <div onclick="selectScenario('IN_LINE')" id="scen-inline-card" class="bg-surface-container rounded-lg p-3.5 border-l-4 border-primary hover:bg-surface-high transition-colors cursor-pointer">
                                 <div class="flex justify-between items-start mb-1">
-                                    <div class="font-mono text-xs font-bold text-white">IN LINE (150K-190K)</div>
-                                    <span class="font-mono text-[10px] font-bold bg-blue-900/40 text-primary px-2 py-0.5 rounded border border-primary/30">Neutral</span>
+                                    <div class="font-mono text-xs font-bold text-white" id="scen-inline-title">IN LINE</div>
+                                    <span id="scen-inline-tag" class="font-mono text-[10px] font-bold bg-blue-900/40 text-primary px-2 py-0.5 rounded border border-primary/30">Neutral</span>
                                 </div>
-                                <p class="font-mono text-xs text-on-surface-variant mt-2">Minimal State Change — Regime Holds.</p>
+                                <p class="font-mono text-xs text-on-surface-variant mt-2">Minimal State Change — Current Stance Holds.</p>
                             </div>
 
-                            <!-- Scenario 3: Below -->
+                            <!-- Below -->
                             <div onclick="selectScenario('BELOW')" id="scen-below-card" class="bg-surface-container rounded-lg p-3.5 border-l-4 border-error hover:bg-surface-high transition-colors cursor-pointer">
                                 <div class="flex justify-between items-start mb-2">
-                                    <div class="font-mono text-xs font-bold text-white">BELOW EXPECTATION (< 150K)</div>
-                                    <span class="font-mono text-[10px] font-bold bg-red-900/40 text-error px-2 py-0.5 rounded border border-error/30">Weak Labor State</span>
+                                    <div class="font-mono text-xs font-bold text-white" id="scen-below-title">BELOW EXPECTATION</div>
+                                    <span id="scen-below-tag" class="font-mono text-[10px] font-bold bg-red-900/40 text-error px-2 py-0.5 rounded border border-error/30">Dovish Shift</span>
                                 </div>
                                 <div class="flex flex-wrap gap-4 mt-2 font-mono text-xs">
                                     <span class="text-tertiary flex items-center gap-0.5">Dovish Bias <span class="material-symbols-outlined text-[14px]">arrow_upward</span></span>
@@ -206,7 +205,7 @@
                             </div>
                         </div>
 
-                        <!-- MARKET FUNDAMENTAL BIAS (Matches Screenshot) -->
+                        <!-- MARKET FUNDAMENTAL BIAS -->
                         <div class="bg-surface-low border border-outline-variant rounded-lg p-3.5 space-y-2.5">
                             <div class="font-mono text-xs font-bold text-on-surface-variant uppercase">
                                 MARKET FUNDAMENTAL BIAS
@@ -225,72 +224,60 @@
                             </div>
                         </div>
 
-                        <!-- MACRO CONFLICT ALERT (Matches Screenshot) -->
-                        <div class="bg-surface-low rounded-lg p-3.5 border-l-4 border-l-error border-y border-r border-outline-variant space-y-1.5">
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-error text-base">warning</span>
-                                <span class="font-mono text-xs font-bold text-error uppercase">MACRO CONFLICT ALERT</span>
-                            </div>
-                            <p class="text-xs text-on-surface">
-                                Headline Labor <span class="text-tertiary font-bold">STRONG</span> vs Underlying <span class="text-error font-bold">COOLING</span>
-                            </p>
-                        </div>
-
                     </div>
 
-                    <!-- Right Column: TRANSMISSION MECHANISM FLOWCHART (5 Cols) -->
+                    <!-- Right Column: DYNAMIC TRANSMISSION FLOWCHART (5 Cols) -->
                     <div class="lg:col-span-5">
                         <div class="bg-surface-low rounded-lg p-4 border border-outline-variant h-full flex flex-col justify-between relative overflow-hidden">
                             
                             <div class="font-mono text-xs font-bold text-primary uppercase mb-3 flex items-center justify-between">
                                 <span>TRANSMISSION MECHANISM</span>
-                                <span id="trans-state-badge" class="text-[9px] bg-primary/20 text-primary px-2 py-0.5 rounded font-bold">HAWKISH FLOW</span>
+                                <span id="trans-state-badge" class="text-[9px] bg-primary/20 text-primary px-2 py-0.5 rounded font-bold">LIVE EVENT CHAIN</span>
                             </div>
 
-                            <!-- Network Flowchart Diagram (Matches Screenshot) -->
-                            <div class="flex flex-col items-center gap-4 py-2 relative z-10 font-mono text-xs">
+                            <!-- Network Flowchart Diagram (Dynamic Nodes!) -->
+                            <div id="dynamic-nodes-container" class="flex flex-col items-center gap-4 py-2 relative z-10 font-mono text-xs">
                                 
-                                <!-- Background Animated Line Flow -->
                                 <div class="absolute top-6 bottom-6 left-1/2 w-0.5 bg-outline-variant -translate-x-1/2 -z-10">
                                     <svg class="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none">
                                         <line class="line-flow" stroke="#8ed5ff" stroke-width="2" x1="0" y1="0" x2="0" y2="100%"></line>
                                     </svg>
                                 </div>
 
-                                <!-- Node 1: LABOR MKT -->
-                                <div id="node-labor" class="bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
-                                    <span class="material-symbols-outlined text-primary text-base">engineering</span>
-                                    <span class="font-bold text-white">LABOR MKT</span>
+                                <!-- Node 1 -->
+                                <div id="node-1" class="bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                                    <span class="material-symbols-outlined text-primary text-base" id="node-1-icon">engineering</span>
+                                    <span class="font-bold text-white" id="node-1-text">EVENT DATA</span>
                                 </div>
 
-                                <!-- Node 2: FED BIAS -->
-                                <div id="node-fed" class="bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                                <!-- Node 2 -->
+                                <div id="node-2" class="bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
                                     <span class="material-symbols-outlined text-primary text-base">account_balance</span>
-                                    <span class="font-bold text-white">FED BIAS</span>
+                                    <span class="font-bold text-white" id="node-2-text">FED BIAS</span>
                                 </div>
 
-                                <!-- Node 3: USD / YIELD -->
-                                <div id="node-usdyield" class="bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                                <!-- Node 3 -->
+                                <div id="node-3" class="bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
                                     <span class="material-symbols-outlined text-tertiary text-base">payments</span>
-                                    <span class="font-bold text-white">USD/YIELD</span>
+                                    <span class="font-bold text-white" id="node-3-text">USD / YIELD</span>
                                 </div>
 
-                                <!-- Node 4: 10Y YIELD -->
-                                <div id="node-10y" class="bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                                <!-- Node 4 -->
+                                <div id="node-4" class="bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
                                     <span class="material-symbols-outlined text-tertiary text-base">show_chart</span>
-                                    <span class="font-bold text-white">10Y YIELD</span>
+                                    <span class="font-bold text-white" id="node-4-text">10Y YIELD</span>
                                 </div>
 
-                                <!-- Node 5: GOLD -->
-                                <div id="node-gold" class="bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                                <!-- Node 5 -->
+                                <div id="node-5" class="bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
                                     <span class="material-symbols-outlined text-error text-base">diamond</span>
-                                    <span class="font-bold text-white">GOLD</span>
+                                    <span class="font-bold text-white" id="node-5-text">GOLD</span>
                                 </div>
 
                             </div>
 
                             <div class="text-[10px] font-mono text-on-surface-variant text-center pt-2 border-t border-outline-variant">
-                                Live Node Synchronization Active
+                                Real-Time Feed Linked to Forex Factory
                             </div>
 
                         </div>
@@ -354,23 +341,14 @@
                 </div>
             </div>
 
-            <!-- ============================================================== -->
-            <!-- VIEW 3: ການຄາດການຄວາມໜ້າຈະເປັນ (#/predictions)                -->
-            <!-- ============================================================== -->
-            <div id="view-predictions" class="space-y-3 hidden">
-                <div class="bg-surface-low border border-outline-variant p-3 font-mono text-xs font-bold text-primary uppercase">
-                    🔮 ແຜງຄາດການຄວາມໜ້າຈະເປັນຂອງຂ່າວທີ່ຈະອອກ (UPCOMING PROBABILITY FORECAST)
-                </div>
-                <div id="predictions-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <!-- Injected dynamically -->
-                </div>
-            </div>
-
         </main>
     </div>
 
     <!-- CLIENT SCRIPT -->
     <script>
+        let globalMacroData = null;
+        let selectedEventIndex = 0;
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
@@ -389,11 +367,11 @@
         function handleRoute() {
             const hash = window.location.hash || '#/transmission';
             
-            ['view-transmission', 'view-digest', 'view-predictions'].forEach(id => {
+            ['view-transmission', 'view-digest'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
             });
 
-            ['nav-transmission', 'nav-digest', 'nav-predictions'].forEach(id => {
+            ['nav-transmission', 'nav-digest'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors text-on-surface-variant hover:bg-surface-container hover:text-white font-mono text-xs';
             });
@@ -404,24 +382,60 @@
                 document.getElementById('view-digest').classList.remove('hidden');
                 document.getElementById('nav-digest').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
                 titleEl.innerText = '2. ສະຫຼຸບທິດທາງເສດຖະກິດ (PLAIN MACRO DIGEST)';
-            } else if (hash === '#/predictions') {
-                document.getElementById('view-predictions').classList.remove('hidden');
-                document.getElementById('nav-predictions').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
-                titleEl.innerText = '3. ການຄາດການຄວາມໜ້າຈະເປັນ (PROBABILITY FORECAST)';
             } else {
                 document.getElementById('view-transmission').classList.remove('hidden');
                 document.getElementById('nav-transmission').className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-colors bg-primary/10 border-l-2 border-primary text-primary font-bold font-mono text-xs';
-                titleEl.innerText = '1. ໂຄງຂ່າຍການສົ່ງຜ່ານ & SCENARIO ENGINE (TRANSMISSION MECHANISM)';
+                titleEl.innerText = '1. ໂຄງຂ່າຍການສົ່ງຜ່ານ & SCENARIO ENGINE (DYNAMIC LIVE)';
             }
         }
 
-        // Scenario Engine Click Handler
+        function switchActiveEvent(idx) {
+            selectedEventIndex = idx;
+            renderActiveTransmissionEvent();
+        }
+
+        function renderActiveTransmissionEvent() {
+            if (!globalMacroData || !globalMacroData.allHighImpactEvents) return;
+            const evt = globalMacroData.allHighImpactEvents[selectedEventIndex] || globalMacroData.activeEvent;
+            const m = evt.transmissionModel;
+
+            document.getElementById('active-event-title').innerText = evt.title;
+            document.getElementById('active-event-forecast').innerText = evt.forecast;
+            document.getElementById('active-event-previous').innerText = evt.previous;
+            document.getElementById('active-event-date').innerText = `${evt.dateGMT7} • ${evt.timeGMT7}`;
+
+            // Scenarios
+            document.getElementById('scen-above-title').innerText = m.scenarios.above.title;
+            document.getElementById('scen-above-tag').innerText = m.scenarios.above.state;
+            document.getElementById('scen-inline-title').innerText = m.scenarios.inline.title;
+            document.getElementById('scen-inline-tag').innerText = m.scenarios.inline.state;
+            document.getElementById('scen-below-title').innerText = m.scenarios.below.title;
+            document.getElementById('scen-below-tag').innerText = m.scenarios.below.state;
+
+            // Nodes
+            document.getElementById('node-1-text').innerText = m.nodes[0].name;
+            document.getElementById('node-1-icon').innerText = m.nodes[0].icon;
+            document.getElementById('node-2-text').innerText = m.nodes[1].name;
+            document.getElementById('node-3-text').innerText = m.nodes[2].name;
+            document.getElementById('node-4-text').innerText = m.nodes[3].name;
+            document.getElementById('node-5-text').innerText = m.nodes[4].name;
+
+            // Update Event Switcher Bar
+            const bar = document.getElementById('event-selector-bar');
+            bar.innerHTML = globalMacroData.allHighImpactEvents.map((e, i) => `
+                <button onclick="switchActiveEvent(${i})" class="px-2.5 py-1 rounded whitespace-nowrap font-bold transition-all ${i === selectedEventIndex ? 'bg-primary text-black' : 'bg-surface-container text-on-surface-variant hover:text-white'}">
+                    ${e.title} (${e.forecast})
+                </button>
+            `).join('');
+        }
+
+        // Scenario Click Handler
         function selectScenario(type) {
-            const nodeLabor = document.getElementById('node-labor');
-            const nodeFed = document.getElementById('node-fed');
-            const nodeUsdYield = document.getElementById('node-usdyield');
-            const node10y = document.getElementById('node-10y');
-            const nodeGold = document.getElementById('node-gold');
+            const n1 = document.getElementById('node-1');
+            const n2 = document.getElementById('node-2');
+            const n3 = document.getElementById('node-3');
+            const n4 = document.getElementById('node-4');
+            const n5 = document.getElementById('node-5');
             const badge = document.getElementById('trans-state-badge');
             const usdTag = document.getElementById('bias-usd-tag');
             const goldTag = document.getElementById('bias-gold-tag');
@@ -429,13 +443,8 @@
             if (type === 'ABOVE') {
                 badge.innerText = 'HAWKISH FLOW (BEAT)';
                 badge.className = 'text-[9px] bg-tertiary/20 text-tertiary border border-tertiary/40 px-2 py-0.5 rounded font-bold';
-                
-                nodeLabor.className = 'bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-                nodeFed.className = 'bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-                nodeUsdYield.className = 'bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-                node10y.className = 'bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-                nodeGold.className = 'bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-
+                [n1, n2, n3, n4].forEach(n => n.className = 'bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg');
+                n5.className = 'bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
                 usdTag.innerText = 'BULLISH ↑';
                 usdTag.className = 'font-mono text-xs font-bold text-tertiary';
                 goldTag.innerText = 'BEARISH ↓';
@@ -443,13 +452,8 @@
             } else if (type === 'BELOW') {
                 badge.innerText = 'DOVISH FLOW (MISS)';
                 badge.className = 'text-[9px] bg-error/20 text-error border border-error/40 px-2 py-0.5 rounded font-bold';
-
-                nodeLabor.className = 'bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-                nodeFed.className = 'bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-                nodeUsdYield.className = 'bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-                node10y.className = 'bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-                nodeGold.className = 'bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-
+                [n1, n2, n3, n4].forEach(n => n.className = 'bg-surface-container border-2 border-error px-5 py-2 rounded-full flex items-center gap-2 shadow-lg');
+                n5.className = 'bg-surface-container border-2 border-tertiary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
                 usdTag.innerText = 'BEARISH ↓';
                 usdTag.className = 'font-mono text-xs font-bold text-error';
                 goldTag.innerText = 'BULLISH ↑';
@@ -457,13 +461,7 @@
             } else {
                 badge.innerText = 'NEUTRAL FLOW (IN LINE)';
                 badge.className = 'text-[9px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded font-bold';
-
-                nodeLabor.className = 'bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-                nodeFed.className = 'bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-                nodeUsdYield.className = 'bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-                node10y.className = 'bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-                nodeGold.className = 'bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg';
-
+                [n1, n2, n3, n4, n5].forEach(n => n.className = 'bg-surface-container border-2 border-primary px-5 py-2 rounded-full flex items-center gap-2 shadow-lg');
                 usdTag.innerText = 'NEUTRAL —';
                 usdTag.className = 'font-mono text-xs font-bold text-primary';
                 goldTag.innerText = 'NEUTRAL —';
@@ -475,7 +473,10 @@
             try {
                 const res = await fetch('/api/macro-full-feed');
                 const json = await res.json();
-                if (json.success && json.data) renderUI(json.data);
+                if (json.success && json.data) {
+                    globalMacroData = json.data;
+                    renderUI(json.data);
+                }
             } catch (err) {
                 console.error(err);
             }
@@ -483,15 +484,9 @@
 
         function renderUI(d) {
             document.getElementById('disp-cycle-time').innerText = d.currentCycleLao;
-            
-            // 1. Red Event Header
-            const evt = d.activeRedEvent;
-            document.getElementById('red-event-title').innerText = evt.title;
-            document.getElementById('red-event-forecast').innerText = evt.forecast;
-            document.getElementById('red-event-previous').innerText = evt.previous;
-            document.getElementById('red-event-date').innerText = evt.dateGMT7;
+            renderActiveTransmissionEvent();
 
-            // 2. Render Digest
+            // Render Digest
             const digest = d.plainDigest;
             document.getElementById('txt-big-picture').innerText = digest.bigPictureSummary;
 
@@ -518,55 +513,6 @@
                         </div>
                     </div>
                     <p class="text-xs text-on-surface leading-relaxed whitespace-pre-line font-sans">${item.ans}</p>
-                </div>
-            `).join('');
-
-            // 3. Render Predictions
-            const predGrid = document.getElementById('predictions-grid');
-            predGrid.innerHTML = d.upcomingPredictions.map(p => `
-                <div class="bg-surface p-3.5 border border-outline-variant space-y-2.5 flex flex-col justify-between">
-                    <div>
-                        <div class="flex justify-between items-start border-b border-outline-variant pb-2">
-                            <div>
-                                <span class="text-xs font-bold text-white block">${p.title}</span>
-                                <span class="text-[10px] font-mono text-primary font-bold">${p.dateGMT7} • ${p.timeGMT7}</span>
-                            </div>
-                            <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 ${p.impact === 'High' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'}">
-                                ${p.impact === 'High' ? '🟥 ແດງ' : '🟧 ສົ້ມ'}
-                            </span>
-                        </div>
-
-                        <div class="flex justify-between text-[11px] font-mono text-on-surface-variant my-2">
-                            <span>ຄາດການ: <strong class="text-white">${p.forecast}</strong></span>
-                            <span>ກ່ອນໜ້າ: <strong>${p.previous}</strong></span>
-                        </div>
-
-                        <div class="space-y-1.5 font-mono text-[11px]">
-                            <div>
-                                <div class="flex justify-between text-[10px] mb-0.5">
-                                    <span class="text-error font-bold">🔥 ໂອກາດສູງກວ່າຄາດ:</span>
-                                    <span class="font-bold text-error">${p.probAbove}%</span>
-                                </div>
-                                <div class="w-full bg-surface-low h-1.5 border border-outline-variant">
-                                    <div class="bg-error h-full" style="width: ${p.probAbove}%;"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-[10px] mb-0.5">
-                                    <span class="text-primary">↔️ ໂອກາດຕາມຄາດ:</span>
-                                    <span class="font-bold text-primary">${p.probInline}%</span>
-                                </div>
-                                <div class="w-full bg-surface-low h-1.5 border border-outline-variant">
-                                    <div class="bg-primary h-full" style="width: ${p.probInline}%;"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-2.5 bg-surface-low border border-outline-variant text-xs text-on-surface leading-relaxed mt-2">
-                        <div class="text-[10px] font-bold text-primary mb-1">💡 ວິເຄາະຈາກຕົວເລກກ່ອນໜ້າ:</div>
-                        <p class="text-[11px] text-on-surface-variant">${p.reasoning}</p>
-                    </div>
                 </div>
             `).join('');
         }
