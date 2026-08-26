@@ -3,10 +3,10 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>FOREX FACTORY PRO // GMT+7 Macro Terminal</title>
+    <title>MACRO_TERMINAL // Macro Narrative &amp; Probability Chain</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Noto+Sans+Lao:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
     
     <script id="tailwind-config">
         tailwind.config = {
@@ -14,6 +14,7 @@
             theme: {
                 extend: {
                     colors: {
+                        "surface-dim": "#0c1324",
                         "surface": "#0c1324",
                         "surface-low": "#151b2d",
                         "surface-container": "#191f31",
@@ -25,74 +26,199 @@
                         "on-surface": "#dce1fb",
                         "on-surface-variant": "#bdc8d1"
                     },
+                    borderRadius: { "DEFAULT": "0px", "sm": "0px", "md": "2px", "lg": "2px" },
                     fontFamily: {
-                        sans: ['Inter', 'Noto Sans Lao', 'sans-serif'],
+                        sans: ['Noto Sans Lao', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace']
                     }
                 }
             }
         }
     </script>
+    <style>
+        body { 
+            background-color: #0c1324; 
+            color: #dce1fb; 
+            font-family: 'Noto Sans Lao', sans-serif; 
+        }
+        * { font-family: 'Noto Sans Lao', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace !important; }
+    </style>
 </head>
 <body class="bg-[#0c1324] text-[#dce1fb] min-h-screen flex flex-col font-sans selection:bg-primary selection:text-black">
 
-    <!-- 1. TOP APP BAR (GMT+7 CLOCK & SYNC) -->
+    <!-- 1. TOP COMMAND BAR -->
     <header class="fixed top-0 left-0 w-full h-11 z-50 flex items-center justify-between px-3 bg-surface border-b border-outline-variant select-none">
         <div class="flex items-center gap-3">
-            <div class="flex items-center gap-1.5 cursor-pointer" onclick="navigate('#/released')">
-                <span class="material-symbols-outlined text-primary text-[18px]">rss_feed</span>
-                <h1 class="font-mono text-xs font-bold text-primary tracking-wider uppercase">FOREX_FACTORY // GMT+7 TERMINAL</h1>
+            <div class="flex items-center gap-1.5 cursor-pointer" onclick="navigate('#/narrative')">
+                <span class="material-symbols-outlined text-primary text-[18px]">account_tree</span>
+                <h1 class="font-mono text-xs font-bold text-primary tracking-wider uppercase">MACRO_NARRATIVE_CHAIN</h1>
             </div>
 
+            <!-- Navigation Tabs -->
             <nav class="hidden md:flex items-center h-full ml-4 font-mono text-[11px]">
-                <button onclick="navigate('#/released')" id="tab-released" class="h-11 px-3 flex items-center text-primary border-b-2 border-primary font-bold bg-surface-low">⚡ ປະກາດແລ້ວ (RELEASED)</button>
-                <button onclick="navigate('#/upcoming')" id="tab-upcoming" class="h-11 px-3 flex items-center text-on-surface-variant hover:bg-surface-container transition-colors">🔮 ຄວາມໜ້າຈະເປັນຂ່າວຖັດໄປ (PROBABILITY)</button>
-                <button onclick="navigate('#/calendar')" id="tab-calendar" class="h-11 px-3 flex items-center text-on-surface-variant hover:bg-surface-container transition-colors">📅 ຂ່າວກ່ອງແດງ &amp; ສົ້ມ (COMING NEWS)</button>
+                <button onclick="navigate('#/narrative')" id="tab-narrative" class="h-11 px-3 flex items-center text-primary border-b-2 border-primary font-bold bg-surface-low">🔗 ການປະຕິດປະຕໍ່ຂ່າວ (MACRO CHAIN)</button>
+                <button onclick="navigate('#/predictions')" id="tab-predictions" class="h-11 px-3 flex items-center text-on-surface-variant hover:bg-surface-container transition-colors">🔮 ຄາດການຄວາມໜ້າຈະເປັນ (CORE PCE / GDP)</button>
+                <button onclick="navigate('#/calendar')" id="tab-calendar" class="h-11 px-3 flex items-center text-on-surface-variant hover:bg-surface-container transition-colors">📅 ຂ່າວກ່ອງແດງ-ສົ້ມ GMT+7</button>
             </nav>
         </div>
 
         <div class="flex items-center gap-2 font-mono text-xs">
-            <span class="text-[10px] text-primary bg-primary/10 border border-primary/30 px-2 py-0.5 hidden sm:inline">
-                🕒 <span id="clock-gmt7">GMT+7</span>
-            </span>
-            <button onclick="fetchLiveData()" class="flex items-center gap-1 px-3 py-1 bg-primary text-black font-bold hover:bg-white transition-colors text-[11px]">
+            <button onclick="fetchMacroData()" class="flex items-center gap-1 px-3 py-1 bg-primary text-black font-bold hover:bg-white transition-colors text-[11px]">
                 <span class="material-symbols-outlined text-[14px]">refresh</span>
-                <span>SYNC LIVE</span>
+                <span>SYNC LIVE DATA</span>
             </button>
         </div>
     </header>
 
-    <!-- 2. MAIN CONTAINER -->
+    <!-- 2. MAIN WORKSPACE -->
     <main class="flex-1 p-3 max-w-[1600px] mx-auto w-full pt-14 pb-12 space-y-3">
         
-        <!-- ============================================================== -->
-        <!-- VIEW 1: LATEST RELEASED & AUTO-SYNTHESIS (#/released)          -->
-        <!-- ============================================================== -->
-        <div id="view-released" class="space-y-3">
-            
-            <!-- Summary Banner -->
-            <div class="bg-surface-high border-l-4 border-l-primary border-y border-r border-outline-variant p-4">
-                <div class="flex items-center gap-2 font-mono text-xs font-bold text-primary mb-1">
-                    <span class="material-symbols-outlined text-base">auto_awesome</span>
-                    <span>ສະຫຼຸບຕົວເລກຫຼ້າສຸດຈາກ FOREX FACTORY (LIVE AUTO-SYNTHESIS)</span>
+        <!-- METADATA & PERIOD HEADER (ລະບຸຊ່ວງເວລາຂອງຂໍ້ມູນຊັດເຈນ) -->
+        <div class="bg-surface-high border border-outline-variant p-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+            <div>
+                <div class="flex items-center gap-2 font-mono">
+                    <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+                    <span class="text-[10px] font-bold text-primary tracking-wider uppercase">LIVE MACRO REASONING ENGINE</span>
                 </div>
-                <p id="txt-summary" class="text-sm text-white font-medium leading-relaxed">
-                    ກຳລັງດຶງຂໍ້ມູນຫຼ້າສຸດຈາກ Forex Factory...
-                </p>
+                <h2 id="disp-data-period" class="text-sm md:text-base font-bold text-white mt-0.5">
+                    ກຳລັງໂຫຼດຮອບຂໍ້ມູນ...
+                </h2>
+            </div>
+            <div class="text-right">
+                <span class="text-[11px] font-mono bg-surface border border-outline-variant px-3 py-1 text-primary">
+                    🕒 ເວລາປະມວນຜົນ: <strong id="disp-generated-at">--</strong>
+                </span>
+            </div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- VIEW 1: CHRONOLOGICAL MACRO NARRATIVE CHAIN (#/narrative)      -->
+        <!-- ============================================================== -->
+        <div id="view-narrative" class="space-y-3">
+            
+            <div class="bg-surface border border-outline-variant p-4 space-y-3">
+                <div class="flex justify-between items-center border-b border-outline-variant pb-2 font-mono text-xs">
+                    <span class="font-bold text-primary uppercase flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-base">timeline</span>
+                        <span>ການປະຕິດປະຕໍ່ຂ່າວຈາກຕົວເລກທີ່ທະຍອຍປະກາດ (CAUSE-AND-EFFECT STORY CHAIN)</span>
+                    </span>
+                    <span class="text-[10px] text-on-surface-variant">REAL-TIME SYNTHESIS</span>
+                </div>
+
+                <!-- Story Timeline Steps Container -->
+                <div id="timeline-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                    <!-- Injected via JavaScript -->
+                </div>
             </div>
 
-            <!-- Released Data Matrix (Red & Orange) -->
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- VIEW 2: UPCOMING PROBABILITY INFERENCE (#/predictions)         -->
+        <!-- ============================================================== -->
+        <div id="view-predictions" class="space-y-3 hidden">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                
+                <!-- Card 1: Core PCE Price Index m/m -->
+                <div class="bg-surface p-4 border border-outline-variant space-y-3">
+                    <div class="flex justify-between items-center border-b border-outline-variant pb-2">
+                        <div>
+                            <span class="text-xs font-bold text-primary block">1. ປະເມີນ Core PCE Price Index m/m</span>
+                            <span class="text-[10px] font-mono text-on-surface-variant">ຄາດການ: <strong>0.2%</strong> | ກ່ອນໜ້າ: <strong>0.1%</strong></span>
+                        </div>
+                        <span class="text-[10px] font-mono bg-red-500/20 text-red-400 px-2 py-0.5 border border-red-500/30 font-bold">🟥 ກ່ອງແດງ HIGH</span>
+                    </div>
+
+                    <!-- Probability Bars -->
+                    <div class="space-y-2 font-mono text-xs">
+                        <div>
+                            <div class="flex justify-between text-[11px] mb-1">
+                                <span class="text-error font-bold">🔥 ໂອກາດສູງກວ່າ ຫຼື ເທົ່າກັບຄາດ (≥ 0.2%):</span>
+                                <span id="val-pce-above" class="font-bold text-error">65%</span>
+                            </div>
+                            <div class="w-full bg-surface-low h-2 border border-outline-variant">
+                                <div id="bar-pce-above" class="bg-error h-full" style="width: 65%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-[11px] mb-1">
+                                <span class="text-primary">↔️ ໂອກາດຊົງຕົວຕາມເກົ່າ (0.1%):</span>
+                                <span id="val-pce-inline" class="font-bold text-primary">25%</span>
+                            </div>
+                            <div class="w-full bg-surface-low h-2 border border-outline-variant">
+                                <div id="bar-pce-inline" class="bg-primary h-full" style="width: 25%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-surface-low border border-outline-variant">
+                        <div class="text-[11px] font-bold text-primary mb-1">💡 ວິເຄາະເຊື່ອມໂຍງຈາກຕົວເລກກ່ອນໜ້າ:</div>
+                        <p id="txt-pce-reason" class="text-xs text-on-surface leading-relaxed">...</p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Prelim GDP q/q -->
+                <div class="bg-surface p-4 border border-outline-variant space-y-3">
+                    <div class="flex justify-between items-center border-b border-outline-variant pb-2">
+                        <div>
+                            <span class="text-xs font-bold text-tertiary block">2. ປະເມີນ GDP ຂັ້ນຕົ້ນ (Prelim GDP q/q)</span>
+                            <span class="text-[10px] font-mono text-on-surface-variant">ຄາດການ: <strong>1.5%</strong> | ກ່ອນໜ້າ: <strong>1.5%</strong></span>
+                        </div>
+                        <span class="text-[10px] font-mono bg-red-500/20 text-red-400 px-2 py-0.5 border border-red-500/30 font-bold">🟥 ກ່ອງແດງ HIGH</span>
+                    </div>
+
+                    <!-- Probability Bars -->
+                    <div class="space-y-2 font-mono text-xs">
+                        <div>
+                            <div class="flex justify-between text-[11px] mb-1">
+                                <span class="text-primary font-bold">📈 ໂອກາດຊົງຕົວ ຫຼື ດີກວ່າຄາດ (≥ 1.5%):</span>
+                                <span id="val-gdp-above" class="font-bold text-primary">55%</span>
+                            </div>
+                            <div class="w-full bg-surface-low h-2 border border-outline-variant">
+                                <div id="bar-gdp-above" class="bg-primary h-full" style="width: 55%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-[11px] mb-1">
+                                <span class="text-tertiary">📉 ໂອກາດຊະລໍຕົວລົງ (< 1.5%):</span>
+                                <span id="val-gdp-inline" class="font-bold text-tertiary">35%</span>
+                            </div>
+                            <div class="w-full bg-surface-low h-2 border border-outline-variant">
+                                <div id="bar-gdp-inline" class="bg-tertiary h-full" style="width: 35%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-surface-low border border-outline-variant">
+                        <div class="text-[11px] font-bold text-tertiary mb-1">💡 ວິເຄາະເຊື່ອມໂຍງຈາກຕົວເລກກ່ອນໜ້າ:</div>
+                        <p id="txt-gdp-reason" class="text-xs text-on-surface leading-relaxed">...</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- VIEW 3: LIVE FOREX FACTORY CALENDAR (GMT+7) (#/calendar)       -->
+        <!-- ============================================================== -->
+        <div id="view-calendar" class="space-y-3 hidden">
+            
             <div class="bg-surface border border-outline-variant p-3.5 space-y-2">
                 <div class="flex justify-between items-center border-b border-outline-variant pb-2 font-mono text-xs">
-                    <span class="font-bold text-primary uppercase">ລາຍການຂ່າວທີ່ປະກາດແລ້ວຫຼ້າສຸດ (LATEST RELEASED - RED &amp; ORANGE)</span>
-                    <span class="text-[10px] text-on-surface-variant">TIMEZONE: GMT+7 (ລາວ/ໄທ)</span>
+                    <span class="font-bold text-primary uppercase">ຕາຕະລາງຂ່າວແດງ-ສົ້ມ USD ປະຈຳອາທິດ (FOREX FACTORY SYNCED)</span>
+                    <span class="text-[10px] text-on-surface-variant">TIMEZONE: GMT+7 (ໂມງລາວ/ໄທ)</span>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left font-mono text-xs border-collapse">
                         <thead>
                             <tr class="bg-surface-low border-b border-outline-variant text-[10px] text-on-surface-variant uppercase">
-                                <th class="p-2">ເວລາ GMT+7</th>
+                                <th class="p-2">ວັນທີ &amp; ເວລາ GMT+7</th>
                                 <th class="p-2 text-center">ກ່ອງຂ່າວ</th>
                                 <th class="p-2">ຫົວຂໍ້ຂ່າວ (Event)</th>
                                 <th class="p-2 text-right">ປະກາດຈິງ (Actual)</th>
@@ -100,7 +226,7 @@
                                 <th class="p-2 text-right">ກ່ອນໜ້າ (Previous)</th>
                             </tr>
                         </thead>
-                        <tbody id="tbl-released" class="divide-y divide-outline-variant bg-surface">
+                        <tbody id="tbl-all-calendar" class="divide-y divide-outline-variant bg-surface">
                             <!-- Injected dynamically -->
                         </tbody>
                     </table>
@@ -109,243 +235,97 @@
 
         </div>
 
-        <!-- ============================================================== -->
-        <!-- VIEW 2: PROBABILITY INFERENCE FOR UPCOMING NEWS (#/upcoming)   -->
-        <!-- ============================================================== -->
-        <div id="view-upcoming" class="space-y-3 hidden">
-            
-            <div class="bg-surface-high border border-outline-variant p-3 flex justify-between items-center font-mono">
-                <div>
-                    <span class="text-xs font-bold text-primary uppercase">🔮 PROBABILITY FORECAST FOR UPCOMING NEWS</span>
-                    <p class="text-[11px] text-on-surface-variant font-sans">ຄິດໄລ່ຄວາມໜ້າຈະເປັນຂອງຂ່າວທີ່ຈະອອກ ໂດຍວິເຄາະສາຍພົວພັນຈາກຕົວເລກທີ່ປະກາດມາກ່ອນແລ້ວ</p>
-                </div>
-                <span class="text-xs bg-primary text-black font-bold px-2 py-0.5">LEADING INDICATOR MODEL</span>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                
-                <!-- Prediction 1: CPI Inflation -->
-                <div class="bg-surface p-4 border border-outline-variant space-y-3">
-                    <div class="flex justify-between items-center border-b border-outline-variant pb-2">
-                        <span class="font-mono text-xs font-bold text-primary">1. ປະເມີນຄວາມໜ້າຈະເປັນ: ດັດຊະນີເງິນເຟີ້ CPI</span>
-                        <span class="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 border border-red-500/30 font-bold">ກ່ອງແດງ HIGH</span>
-                    </div>
-
-                    <div class="space-y-2 font-mono text-xs">
-                        <div>
-                            <div class="flex justify-between text-[11px] mb-1">
-                                <span class="text-error font-bold">🔥 ໂອກາດຮ້ອນແຮງກວ່າຄາດ (Hot CPI):</span>
-                                <span id="val-cpi-hot" class="font-bold text-error">--</span>
-                            </div>
-                            <div class="w-full bg-surface-low h-2 border border-outline-variant">
-                                <div id="bar-cpi-hot" class="bg-error h-full" style="width: 0%;"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between text-[11px] mb-1">
-                                <span class="text-primary">↔️ ໂອກາດອອກຕາມຄາດ (In-Line):</span>
-                                <span id="val-cpi-inline" class="font-bold text-primary">--</span>
-                            </div>
-                            <div class="w-full bg-surface-low h-2 border border-outline-variant">
-                                <div id="bar-cpi-inline" class="bg-primary h-full" style="width: 0%;"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between text-[11px] mb-1">
-                                <span class="text-tertiary">❄️ ໂອກາດເຢັນລົງກວ່າຄາດ (Cool CPI):</span>
-                                <span id="val-cpi-cool" class="font-bold text-tertiary">--</span>
-                            </div>
-                            <div class="w-full bg-surface-low h-2 border border-outline-variant">
-                                <div id="bar-cpi-cool" class="bg-tertiary h-full" style="width: 0%;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-3 bg-surface-low border border-outline-variant">
-                        <div class="text-[11px] font-bold text-primary mb-1 font-mono">💡 ວິເຄາະເຫດຜົນ (Reasoning):</div>
-                        <p id="txt-cpi-reason" class="text-xs text-on-surface leading-relaxed">...</p>
-                    </div>
-                </div>
-
-                <!-- Prediction 2: FOMC Policy -->
-                <div class="bg-surface p-4 border border-outline-variant space-y-3">
-                    <div class="flex justify-between items-center border-b border-outline-variant pb-2">
-                        <span class="font-mono text-xs font-bold text-tertiary">2. ປະເມີນຄວາມໜ້າຈະເປັນ: ດອກເບ້ຍທະນາຄານກາງ FED (FOMC)</span>
-                        <span class="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 border border-red-500/30 font-bold">ກ່ອງແດງ HIGH</span>
-                    </div>
-
-                    <div class="space-y-2 font-mono text-xs">
-                        <div>
-                            <div class="flex justify-between text-[11px] mb-1">
-                                <span class="text-primary font-bold">🏛️ ຄົງດອກເບ້ຍສູງຕໍ່ໄປ (Hold Rate):</span>
-                                <span id="val-fomc-hold" class="font-bold text-primary">--</span>
-                            </div>
-                            <div class="w-full bg-surface-low h-2 border border-outline-variant">
-                                <div id="bar-fomc-hold" class="bg-primary h-full" style="width: 0%;"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between text-[11px] mb-1">
-                                <span class="text-tertiary">📉 ຫຼຸດດອກເບ້ຍລົງ (-25bps Rate Cut):</span>
-                                <span id="val-fomc-cut" class="font-bold text-tertiary">--</span>
-                            </div>
-                            <div class="w-full bg-surface-low h-2 border border-outline-variant">
-                                <div id="bar-fomc-cut" class="bg-tertiary h-full" style="width: 0%;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-3 bg-surface-low border border-outline-variant">
-                        <div class="text-[11px] font-bold text-tertiary mb-1 font-mono">💡 ວິເຄາະຜົນກະທົບຕໍ່ Fed:</div>
-                        <p id="txt-fomc-reason" class="text-xs text-on-surface leading-relaxed">...</p>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- ============================================================== -->
-        <!-- VIEW 3: COMING NEWS (RED & ORANGE ONLY) (#/calendar)          -->
-        <!-- ============================================================== -->
-        <div id="view-calendar" class="space-y-3 hidden">
-            
-            <div class="bg-surface-high border border-outline-variant p-3 flex justify-between items-center font-mono">
-                <div>
-                    <span class="text-xs font-bold text-primary uppercase">📅 ຕາຕະລາງຂ່າວທີ່ກຳລັງຈະອອກ (COMING NEWS: RED &amp; ORANGE ONLY)</span>
-                    <p class="text-[11px] text-on-surface-variant font-sans">ສະແດງສະເພາະຂ່າວແດງ ແລະ ຂ່າວສົ້ມ USD ຕາມເວລາ GMT+7</p>
-                </div>
-                <span class="text-xs bg-surface border border-outline-variant px-2 py-0.5 text-primary">TIME: GMT+7</span>
-            </div>
-
-            <div class="overflow-x-auto border border-outline-variant">
-                <table class="w-full text-left font-mono text-xs border-collapse">
-                    <thead>
-                        <tr class="bg-surface-low border-b border-outline-variant text-[10px] text-on-surface-variant uppercase">
-                            <th class="p-2.5">ວັນທີ &amp; ເວລາ (GMT+7)</th>
-                            <th class="p-2.5 text-center">ກ່ອງຂ່າວ</th>
-                            <th class="p-2.5">ຫົວຂໍ້ຂ່າວ (Event)</th>
-                            <th class="p-2.5 text-right">ຄາດການ (Forecast)</th>
-                            <th class="p-2.5 text-right">ກ່ອນໜ້າ (Previous)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbl-upcoming" class="divide-y divide-outline-variant bg-surface">
-                        <!-- Injected dynamically -->
-                    </tbody>
-                </table>
-            </div>
-
-        </div>
-
     </main>
 
-    <!-- JAVASCRIPT CONTROLLER -->
+    <!-- 3. CLIENT SCRIPT -->
     <script>
         function navigate(hash) { window.location.hash = hash; }
-        
+
         function handleRoute() {
-            const hash = window.location.hash || '#/released';
-            document.getElementById('view-released').classList.add('hidden');
-            document.getElementById('view-upcoming').classList.add('hidden');
+            const hash = window.location.hash || '#/narrative';
+            document.getElementById('view-narrative').classList.add('hidden');
+            document.getElementById('view-predictions').classList.add('hidden');
             document.getElementById('view-calendar').classList.add('hidden');
 
-            ['tab-released', 'tab-upcoming', 'tab-calendar'].forEach(id => {
+            ['tab-narrative', 'tab-predictions', 'tab-calendar'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.className = 'h-11 px-3 flex items-center text-on-surface-variant hover:bg-surface-container transition-colors';
+                if (el) el.className = 'h-11 px-3 flex items-center text-on-surface-variant hover:bg-surface-container transition-colors font-mono text-[11px]';
             });
 
-            if (hash === '#/upcoming') {
-                document.getElementById('view-upcoming').classList.remove('hidden');
-                document.getElementById('tab-upcoming').className = 'h-11 px-3 flex items-center text-primary border-b-2 border-primary font-bold bg-surface-low';
+            if (hash === '#/predictions') {
+                document.getElementById('view-predictions').classList.remove('hidden');
+                document.getElementById('tab-predictions').className = 'h-11 px-3 flex items-center text-primary border-b-2 border-primary font-bold bg-surface-low font-mono text-[11px]';
             } else if (hash === '#/calendar') {
                 document.getElementById('view-calendar').classList.remove('hidden');
-                document.getElementById('tab-calendar').className = 'h-11 px-3 flex items-center text-primary border-b-2 border-primary font-bold bg-surface-low';
+                document.getElementById('tab-calendar').className = 'h-11 px-3 flex items-center text-primary border-b-2 border-primary font-bold bg-surface-low font-mono text-[11px]';
             } else {
-                document.getElementById('view-released').classList.remove('hidden');
-                document.getElementById('tab-released').className = 'h-11 px-3 flex items-center text-primary border-b-2 border-primary font-bold bg-surface-low';
+                document.getElementById('view-narrative').classList.remove('hidden');
+                document.getElementById('tab-narrative').className = 'h-11 px-3 flex items-center text-primary border-b-2 border-primary font-bold bg-surface-low font-mono text-[11px]';
             }
         }
 
-        async function fetchLiveData() {
+        async function fetchMacroData() {
             try {
-                const res = await fetch('/api/live-forexfactory-feed');
+                const res = await fetch('/api/live-macro-narrative');
                 const json = await res.json();
-                if (json.success) renderUI(json.data);
+                if (json.success) renderDashboard(json.data);
             } catch (err) {
                 console.error(err);
             }
         }
 
-        function renderUI(d) {
-            document.getElementById('clock-gmt7').innerText = `ອັບເດດ: ${d.lastUpdatedGMT7}`;
-            document.getElementById('txt-summary').innerText = d.executiveSummary;
+        function renderDashboard(d) {
+            document.getElementById('disp-data-period').innerText = d.meta.dataPeriod;
+            document.getElementById('disp-generated-at').innerText = d.meta.generatedAtGMT7;
 
-            // 1. Render Released Table (Red & Orange)
-            const relBody = document.getElementById('tbl-released');
-            if (d.releasedEvents.length === 0) {
-                relBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-on-surface-variant">ຍັງບໍ່ມີຂ່າວແດງ/ສົ້ມ ປະກາດໃນຮອບມື້ນີ້</td></tr>`;
-            } else {
-                relBody.innerHTML = d.releasedEvents.map(e => `
-                    <tr class="hover:bg-surface-container transition-colors">
-                        <td class="p-2.5 text-white">${e.dateGMT7} ${e.timeGMT7}</td>
-                        <td class="p-2.5 text-center">
-                            <span class="px-2 py-0.5 text-[10px] font-bold ${e.impact === 'High' ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-orange-500/20 text-orange-400 border border-orange-500/40'}">
-                                ${e.impact === 'High' ? '🟥 ກ່ອງແດງ' : '🟧 ກ່ອງສົ້ມ'}
-                            </span>
-                        </td>
-                        <td class="p-2.5 text-white font-bold">${e.title}</td>
-                        <td class="p-2.5 text-right font-bold text-primary text-sm">${e.actual}</td>
-                        <td class="p-2.5 text-right text-on-surface-variant">${e.forecast}</td>
-                        <td class="p-2.5 text-right text-on-surface-variant">${e.previous}</td>
-                    </tr>
-                `).join('');
-            }
+            // 1. Render Chronological Narrative Chain
+            document.getElementById('timeline-container').innerHTML = d.narrativeChain.map(step => `
+                <div class="bg-surface-low border border-outline-variant p-3.5 space-y-2">
+                    <div class="flex justify-between items-center border-b border-outline-variant pb-1.5">
+                        <span class="text-xs font-bold text-white">${step.step}</span>
+                        <span class="font-mono text-[9px] px-1.5 py-0.5 border font-bold ${step.badgeColor}">${step.badge}</span>
+                    </div>
+                    <p class="text-xs text-on-surface leading-relaxed font-sans">${step.content}</p>
+                </div>
+            `).join('');
 
-            // 2. Render Upcoming Probabilities
-            const cpi = d.probabilities.cpi;
-            document.getElementById('val-cpi-hot').innerText = `${cpi.hot}%`;
-            document.getElementById('bar-cpi-hot').style.width = `${cpi.hot}%`;
-            document.getElementById('val-cpi-inline').innerText = `${cpi.inline}%`;
-            document.getElementById('bar-cpi-inline').style.width = `${cpi.inline}%`;
-            document.getElementById('val-cpi-cool').innerText = `${cpi.cool}%`;
-            document.getElementById('bar-cpi-cool').style.width = `${cpi.cool}%`;
-            document.getElementById('txt-cpi-reason').innerText = cpi.reasoning;
+            // 2. Render Predictions (Core PCE & GDP)
+            const pce = d.upcomingPredictions.corePce.prob;
+            document.getElementById('val-pce-above').innerText = `${pce.above}%`;
+            document.getElementById('bar-pce-above').style.width = `${pce.above}%`;
+            document.getElementById('val-pce-inline').innerText = `${pce.inline}%`;
+            document.getElementById('bar-pce-inline').style.width = `${pce.inline}%`;
+            document.getElementById('txt-pce-reason').innerText = pce.reasoning;
 
-            const fomc = d.probabilities.fomc;
-            document.getElementById('val-fomc-hold').innerText = `${fomc.hold}%`;
-            document.getElementById('bar-fomc-hold').style.width = `${fomc.hold}%`;
-            document.getElementById('val-fomc-cut').innerText = `${fomc.cut}%`;
-            document.getElementById('bar-fomc-cut').style.width = `${fomc.cut}%`;
-            document.getElementById('txt-fomc-reason').innerText = fomc.reasoning;
+            const gdp = d.upcomingPredictions.prelimGdp.prob;
+            document.getElementById('val-gdp-above').innerText = `${gdp.above}%`;
+            document.getElementById('bar-gdp-above').style.width = `${gdp.above}%`;
+            document.getElementById('val-gdp-inline').innerText = `${gdp.inline}%`;
+            document.getElementById('bar-gdp-inline').style.width = `${gdp.inline}%`;
+            document.getElementById('txt-gdp-reason').innerText = gdp.reasoning;
 
-            // 3. Render Coming News Table (Red & Orange)
-            const upBody = document.getElementById('tbl-upcoming');
-            if (d.upcomingEvents.length === 0) {
-                upBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-on-surface-variant">ບໍ່ມີຂ່າວແດງ/ສົ້ມ ທີ່ກຳລັງຈະອອກໃນອາທິດນີ້</td></tr>`;
-            } else {
-                upBody.innerHTML = d.upcomingEvents.map(e => `
-                    <tr class="hover:bg-surface-container transition-colors">
-                        <td class="p-2.5 text-white font-bold">${e.dateGMT7} <span class="text-primary">${e.timeGMT7}</span></td>
-                        <td class="p-2.5 text-center">
-                            <span class="px-2 py-0.5 text-[10px] font-bold ${e.impact === 'High' ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-orange-500/20 text-orange-400 border border-orange-500/40'}">
-                                ${e.impact === 'High' ? '🟥 ກ່ອງແດງ' : '🟧 ກ່ອງສົ້ມ'}
-                            </span>
-                        </td>
-                        <td class="p-2.5 text-white font-bold">${e.title}</td>
-                        <td class="p-2.5 text-right font-bold text-primary">${e.forecast}</td>
-                        <td class="p-2.5 text-right text-on-surface-variant">${e.previous}</td>
-                    </tr>
-                `).join('');
-            }
+            // 3. Render Combined Calendar Table
+            const allEvents = [...d.releasedEvents, ...d.upcomingEvents];
+            document.getElementById('tbl-all-calendar').innerHTML = allEvents.map(e => `
+                <tr class="hover:bg-surface-container transition-colors">
+                    <td class="p-2.5 text-white font-bold">${e.dateGMT7} <span class="text-primary">${e.timeGMT7}</span></td>
+                    <td class="p-2.5 text-center">
+                        <span class="px-2 py-0.5 text-[10px] font-bold ${e.impact === 'High' ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-orange-500/20 text-orange-400 border border-orange-500/40'}">
+                            ${e.impact === 'High' ? '🟥 ກ່ອງແດງ' : '🟧 ກ່ອງສົ້ມ'}
+                        </span>
+                    </td>
+                    <td class="p-2.5 text-white font-bold">${e.title}</td>
+                    <td class="p-2.5 text-right font-bold ${e.actual ? 'text-primary text-sm' : 'text-on-surface-variant'}">${e.actual || '--'}</td>
+                    <td class="p-2.5 text-right text-on-surface-variant">${e.forecast}</td>
+                    <td class="p-2.5 text-right text-on-surface-variant">${e.previous}</td>
+                </tr>
+            `).join('');
         }
 
         window.addEventListener('hashchange', handleRoute);
         window.addEventListener('DOMContentLoaded', () => {
             handleRoute();
-            fetchLiveData();
+            fetchMacroData();
         });
     </script>
 </body>
