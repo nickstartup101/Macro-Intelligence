@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import NodeCache from 'node-cache';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -11,7 +10,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const cache = new NodeCache({ stdTTL: 3600 });
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
@@ -19,101 +17,24 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // =========================================================================
-// 🧠 MACROECONOMIC PLAIN-LANGUAGE EXPLANATION ENGINE (ພາສາລາວເຂົ້າໃຈງ່າຍ)
+// 1. FOREX FACTORY AUTO-INGESTION SERVICE
 // =========================================================================
 
-class MacroExplanationEngine {
-  static analyze({ ism, ismPrev, adp, adpFc, nfp, nfpFc, nfpPrev, unemp, unempFc, cpiYoY, oilPrice, oilTrend }) {
-    
-    // --- 1. ວິເຄາະພາກການຜະລິດ (ISM Manufacturing) ---
-    let ismStatus = ism >= 50 ? 'EXPANDING' : 'CONTRACTION';
-    let ismExplanation = '';
-    if (ism < 50) {
-      ismExplanation = `ຕົວເລກ ISM ຢູ່ທີ່ ${ism}% (ຕ່ຳກວ່າເກນ 50%) ບົ່ງບອກວ່າ "ໂຮງງານ ແລະ ພາກການຜະລິດກຳລັງຊະລໍຕົວລົງ". ສາເຫດຫຼັກອາດມາຈາກຕົ້ນທຶນການນຳເຂົ້າທີ່ສູງຂຶ້ນ ຫຼື ຜົນກະທົບຈາກກຳແພງພາສີ ເຮັດໃຫ້ທຸລະກິດຊະລໍການສັ່ງຊື້ສິນຄ້າໃໝ່.`;
-    } else {
-      ismExplanation = `ຕົວເລກ ISM ຢູ່ທີ່ ${ism}% (ສູງກວ່າ 50%) ບົ່ງບອກວ່າ "ພາກການຜະລິດກຳລັງເຕີບໂຕ ແລະ ຂະຫຍາຍຕົວ", ໂຮງງານມີຄຳສັ່ງຊື້ເພີ່ມຂຶ້ນ.`;
-    }
+const FF_CALENDAR_URL = 'https://nfs.faireconomy.media/ff_calendar_thisweek.json';
 
-    // --- 2. ວິເຄາະຕະຫຼາດແຮງງານ (NFP, ADP & Unemployment) ---
-    const nfpDiff = nfp - nfpFc;
-    let laborStrength = '';
-    let laborExplanation = '';
-    
-    if (nfpDiff >= 30) {
-      laborStrength = 'VERY_STRONG';
-      laborExplanation = `ການຈ້າງງານນອກພາກກະສິກຳ (NFP) ເພີ່ມຂຶ້ນເຖິງ ${nfp.toLocaleString()} ຕຳແໜ່ງ (ຫຼາຍກວ່າທີ່ຄາດໄວ້ ${nfpFc.toLocaleString()} ຢ່າງຫຼວງຫຼາຍ). ສິ່ງນີ້ສະແດງວ່າ "ເສດຖະກິດຍັງແຂງແຮງ, ທຸລະກິດຍັງຕ້ອງການຄົນງານຫຼາຍ". ເຖິງແມ່ນວ່າອັດຕາຫວ່າງງານຈະຢູ່ທີ່ ${unemp}%, ແຕ່ການຈ້າງງານລວມຍັງບໍ່ໄດ້ຢູ່ໃນພາວະຖົດຖອຍ.`;
-    } else if (nfpDiff <= -30) {
-      laborStrength = 'WEAK';
-      laborExplanation = `ການຈ້າງງານ (NFP) ອອກມາພຽງ ${nfp.toLocaleString()} ຕຳແໜ່ງ (ຕ່ຳກວ່າຄາດການ). ສິ່ງນີ້ສົ່ງສັນຍານເຕືອນວ່າ "ຕະຫຼາດແຮງງານເລີ່ມອ່ອນແອລົງ ແລະ ບໍລິສັດຕ່າງໆເລີ່ມຫຼຸດການຮັບຄົນ".`;
-    } else {
-      laborStrength = 'BALANCED';
-      laborExplanation = `ການຈ້າງງານ (NFP) ອອກມາໃກ້ຄຽງກັບທີ່ຄາດການ (${nfp.toLocaleString()} ຕຳແໜ່ງ) ສະແດງເຖິງຕະຫຼາດແຮງງານທີ່ "ຊົງຕົວ ແລະ ຢູ່ໃນລະດັບປົກກະຕິ".`;
-    }
-
-    // --- 3. ວິເຄາະພະລັງງານ ແລະ ຕົ້ນທຶນ (Oil) ---
-    let energyExplanation = '';
-    if (oilTrend === 'BEARISH' || oilPrice < 85) {
-      energyExplanation = `ລາຄານ້ຳມັນດິບ (${oilPrice}$) ຍັງຢູ່ໃນທ່າອ່ຽງຫຼຸດລົງ ຊ່ວຍຫຼຸດຜ່ອນຕົ້ນທຶນການຂົນສົ່ງ ແລະ ການຜະລິດ ເຮັດໃຫ້ເງິນເຟີ້ດ້ານພະລັງງານບໍ່ກົດດັນຜູ້ບໍລິໂພກຫຼາຍເກີນໄປ.`;
-    } else {
-      energyExplanation = `ລາຄານ້ຳມັນດິບ (${oilPrice}$) ປັບຕົວສູງຂຶ້ນ ອາດຈະກາຍເປັນຕົ້ນທຶນແຝງທີ່ຍູ້ໃຫ້ເງິນເຟີ້ກັບມາສູງຂຶ້ນອີກ.`;
-    }
-
-    // --- 4. ວິເຄາະທ່າທີຂອງ Fed (Central Bank Policy Impact) ---
-    let fedStance = '';
-    let fedExplanation = '';
-    if (laborStrength === 'VERY_STRONG' && cpiYoY >= 3.0) {
-      fedStance = 'MODERATELY_HAWKISH (ເຂັ້ມງວດຕໍ່ໄປ)';
-      fedExplanation = `ເມື່ອ "ແຮງງານຍັງແຂງແຮງ" ແຕ່ "ເງິນເຟີ້ຍັງຄົງທີ່ (${cpiYoY}%)", ທະນາຄານກາງສະຫະລັດ (Fed) ຈະ "ບໍ່ຮີບຮ້ອນຫຼຸດດອກເບ້ຍ" ແລະ ອາດຈະຮັກສາດອກເບ້ຍສູງໄວ້ດົນກວ່າເກົ່າ ເພື່ອຄຸມເງິນເຟີ້ໃຫ້ຢູ່ໝັດ.`;
-    } else if (laborStrength === 'WEAK' || ism < 48) {
-      fedStance = 'DOVISH (ກຽມຜ່ອນຄາຍດອກເບ້ຍ)';
-      fedExplanation = `ເນື່ອງຈາກຕະຫຼາດເລີ່ມສົ່ງສັນຍານຊະລໍຕົວ, Fed ອາດຈະຕ້ອງ "ພິຈາລະນາຫຼຸດດອກເບ້ຍໄວຂຶ້ນ" ເພື່ອຊ່ວຍພະຍຸງເສດຖະກິດບໍ່ໃຫ້ເຂົ້າສູ່ພາວະຖົດຖອຍ.`;
-    } else {
-      fedStance = 'NEUTRAL / DATA-DEPENDENT (ລໍຖ້າເບິ່ງຂໍ້ມູນ)';
-      fedExplanation = `Fed ຈະຍັງຮັກສານະໂຍບາຍແບບເປັນກາງ ແລະ ລໍຖ້າເບິ່ງຕົວເລກ CPI ຖັດໄປເປັນຫຼັກ.`;
-    }
-
-    // --- 5. ວິເຄາະຜົນກະທົບຕໍ່ສິນຊັບ (USD, Gold, 10Y Yield) ---
-    let assetImpact = {
-      usd: nfpDiff >= 0 ? 'BULLISH (ແຂງຄ່າຂຶ້ນ)' : 'BEARISH (ອ່ອນຄ່າລົງ)',
-      gold: nfpDiff >= 0 ? 'SHORT-TERM PRESSURE (ກົດດັນໄລຍະສັ້ນ / ລໍຖ້າ Rebound)' : 'BULLISH (ມີແຮງຊື້ຂຶ້ນ)',
-      yield10y: nfpDiff >= 0 ? 'RISING (ຜົນຕອບແທນພັນທະບັດປັບຂຶ້ນ)' : 'FALLING (ຜົນຕອບແທນຫຼຸດລົງ)',
-      goldExplanation: nfpDiff >= 0
-        ? `ໃນໄລຍະສັ້ນ ລາຄາທອງຄຳອາດຖືກກົດດັນຈາກຄ່າເງິນ USD ແລະ ດອກເບ້ຍທີ່ຍັງສູງ. ແຕ່ທາງດ້ານເຕັກນິກ ຫຼັງຈາກການເທຂາຍຈົບຮອບ (Wave A) ລາຄາມີໂອກາດດີດຕົວກັບຄືນ (Rebound ເຂົ້າສູ່ Wave B) ຍ້ອນນັກລົງທຶນຍັງຊື້ທອງປ້ອງກັນຄວາມສ່ຽງເງິນເຟີ້ ແລະ ຄວາມບໍ່ແນ່ນອນດ້ານພາສີ.`
-        : `ລາຄາທອງຄຳໄດ້ຮັບປັດໄຈບວກທັນທີ ຍ້ອນຕະຫຼາດຄາດຫວັງວ່າ Fed ຈະຫຼຸດດອກເບ້ຍ.`
-    };
-
-    // --- 6. ສະຫຼຸບຈຸດທີ່ຕ້ອງຈັບຕາຕໍ່ໄປ (Next Catalyst) ---
-    let nextFocus = `ຕົວເລກຕໍ່ໄປທີ່ຕ້ອງຈັບຕາເບິ່ງທີ່ສຸດແມ່ນ "ດັດຊະນີເງິນເຟີ້ CPI (m/m ແລະ y/y)" ເພາະຖ້າເງິນເຟີ້ອອກມາສູງ Fed ຈະຮັກສາດອກເບ້ຍສູງຕໍ່ໄປ ແຕ່ຖ້າເງິນເຟີ້ຫຼຸດລົງ ຕະຫຼາດຈະເລີ່ມຕອບຮັບການຫຼຸດດອກເບ້ຍທັນທີ.`;
-
-    return {
-      executiveSummary: `ຕະຫຼາດແຮງງານຍັງສະແດງຄວາມແຂງແກ່ນຢ່າງເຫັນໄດ້ຊັດເຈນ (${nfp >= nfpFc ? 'ສູງກວ່າຄາດ' : 'ຊະລໍຕົວ'}), ຂະນະທີ່ພາກການຜະລິດເລີ່ມໄດ້ຮັບຜົນກະທົບຈາກຕົ້ນທຶນ ແລະ ພາສີ. Fed ຍັງມີທ່າທີ ${fedStance}.`,
-      details: {
-        ism: { value: `${ism}%`, status: ismStatus, explanation: ismExplanation },
-        labor: { nfp: `${nfp}K`, adp: `${adp}K`, unemp: `${unemp}%`, status: laborStrength, explanation: laborExplanation },
-        energy: { price: `$${oilPrice}`, explanation: energyExplanation },
-        fed: { stance: fedStance, explanation: fedExplanation },
-        assets: assetImpact,
-        nextFocus: nextFocus
-      }
-    };
-  }
+// Utility to parse strings like "228K", "4.2%", "49.0" to numbers
+function parseNumber(val) {
+  if (!val) return null;
+  const clean = val.replace(/[%KM,]/g, '').trim();
+  const num = parseFloat(clean);
+  return isNaN(num) ? null : num;
 }
 
-// API Route: Auto Analyze
-app.post('/api/analyze-macro', (req, res) => {
-  try {
-    const inputData = req.body;
-    const analysis = MacroExplanationEngine.analyze(inputData);
-    res.json({ success: true, data: analysis });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// Default Live API
-app.get('/api/live-macro-analysis', (req, res) => {
-  // Default release data
-  const defaultData = {
+// Global state holding current latest economic release
+let latestMacroState = {
+  lastUpdated: new Date().toISOString(),
+  rawEvents: [],
+  data: {
     ism: 49.0, ismPrev: 50.3,
     adp: 155, adpFc: 120,
     nfp: 228, nfpFc: 140, nfpPrev: 165,
@@ -121,11 +42,136 @@ app.get('/api/live-macro-analysis', (req, res) => {
     cpiYoY: 3.1,
     oilPrice: 82.50,
     oilTrend: 'BEARISH'
+  }
+};
+
+async function fetchForexFactoryData() {
+  try {
+    console.log(`[ForexFactory] Fetching live calendar...`);
+    const res = await fetch(FF_CALENDAR_URL, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+    });
+    
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const events = await res.json();
+    
+    // Filter for USD High-Impact Events
+    const usdEvents = events.filter(e => e.country === 'USD');
+    latestMacroState.rawEvents = usdEvents;
+
+    // Search and Map specific indicators
+    usdEvents.forEach(e => {
+      const title = e.title.toLowerCase();
+
+      // NFP
+      if (title.includes('non-farm employment change')) {
+        if (e.actual) latestMacroState.data.nfp = parseNumber(e.actual);
+        if (e.forecast) latestMacroState.data.nfpFc = parseNumber(e.forecast);
+        if (e.previous) latestMacroState.data.nfpPrev = parseNumber(e.previous);
+      }
+      // Unemployment Rate
+      if (title.includes('unemployment rate')) {
+        if (e.actual) latestMacroState.data.unemp = parseNumber(e.actual);
+        if (e.forecast) latestMacroState.data.unempFc = parseNumber(e.forecast);
+      }
+      // ISM Manufacturing PMI
+      if (title.includes('ism manufacturing pmi')) {
+        if (e.actual) latestMacroState.data.ism = parseNumber(e.actual);
+        if (e.previous) latestMacroState.data.ismPrev = parseNumber(e.previous);
+      }
+      // ADP Employment
+      if (title.includes('adp non-farm')) {
+        if (e.actual) latestMacroState.data.adp = parseNumber(e.actual);
+        if (e.forecast) latestMacroState.data.adpFc = parseNumber(e.forecast);
+      }
+      // CPI YoY
+      if (title.includes('cpi y/y')) {
+        if (e.actual) latestMacroState.data.cpiYoY = parseNumber(e.actual);
+      }
+    });
+
+    latestMacroState.lastUpdated = new Date().toISOString();
+    console.log(`[ForexFactory] Synced successfully! NFP: ${latestMacroState.data.nfp}K | ISM: ${latestMacroState.data.ism}% | Unemp: ${latestMacroState.data.unemp}%`);
+  } catch (err) {
+    console.error(`[ForexFactory Error]:`, err.message);
+  }
+}
+
+// Auto-poll Forex Factory every 2 minutes
+setInterval(fetchForexFactoryData, 2 * 60 * 1000);
+// Initial fetch on server start
+fetchForexFactoryData();
+
+// =========================================================================
+// 2. MACRO EXPLANATION ENGINE (ພາສາລາວອັດຕະໂນມັດ)
+// =========================================================================
+
+function generatePlainLaoAnalysis(d) {
+  const ismContraction = d.ism < 50;
+  const ismExp = ismContraction
+    ? `ຕົວເລກ ISM ຢູ່ທີ່ ${d.ism}% (ຕ່ຳກວ່າເກນ 50%) ບົ່ງບອກວ່າ "ພາກການຜະລິດ ແລະ ໂຮງງານກຳລັງຊະລໍຕົວລົງ", ອາດມີສາເຫດມາຈາກຕົ້ນທຶນການນຳເຂົ້າ ແລະ ກຳແພງພາສີ 🇺🇸.`
+    : `ຕົວເລກ ISM ຢູ່ທີ່ ${d.ism}% (ສູງກວ່າ 50%) ສະແດງເຖິງພາກການຜະລິດທີ່ກຳລັງເຕີບໂຕ ແລະ ຂະຫຍາຍຕົວ.`;
+
+  const nfpDiff = d.nfp - d.nfpFc;
+  let laborStrength = nfpDiff >= 20 ? 'VERY_STRONG' : nfpDiff <= -20 ? 'WEAK' : 'BALANCED';
+  let laborExp = nfpDiff >= 20
+    ? `ການຈ້າງງານນອກພາກກະສິກຳ (NFP) ເພີ່ມຂຶ້ນເຖິງ ${d.nfp.toLocaleString()} ຕຳແໜ່ງ (ຫຼາຍກວ່າຄາດການ ${d.nfpFc.toLocaleString()}). ສະແດງວ່າເສດຖະກິດຍັງແຂງແກ່ນ, ບໍລິສັດຕ່າງໆຍັງຈ້າງຄົນເພີ່ມ ເຖິງວ່າອັດຕາຫວ່າງງານຈະຢູ່ທີ່ ${d.unemp}%.`
+    : `ການຈ້າງງານ (NFP) ອອກມາພຽງ ${d.nfp.toLocaleString()} ຕຳແໜ່ງ (ຕ່ຳກວ່າຄາດການ), ສົ່ງສັນຍານວ່າຕະຫຼາດແຮງງານເລີ່ມຊະລໍຕົວ.`;
+
+  const fedStance = laborStrength === 'VERY_STRONG'
+    ? 'MODERATELY_HAWKISH (ເຂັ້ມງວດ / ບໍ່ຮີບຫຼຸດດອກເບ້ຍ)'
+    : 'DOVISH (ກຽມຜ່ອນຄາຍດອກເບ້ຍ)';
+
+  const fedExp = laborStrength === 'VERY_STRONG'
+    ? `ເມື່ອຕະຫຼາດແຮງງານຍັງແຂງແຮງ Fed ຈະ "ບໍ່ຮີບຮ້ອນຫຼຸດດອກເບ້ຍ" ແລະ ອາດຄົງດອກເບ້ຍສູງໄວ້ດົນກວ່າເກົ່າ ເພື່ອຄຸມເງິນເຟີ້ໃຫ້ຢູ່ໝັດ.`
+    : `ຕະຫຼາດເລີ່ມຊະລໍຕົວ Fed ອາດຕ້ອງ "ພິຈາລະນາຫຼຸດດອກເບ້ຍໄວຂຶ້ນ" ເພື່ອປ້ອງກັນເສດຖະກິດຖົດຖອຍ.`;
+
+  const goldExp = nfpDiff >= 0
+    ? `ລາຄາທອງຄຳອາດຖືກກົດດັນໃນໄລຍະສັ້ນຈາກ USD ທີ່ແຂງຄ່າ. ແຕ່ທາງເຕັກນິກ ຫຼັງຈາກການເທຂາຍ (Wave A) ລາຄາມີໂອກາດ Rebound ຂຶ້ນຕໍ່ (Wave B / Strong B ລຸ້ນເຮັດ ATH ໃໝ່) ຍ້ອນແຮງຊື້ປ້ອງກັນຄວາມສ່ຽງເງິນເຟີ້ ແລະ ພາສີ.`
+    : `ທອງຄຳໄດ້ຮັບແຮງຊຸກຍູ້ທັນທີ ຍ້ອນຕະຫຼາດຄາດຫວັງການຫຼຸດດອກເບ້ຍ.`;
+
+  return {
+    lastUpdated: latestMacroState.lastUpdated,
+    summary: `ຕະຫຼາດແຮງງານສະແດງຄວາມແຂງແກ່ນ (NFP ${d.nfp}K), ພາກການຜະລິດ ISM ຢູ່ທີ່ ${d.ism}%, Fed ມີທ່າທີ ${fedStance}.`,
+    details: {
+      ism: { val: `${d.ism}%`, exp: ismExp, isContraction },
+      labor: { nfp: `${d.nfp}K`, adp: `${d.adp}K`, unemp: `${d.unemp}%`, exp: laborExp, strength: laborStrength },
+      fed: { stance: fedStance, exp: fedExp },
+      assets: {
+        usd: nfpDiff >= 0 ? 'BULLISH (ແຂງຄ່າຂຶ້ນ)' : 'BEARISH (ອ່ອນຄ່າ)',
+        gold: nfpDiff >= 0 ? 'SHORT-TERM PRESSURE / REBOUND WATCH' : 'BULLISH',
+        goldExp: goldExp
+      },
+      nextFocus: `ຕົວເລກຕໍ່ໄປທີ່ຕ້ອງຈັບຕາແມ່ນ "ດັດຊະນີເງິນເຟີ້ CPI (m/m, y/y)" ເຊິ່ງຈະເປັນຕົວຊີ້ຂາດດອກເບ້ຍ Fed ງວດຕໍ່ໄປ!`
+    }
   };
-  const analysis = MacroExplanationEngine.analyze(defaultData);
-  res.json({ success: true, raw: defaultData, data: analysis });
+}
+
+// =========================================================================
+// 3. API ROUTES FOR FRONTEND
+// =========================================================================
+
+// Get Auto-Analyzed Data from Forex Factory
+app.get('/api/forexfactory-live', (req, res) => {
+  const analysis = generatePlainLaoAnalysis(latestMacroState.data);
+  res.json({
+    success: true,
+    source: 'FOREX_FACTORY_OFFICIAL_FEED',
+    raw: latestMacroState.data,
+    analysis: analysis
+  });
+});
+
+// Manual trigger to force immediate refresh from Forex Factory
+app.post('/api/forexfactory-sync-now', async (req, res) => {
+  await fetchForexFactoryData();
+  const analysis = generatePlainLaoAnalysis(latestMacroState.data);
+  res.json({ success: true, message: 'Synced!', data: analysis });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Macro Intelligence Server running on http://localhost:${PORT}`);
+  console.log(`=======================================================`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🌐 Forex Factory Live Ingestion: ACTIVE (Polling every 2m)`);
+  console.log(`=======================================================`);
 });
