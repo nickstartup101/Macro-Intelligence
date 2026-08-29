@@ -19,8 +19,82 @@ app.use(express.static(path.join(__dirname, 'public')));
 const FF_THISWEEK = 'https://nfs.faireconomy.media/ff_calendar_thisweek.json';
 const FF_NEXTWEEK = 'https://nfs.faireconomy.media/ff_calendar_nextweek.json';
 
+// ✅ Your Verified Telegram Bot Credentials
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8827536113:AAGmERJjiA-3Qom2dEhUWG0F9Qo9KGmFJA0';
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '5836921658';
+
+// Helper: Escape HTML special characters for Telegram API Safety
+function escapeHtml(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// 📲 Core Telegram Sender with Full Error Diagnostics
+async function sendTelegramAlert(htmlMessage) {
+  try {
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: htmlMessage,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true
+      })
+    });
+    
+    const json = await res.json();
+    if (!json.ok) {
+      console.error('[Telegram API Rejected]:', json.description);
+      return { success: false, error: json.description };
+    }
+    console.log('[Telegram Alert]: Successfully sent message to ID:', TELEGRAM_CHAT_ID);
+    return { success: true };
+  } catch (err) {
+    console.error('[Telegram Network Error]:', err.message);
+    return { success: false, error: err.message };
+  }
+}
+
+function formatFlashReleaseAlert(event) {
+  const isBeat = event.marketImpact.isHawkish;
+  const safeTitle = escapeHtml(event.title);
+  const safeActual = escapeHtml(event.actual);
+  const safeForecast = escapeHtml(event.forecast);
+  const safePrev = escapeHtml(event.previous);
+
+  return `🚨 <b>[FLASH NEWS] ປະກາດຕົວເລກເສດຖະກິດຫຼ້າສຸດ!</b>
+━━━━━━━━━━━━━━━━━━━━
+📊 <b>ຂ່າວ:</b> ${safeTitle}
+⏰ <b>ເວລາ:</b> ${escapeHtml(event.dateGMT7)} • ${escapeHtml(event.timeGMT7)}
+🟥 <b>ລະດັບ:</b> HIGH IMPACT
+
+🔢 <b>ຕົວເລກປະກາດຕົວຈິງ:</b>
+• <b>ປະກາດຈິງ (Actual):</b>  <code>${safeActual}</code> ${isBeat ? '🔥 [BEAT]' : '❄️ [MISS]'}
+• <b>ຄາດການ (Forecast):</b> ${safeForecast}
+• <b>ຄັ້ງກ່ອນ (Previous):</b> ${safePrev}
+━━━━━━━━━━━━━━━━━━━━
+🎯 <b>ສະຫຼຸບຜົນກະທົບຕໍ່ຕະຫຼາດ:</b>
+💵 <b>USD:</b> ${escapeHtml(event.marketImpact.usdImpact)}
+🟡 <b>GOLD:</b> ${escapeHtml(event.marketImpact.goldImpact)}
+📊 <b>ໄລຍະແລ່ນທີ່ຄາດການ:</b> ${escapeHtml(event.pipRange.pips)}
+
+💡 <b>ບົດວິເຄາະສະບັບເຂົ້າໃຈງ່າຍ:</b>
+${isBeat 
+  ? 'ຕະຫຼາດແຮງງານ/ເສດຖະກິດແຂງແກ່ນເກີນຄາດ ເຮັດໃຫ້ Fed ຍັງບໍ່ຮີບຮ້ອນຫຼຸດດອກເບ້ຍ (Hawkish Hold) ເຊິ່ງຈະໜູນ USD ແຂງຄ່າ ແລະ ກົດດັນທອງຄຳໄລຍະສັ້ນ.' 
+  : 'ຕົວເລກຊະລໍຕົວລົງ ເຮັດໃຫ້ຕະຫຼາດຄາດຫວັງວ່າ Fed ຈະຕ້ອງພິຈາລະນາຫຼຸດດອກເບ້ຍໄວຂຶ້ນ ເປັນປັດໄຈບວກໜູນລາຄາທອງຄຳທັນທີ.'}
+
+🎯 <b>ແຜນເທຣດ (TRADE PLAYBOOK // XAU/USD):</b>
+${isBeat 
+  ? '• <b>Action:</b> ລະວັງການເທຂາຍຈົບຮອບ Wave A ແລ້ວມີແຮງຊື້ Rebound ຂຶ້ນເປັນ Wave B.\n• <b>Entry:</b> ລໍຖ້າລາຄາ Pullback ຂຶ້ນມາ Retest <b>EMA 50 (TF M5/M15)</b> ຖ້າບໍ່ຜ່ານໃຫ້ Sell ຕາມ.\n• <b>Risk:</b> ຕັ້ງ Stop Loss ເໜືອ High ຂອງແທ່ງຂ່າວ!'
+  : '• <b>Action:</b> Follow Buy ຕາມ Momentum ຂ່າວ (ລຸ້ນ New ATH).\n• <b>Entry:</b> ລໍຖ້າແທ່ງທຽນ M5/M15 ຍໍ້ລົງມາແຕະ <b>EMA 20 ຫຼື EMA 50</b> ແລ້ວຢືນຢູ່ ຈຶ່ງເຂົ້າ Buy ຕາມ.\n• <b>Risk:</b> ຕັ້ງ Stop Loss ໃຕ້ເສັ້ນ EMA 50 ປະມານ 30-40 pips.'}
+━━━━━━━━━━━━━━━━━━━━
+🌐 <i>ລະບົບ MACRO TERMINAL AUTO-BOT</i>`;
+}
 
 function parseNum(val) {
   if (!val || typeof val !== 'string') return null;
@@ -29,7 +103,6 @@ function parseNum(val) {
   return isNaN(num) ? null : num;
 }
 
-// 🕒 Accurate Time Converter: Forex Factory ISO string -> GMT+7 (Asia/Bangkok/Vientiane)
 function formatForexFactoryDate(isoString) {
   try {
     if (!isoString) return { dateStr: '--', timeStr: '--', timestamp: 0 };
@@ -39,12 +112,9 @@ function formatForexFactoryDate(isoString) {
     const optDate = { timeZone: 'Asia/Bangkok', weekday: 'short', day: 'numeric', month: 'short' };
     const optTime = { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', hour12: false };
 
-    const dateStr = new Intl.DateTimeFormat('lo-LA', optDate).format(dateObj);
-    const timeStr = new Intl.DateTimeFormat('en-GB', optTime).format(dateObj) + ' (GMT+7)';
-
     return {
-      dateStr,
-      timeStr,
+      dateStr: new Intl.DateTimeFormat('lo-LA', optDate).format(dateObj),
+      timeStr: new Intl.DateTimeFormat('en-GB', optTime).format(dateObj) + ' (GMT+7)',
       timestamp: dateObj.getTime(),
       isoString: dateObj.toISOString()
     };
@@ -58,7 +128,6 @@ function getExpectedPipRange(title) {
   if (t.includes('non-farm') || t.includes('payrolls')) return { pips: '150 - 300 pips', usdRange: '$15 - $30' };
   if (t.includes('cpi') || t.includes('pce')) return { pips: '120 - 250 pips', usdRange: '$12 - $25' };
   if (t.includes('fomc') || t.includes('fed funds')) return { pips: '200 - 400 pips', usdRange: '$20 - $40' };
-  if (t.includes('gdp') || t.includes('retail sales')) return { pips: '80 - 160 pips', usdRange: '$8 - $16' };
   return { pips: '50 - 100 pips', usdRange: '$5 - $10' };
 }
 
@@ -98,7 +167,7 @@ function buildEventTransmissionModel(evt) {
     node1Icon = 'trending_up';
   }
 
-  const fc = evt.forecast || '0.2%';
+  const fc = escapeHtml(evt.forecast || '0.2%');
   return {
     eventType,
     nodes: [
@@ -116,28 +185,29 @@ function buildEventTransmissionModel(evt) {
   };
 }
 
-// Telegram Broadcaster
-async function sendTelegramAlert(htmlMessage) {
+// Global set to prevent duplicate telegram spam
+let sentEventIds = new Set();
+
+async function checkAndBroadcastNewReleases(processedEvents) {
   try {
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: htmlMessage,
-        parse_mode: 'HTML',
-        disable_web_page_preview: true
-      })
-    });
-    const json = await res.json();
-    return json.ok;
+    const highImpactReleased = processedEvents.filter(e => e.impact === 'High' && e.isReleased);
+
+    for (const e of highImpactReleased) {
+      const eventKey = `${e.title}_${e.dateGMT7}_${e.actual}`;
+
+      if (!sentEventIds.has(eventKey)) {
+        const msg = formatFlashReleaseAlert(e);
+        console.log(`[Auto-Broadcast Triggered]: ${e.title}`);
+        await sendTelegramAlert(msg);
+        sentEventIds.add(eventKey);
+      }
+    }
   } catch (err) {
-    return false;
+    console.error('[Auto-Broadcast Error]:', err.message);
   }
 }
 
-// Real-time API Router
+// Main API Route
 app.get('/api/macro-full-feed', async (req, res) => {
   try {
     const [res1, res2] = await Promise.all([
@@ -149,7 +219,6 @@ app.get('/api/macro-full-feed', async (req, res) => {
     const data2 = res2.ok ? await res2.json() : [];
     const allEvents = [...data1, ...data2];
 
-    // Filter ONLY USD + High & Medium Impact
     const filteredUSD = allEvents.filter(e => e.country === 'USD' && (e.impact === 'High' || e.impact === 'Medium'));
 
     const processedEvents = filteredUSD.map(e => {
@@ -161,12 +230,12 @@ app.get('/api/macro-full-feed', async (req, res) => {
 
       return {
         title: e.title,
-        impact: e.impact, // 'High' or 'Medium'
+        impact: e.impact,
         dateGMT7: dateStr,
         timeGMT7: timeStr,
         timestamp,
         isoString,
-        actual: isReleased ? e.actual : null, // If not released, strictly null
+        actual: isReleased ? e.actual : null,
         actualNum,
         forecast: e.forecast || '--',
         forecastNum,
@@ -179,8 +248,10 @@ app.get('/api/macro-full-feed', async (req, res) => {
       };
     });
 
-    // Sort chronologically by real event release time
     processedEvents.sort((a, b) => a.timestamp - b.timestamp);
+
+    // Auto-check for new broadcasts on API fetch (Works seamlessly on Vercel Serverless!)
+    checkAndBroadcastNewReleases(processedEvents);
 
     const highImpactList = processedEvents.filter(e => e.impact === 'High');
     const displayHighImpactList = highImpactList.length > 0 ? highImpactList : processedEvents.slice(0, 6);
@@ -189,7 +260,6 @@ app.get('/api/macro-full-feed', async (req, res) => {
     const upcomingEvents = processedEvents.filter(e => e.timestamp > nowTime || !e.isReleased);
     const activeEvent = upcomingEvents.find(e => e.impact === 'High') || upcomingEvents[0] || displayHighImpactList[0];
 
-    // Currency Strength Heatmap
     const currencyHeatmap = [
       { pair: 'USD (US Dollar)', score: '+8.2', status: 'STRONG BULLISH', color: 'text-primary bg-primary/10 border-primary/30', desc: 'ແຂງຄ່າຈາກດອກເບ້ຍສູງ & ຕະຫຼາດແຮງງານແຂງແກ່ນ' },
       { pair: 'XAU (Gold)', score: '+5.5', status: 'HEDGE DEMAND', color: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30', desc: 'ມີແຮງຊື້ປ້ອງກັນຄວາມສ່ຽງເງິນເຟີ້ & ພາສີ' },
@@ -198,7 +268,6 @@ app.get('/api/macro-full-feed', async (req, res) => {
       { pair: 'JPY (Yen)', score: '-6.5', status: 'VERY WEAK', color: 'text-error bg-error/10 border-error/30', desc: 'ດອກເບ້ຍຕ່າງກັນຫຼາຍທຽບກັບ USD' }
     ];
 
-    // Trade Playbook
     const tradePlaybook = {
       targetEvent: activeEvent?.title || 'High Impact Event',
       scenarios: [
@@ -229,7 +298,6 @@ app.get('/api/macro-full-feed', async (req, res) => {
       ]
     };
 
-    // Plain Macro Digest
     const plainDigest = {
       bigPictureSummary: `ເສດຖະກິດສະຫະລັດໃນຕອນນີ້ "ຍັງບໍ່ໄດ້ຖົດຖອຍ" ເພາະຄົນຍັງມີວຽກເຮັດງານທຳຫຼາຍ ແລະ ບໍລິສັດຍັງຈ້າງຄົນເພີ່ມ. ແຕ່ພາກໂຮງງານເລີ່ມຊະລໍຕົວລົງຍ້ອນຕົ້ນທຶນພາສີນຳເຂົ້າ. ພາບລວມຄື: ເສດຖະກິດຍັງແລ່ນໄດ້ດີ ແຕ່ກຳລັງຖືກທົດສອບດ້ວຍເງິນເຟີ້ ແລະ ດອກເບ້ຍສູງ.`,
       plainQA: [
@@ -262,26 +330,34 @@ app.get('/api/macro-full-feed', async (req, res) => {
   }
 });
 
-// Test Telegram Broadcast
+// 📲 Test Telegram Broadcast with Direct Error Reporting
 app.post('/api/test-telegram', async (req, res) => {
-  try {
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    const resTg = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: `🚨 <b>[TEST ALERT] ລະບົບ MACRO TERMINAL ເຊື່ອມຕໍ່ສຳເລັດ!</b>\n━━━━━━━━━━━━━━━━━━━━\n📊 <b>ຂ່າວ:</b> Forex Factory Live Ingestion\n⏰ <b>ເວລາ:</b> GMT+7 (ໂມງລາວ)\n🎯 <b>ສະຖານະ:</b> ລະບົບພ້ອມຍິງຂ່າວດ່ວນ ແລະ ແຜນເທຣດ 24/7!`,
-        parse_mode: 'HTML'
-      })
+  const sampleEvent = {
+    title: 'Non-Farm Employment Change (NFP)',
+    dateGMT7: 'ວັນສຸກ',
+    timeGMT7: '19:30 (GMT+7)',
+    actual: '228K',
+    forecast: '140K',
+    previous: '165K',
+    pipRange: { pips: '150 - 300 pips', usdRange: '$15 - $30' },
+    marketImpact: { isHawkish: true, usdImpact: 'BULLISH ↑', goldImpact: 'BEARISH ↓' }
+  };
+
+  const msg = formatFlashReleaseAlert(sampleEvent);
+  const result = await sendTelegramAlert(msg);
+
+  if (result.success) {
+    res.json({ success: true, message: '✅ ສົ່ງຂໍ້ຄວາມເຂົ້າ Telegram ສຳເລັດແລ້ວ! ກະລຸນາກວດເບິ່ງໃນ Telegram ຂອງທ່ານ.' });
+  } else {
+    res.json({ 
+      success: false, 
+      message: `❌ ສົ່ງບໍ່ສຳເລັດ! ເຫດຜົນຈາກ Telegram: "${result.error}". \n👉 ວິທີແກ້: ກະລຸນາກົດເຂົ້າໄປທີ່ Bot ຂອງທ່ານໃນ Telegram ແລ້ວກົດປຸ່ມ START 1 ຄັ້ງ!` 
     });
-    const jsonTg = await resTg.json();
-    res.json({ success: jsonTg.ok, message: jsonTg.ok ? 'ສົ່ງຂໍ້ຄວາມເຂົ້າ Telegram ສຳເລັດແລ້ວ!' : jsonTg.description });
-  } catch (err) {
-    res.json({ success: false, message: err.message });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 MACRO TERMINAL RUNNING ON http://localhost:${PORT}`);
+  console.log(`🚀 SERVER RUNNING ON http://localhost:${PORT}`);
+  console.log(`🤖 Telegram Bot Token: ${TELEGRAM_BOT_TOKEN.slice(0, 10)}...`);
+  console.log(`🆔 Telegram Chat ID: ${TELEGRAM_CHAT_ID}`);
 });
